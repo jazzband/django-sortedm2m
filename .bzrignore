@@ -1,0 +1,7 @@
+.installed.cfg
+bin
+bootstrap.py
+develop-eggs
+downloads
+eggs
+parts
