@@ -49,7 +49,7 @@ if len(sortedm2m.__version__) > 3:
 setup(
     name = 'django-sortedm2m',
     version = version,
-    url = 'https://launchpad.net/django-sortedm2m',
+    url = 'https://launchpad.net/django-sorted-m2m-field',
     license = 'BSD',
     description =
         'Drop in replacement for django\'s many to many field with '
