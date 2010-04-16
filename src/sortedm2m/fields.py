@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.db import connection, models
+from django.db import models
 from django.db.models.fields.related import create_many_related_manager, ManyToManyField, ReverseManyRelatedObjectsDescriptor
 from sortedm2m.forms import SortedMultipleChoiceField
 
@@ -7,39 +7,32 @@ from sortedm2m.forms import SortedMultipleChoiceField
 SORT_VALUE_FIELD_NAME = 'sort_value'
 
 
-def create_sorted_many_related_manager(superclass, field):
-    RelatedManager = create_many_related_manager(superclass, field.rel.through)
-    class SortedRelatedManager(RelatedManager):
-        def get_query_set(self):
-            return super(SortedRelatedManager, self).get_query_set().\
-                order_by('%s__%s' % (
-                    self.m2m_field.rel.through_model.related_name,
-                    self.m2m_field.rel.through_model._sort_field_name,
-                ))
+def create_sorted_many_related_manager(superclass, rel):
+    RelatedManager = create_many_related_manager(superclass, rel)
 
+    class SortedRelatedManager(RelatedManager):
         def add(self, *objs):
-            through = field.rel.through_model
-            count = self.m2m_field.rel.through_model._default_manager.count
+            through = rel.through
+            count = through._default_manager.count
             for obj in objs:
                 through._default_manager.create(**{
-                    field.rel.to._meta.object_name.lower(): obj,
+                    rel.to._meta.object_name.lower(): obj,
                     # using from model's name as field name
-                    field.from_model._meta.object_name.lower(): self.instance,
+                    self.source_field_name: self.instance,
                     through._sort_field_name: count(),
                 })
         add.alters_data = True
 
         def remove(self, *objs):
-            through = field.rel.through_model
+            through = rel.through
             for obj in objs:
                 through._default_manager.filter(**{
-                    '%s__in' % field.rel.to._meta.object_name.lower(): objs,
+                    '%s__in' % rel.to._meta.object_name.lower(): objs,
                     # using from model's name as field name
-                    field.from_model._meta.object_name.lower(): self.instance,
+                    self.source_field_name: self.instance,
                 }).delete()
         remove.alters_data = True
-    SortedRelatedManager.m2m_field = field
-    SortedRelatedManager.from_model = field.from_model
+
     return SortedRelatedManager
 
 
@@ -52,17 +45,16 @@ class ReverseSortedManyRelatedObjectsDescriptor(ReverseManyRelatedObjectsDescrip
         # model's default manager.
         rel_model=self.field.rel.to
         superclass = rel_model._default_manager.__class__
-        RelatedManager = create_sorted_many_related_manager(superclass, self.field)
+        RelatedManager = create_sorted_many_related_manager(superclass, self.field.rel)
 
-        qn = connection.ops.quote_name
         manager = RelatedManager(
             model=rel_model,
             core_filters={'%s__pk' % self.field.related_query_name(): instance._get_pk_val()},
             instance=instance,
             symmetrical=(self.field.rel.symmetrical and isinstance(instance, rel_model)),
-            join_table=qn(self.field.m2m_db_table()),
-            source_col_name=qn(self.field.m2m_column_name()),
-            target_col_name=qn(self.field.m2m_reverse_name())
+            source_field_name=self.field.m2m_field_name(),
+            target_field_name=self.field.m2m_reverse_field_name(),
+            reverse=False
         )
 
         return manager
@@ -88,7 +80,6 @@ class SortedManyToManyField(ManyToManyField):
     def __init__(self, to, sorted=True, **kwargs):
         self.sorted = sorted
         if self.sorted:
-            # TODO(gregor@muellegger):
             # This is very hacky and should be removed if a better solution is
             # found.
             kwargs.setdefault('through', True)
@@ -115,11 +106,6 @@ class SortedManyToManyField(ManyToManyField):
         from_ = '%s.%s' % (
             cls._meta.app_label,
             cls._meta.object_name)
-        related_name = '_%s_%s_%s' % (
-            cls._meta.app_label.lower(),
-            cls._meta.object_name.lower(),
-            field_name.lower(),
-        )
 
         def default_sort_value():
             model = models.get_model(cls._meta.app_label, model_name)
@@ -129,10 +115,10 @@ class SortedManyToManyField(ManyToManyField):
         # also django default behaviour for m2m intermediary tables.
         fields = {
             cls._meta.object_name.lower():
-                models.ForeignKey(from_, related_name=related_name),
+                models.ForeignKey(from_),
             # using to model's name as field name for the other relation
             self.rel.to._meta.object_name.lower():
-                models.ForeignKey(self.rel.to, related_name=related_name),
+                models.ForeignKey(self.rel.to),
             SORT_VALUE_FIELD_NAME:
                 models.IntegerField(default=default_sort_value),
         }
@@ -144,6 +130,7 @@ class SortedManyToManyField(ManyToManyField):
                 field_name.lower())
             app_label = cls._meta.app_label
             ordering = (SORT_VALUE_FIELD_NAME,)
+            auto_created = cls
 
         attrs = {
             '__module__': module,
@@ -158,20 +145,14 @@ class SortedManyToManyField(ManyToManyField):
 
         # Create the class, which automatically triggers ModelBase processing
         model = type(model_name, (models.Model,), attrs)
-        model.related_name = related_name
 
         return model
 
     def contribute_to_class(self, cls, name):
         if self.sorted:
-            # apply some meta data to the field to have it available in
-            # different places, like ReverseSortedManyRelatedObjectsDescriptor
-            self.from_model = cls
-            self.field_name = name
-            model = self.create_intermediary_model(cls, name)
-            self.rel.through = model
-            setattr(cls, '_%s_through' % name, self.rel.through)
+            self.rel.through = self.create_intermediary_model(cls, name)
             super(SortedManyToManyField, self).contribute_to_class(cls, name)
+            # overwrite default descriptor with reverse and sorted one
             setattr(cls, self.name, ReverseSortedManyRelatedObjectsDescriptor(self))
         else:
             super(SortedManyToManyField, self).contribute_to_class(cls, name)
