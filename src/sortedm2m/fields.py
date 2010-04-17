@@ -11,6 +11,18 @@ def create_sorted_many_related_manager(superclass, rel):
     RelatedManager = create_many_related_manager(superclass, rel)
 
     class SortedRelatedManager(RelatedManager):
+        def get_query_set(self):
+            # We use ``extra`` method here because we have no other access to
+            # the extra sorting field of the intermediary model. The fields
+            # are hidden for joins because we set ``auto_created`` on the
+            # intermediary's meta options.
+            return super(SortedRelatedManager, self).\
+                get_query_set().\
+                extra(order_by=['%s.%s' % (
+                    rel.through._meta.db_table,
+                    rel.through._sort_field_name,
+                )])
+
         def add(self, *objs):
             through = rel.through
             count = through._default_manager.count
