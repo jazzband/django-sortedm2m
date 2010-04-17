@@ -53,15 +53,32 @@ class TestSortedManyToManyField(TestCase):
             self.books[1],
             self.books[2]])
 
+        shelf.books.clear()
+        self.assertEqual(list(shelf.books.all()), [])
+
+        shelf.books.add(self.books[3], self.books[1], self.books[2])
+        self.assertEqual(list(shelf.books.all()), [
+            self.books[3],
+            self.books[1],
+            self.books[2]])
+
     def test_set_items(self):
         shelf = self.model.objects.create()
         self.assertEqual(list(shelf.books.all()), [])
 
-        shelf.books = self.books[5:2:-1]
-        self.assertEqual(list(shelf.books.all()), [
-            self.books[5],
-            self.books[4],
-            self.books[3]])
+        books = self.books[5:2:-1]
+        shelf.books = books
+        self.assertEqual(list(shelf.books.all()), books)
+
+        books.reverse()
+        shelf.books = books
+        self.assertEqual(list(shelf.books.all()), books)
+
+        shelf.books.add(self.books[8])
+        self.assertEqual(list(shelf.books.all()), books + [self.books[8]])
+
+        shelf.books = []
+        self.assertEqual(list(shelf.books.all()), [])
 
         shelf.books = [self.books[9]]
         self.assertEqual(list(shelf.books.all()), [
