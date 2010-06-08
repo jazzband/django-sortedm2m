@@ -6,3 +6,4 @@ downloads
 eggs
 parts
 example/db.sqlite
+dist
