@@ -62,6 +62,8 @@ setup(
     author_email = 'gregor@muellegger.de',
     packages = find_packages('src'),
     package_dir = {'': 'src'},
+    include_package_data = True,
+    zip_safe = False,
     classifiers = [
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
@@ -72,7 +74,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
     ],
-    zip_safe = False,
     install_requires = [],
     tests_require = [],
 )
