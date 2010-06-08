@@ -1,3 +1,4 @@
+================
 django-sortedm2m
 ================
 
@@ -9,7 +10,7 @@ remembers the order of added relations.
 supported.
 
 Usecases
---------
+========
 
 Imagine that you have a gallery model and a photo model. Usually you want a
 relation between these models so you can add multiple photos to one gallery
@@ -25,7 +26,7 @@ provided by this package as drop in replacement for django's
 ``ManyToManyField``.
 
 Usage
------
+=====
 
 Use ``SortedManyToManyField`` like ``ManyToManyField`` in your models::
 
@@ -48,21 +49,19 @@ order in which you have added photos to the gallery. ::
         gallery.photos.add(photo)
 
 Admin
------
+=====
 
-There is a small caveat with using the sorted m2m relation in django's admin.
-Because django renderes many to many relations in a select list by default its
-not possible for the ``SortedManyToManyField`` to determine the desired
-ordering.
+``SortedManyToManyField`` provides a custom widget which can be used to sort
+the selected items. It renders a list of checkboxes that can be sorted by
+drag'n'drop.
 
-So you have to work around this to use the sorting on models managed by the
-admin. You can tell the admin to display a simple input box instead of the
-select list where you can then enter raw ids seperated by commas. If you use
-that widget you can specify the ordering by changing the order of the ids in
-the input box.
+It's also possible to use the ``SortedManyToManyField`` with admin's
+``raw_id_fields`` option in the ``ModelAdmin`` definition. Add the name of the
+``SortedManyToManyField`` to this list to get a simple text input field. The
+order in which the ids are entered into the input box is used to sort the
+items of the sorted m2m relation.
 
-Use the ``raw_id_fields`` option in the ``ModelAdmin`` definition for you
-model. Example::
+Example::
 
     from django.contrib import admin
 

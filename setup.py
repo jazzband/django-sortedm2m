@@ -26,7 +26,10 @@ class UltraMagicString(object):
         return self.value.split(*args, **kw)
 
 
-long_description = UltraMagicString(file('README').read())
+long_description = UltraMagicString(u'\n\n'.join((
+    file('README').read(),
+    file('CHANGES').read(),
+)))
 
 
 # determine package version
