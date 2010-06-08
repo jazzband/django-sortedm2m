@@ -4,7 +4,6 @@ from example.testapp.models import Car, ParkingArea
 
 
 class ParkingAreaAdmin(admin.ModelAdmin):
-    raw_id_fields = ('cars',)
     fieldsets = (
         ('bla', {
             'classes': ('wide',),
