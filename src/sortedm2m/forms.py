@@ -66,7 +66,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         if value and ',' in value:
             return data[name].split(',')
         if value:
-            return [value]
+            return value
         return None
 
 
