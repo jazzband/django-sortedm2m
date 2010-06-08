@@ -26,7 +26,7 @@ class UltraMagicString(object):
         return self.value.split(*args, **kw)
 
 
-long_description = UltraMagicString(file('README.txt').read())
+long_description = UltraMagicString(file('README').read())
 
 
 # determine package version
@@ -59,7 +59,6 @@ setup(
     author_email = 'gregor@muellegger.de',
     packages = find_packages('src'),
     package_dir = {'': 'src'},
-    include_package_data = True,
     classifiers = [
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
@@ -70,7 +69,8 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
     ],
-    zip_safe = True,
-    install_requires = ['setuptools'],
+    zip_safe = False,
+    install_requires = [],
+    tests_require = [],
 )
 
