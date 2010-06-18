@@ -17,7 +17,6 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             STATIC_URL + 'sortedm2m/jquery-ui.js',
         )
         css = {'screen': (
-            STATIC_URL + 'sortedm2m/smoothness/jquery-ui-1.8.2.custom.css',
             STATIC_URL + 'sortedm2m/widget.css',
         )}
 
