@@ -8,3 +8,4 @@ parts
 example/db.sqlite
 dist
 src/django_sortedm2m.egg-info
+django_sortedm2m.egg-info
