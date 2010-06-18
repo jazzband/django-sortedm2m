@@ -2,4 +2,4 @@ include CHANGES
 include LICENSE
 include MANIFEST.in
 include README
-recursive-include src/sortedm2m *
+recursive-include src/sortedm2m/media *
