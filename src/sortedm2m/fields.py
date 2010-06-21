@@ -27,8 +27,11 @@ def create_sorted_many_related_manager(superclass, rel):
             through = rel.through
             count = through._default_manager.count
             for obj in objs:
+                related_name = rel.to._meta.object_name.lower()
+                if not isinstance(obj, rel.to):
+                    related_name = '%s_id' % related_name
                 through._default_manager.create(**{
-                    rel.to._meta.object_name.lower(): obj,
+                    related_name: obj,
                     # using from model's name as field name
                     self.source_field_name: self.instance,
                     through._sort_field_name: count(),

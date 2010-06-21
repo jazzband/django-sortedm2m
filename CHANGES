@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.2.3
+-----
+
+* Fixing issue with primary keys instead of model instances for ``.add()`` and
+  ``.remove()`` methods in ``SortedRelatedManager``.
+
 0.2.2
 -----
 
