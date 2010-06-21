@@ -1,10 +1,11 @@
 Changelog
 =========
 
-0.2.0
+0.2.2
 -----
 
-* Added a widget for use in admin.
+* Fixing validation error for ``SortedCheckboxSelectMultiple``. It caused
+  errors if only one value was passed.
 
 0.2.1
 -----
@@ -12,3 +13,8 @@ Changelog
 * Removed unnecessary reference of jquery ui css file in
   ``SortedCheckboxSelectMultiple``. Thanks to Klaas van Schelven and Yuwei Yu
   for the hint.
+
+0.2.0
+-----
+
+* Added a widget for use in admin.

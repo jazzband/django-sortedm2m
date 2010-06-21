@@ -171,3 +171,12 @@ class TestSortedFormField(TestCase):
             isinstance(form.fields['books'], SortedMultipleChoiceField))
         self.assertTrue(
             isinstance(form.fields['books'], forms.ModelMultipleChoiceField))
+
+    # regression test
+    def test_form_field_with_only_one_value(self):
+        form = SortedForm({'values': ''})
+        self.assertEqual(len(form.errors), 0)
+        form = SortedForm({'values': '1'})
+        self.assertEqual(len(form.errors), 0)
+        form = SortedForm({'values': '1,2'})
+        self.assertEqual(len(form.errors), 0)
