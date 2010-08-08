@@ -81,6 +81,9 @@ INSTALLED_APPS = (
     'django_extensions',
 
     'sortedm2m',
+    'sortedm2m_tests',
+    'sortedm2m_tests.sortedm2m_field',
+    'sortedm2m_tests.sortedm2m_form',
 
     'example.testapp',
 )
