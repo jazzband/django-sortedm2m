@@ -60,8 +60,7 @@ setup(
     long_description = long_description,
     author = UltraMagicString('Gregor Müllegger'),
     author_email = 'gregor@muellegger.de',
-    packages = find_packages('src'),
-    package_dir = {'': 'src'},
+    packages = ['sortedm2m'],
     include_package_data = True,
     zip_safe = False,
     classifiers = [
