@@ -2,6 +2,7 @@
 from django.db import models
 from django.db.models.fields.related import create_many_related_manager, ManyToManyField, ReverseManyRelatedObjectsDescriptor
 from sortedm2m.forms import SortedMultipleChoiceField
+from sortedm2m.utils import execute_after_model_is_loaded, get_model_label
 
 
 SORT_VALUE_FIELD_NAME = 'sort_value'
@@ -107,13 +108,6 @@ class SortedManyToManyField(ManyToManyField):
         '''
         module = ''
 
-        # make sure rel.to is a model class and not a string
-        if isinstance(self.rel.to, basestring):
-            bits = self.rel.to.split('.')
-            if len(bits) == 1:
-                bits = cls._meta.app_label.lower(), bits[0]
-            self.rel.to = models.get_model(*bits)
-
         model_name = '%s_%s_%s' % (
             cls._meta.app_label,
             cls._meta.object_name,
@@ -154,9 +148,7 @@ class SortedManyToManyField(ManyToManyField):
             '__unicode__': lambda s: 'pk=%d' % s.pk,
         }
 
-        # Add in any fields that were provided
-        if fields:
-            attrs.update(fields)
+        attrs.update(fields)
 
         # Create the class, which automatically triggers ModelBase processing
         model = type(model_name, (models.Model,), attrs)
@@ -165,10 +157,19 @@ class SortedManyToManyField(ManyToManyField):
 
     def contribute_to_class(self, cls, name):
         if self.sorted:
-            self.rel.through = self.create_intermediary_model(cls, name)
-            super(SortedManyToManyField, self).contribute_to_class(cls, name)
-            # overwrite default descriptor with reverse and sorted one
-            setattr(cls, self.name, ReverseSortedManyRelatedObjectsDescriptor(self))
+            def set_everything_related(model, self, cls, name):
+                print model, self, cls, name
+                self.rel.to = model
+                self.rel.through = self.create_intermediary_model(cls, name)
+                # overwrite default descriptor with reverse and sorted one
+                super(SortedManyToManyField, self).contribute_to_class(cls, name)
+                setattr(cls, self.name, ReverseSortedManyRelatedObjectsDescriptor(self))
+
+            model_label = get_model_label(self.rel.to, cls._meta.app_label)
+            execute_after_model_is_loaded(
+                model_label,
+                set_everything_related,
+                args=(self, cls, name))
         else:
             super(SortedManyToManyField, self).contribute_to_class(cls, name)
 
