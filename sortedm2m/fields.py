@@ -158,7 +158,6 @@ class SortedManyToManyField(ManyToManyField):
     def contribute_to_class(self, cls, name):
         if self.sorted:
             def set_everything_related(model, self, cls, name):
-                print model, self, cls, name
                 self.rel.to = model
                 self.rel.through = self.create_intermediary_model(cls, name)
                 # overwrite default descriptor with reverse and sorted one
