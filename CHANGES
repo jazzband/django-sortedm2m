@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.5
+-----
+
+* Forgot to exclude debug print/console.log statements from code. Sorry.
+
 0.2.4
 -----
 
