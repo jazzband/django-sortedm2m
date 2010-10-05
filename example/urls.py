@@ -28,4 +28,5 @@ urlpatterns = patterns('',
     url(r'^media/(.*)$', 'django.views.static.serve',
         {'document_root': settings.MEDIA_ROOT}),
     url(r'^admin/', include(admin.site.urls), name="admin"),
+    url(r'^', include('staticfiles.urls')),
 )
