@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.2.4
+-----
+
+* Fixing problems with ``SortedCheckboxSelectMultiple`` widget, especially in
+  admin where a "create and add another item" popup is available.
+
 0.2.3
 -----
 
