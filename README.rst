@@ -67,3 +67,21 @@ Example::
 
     class GalleryAdmin(admin.ModelAdmin):
         raw_id_fields = ('photos',)
+
+Contribue
+=========
+
+You can find the latest development version on github_. Get there and fork it,
+file bugs or send me nice wishes.
+
+Feel free to drop me a message about critique or feature requests. You can get
+in touch with me by mail_ or twitter_.
+
+.. _github: http://github.com/gregmuellegger/django-sortedm2m
+.. _mail: mailto:gregor@muellegger.de
+.. _twitter: http://twitter.com/gregmuellegger
+
+Authors
+=======
+
+* Gregor Müllegger <gregor@muellegger.de>
