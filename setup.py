@@ -26,7 +26,7 @@ class UltraMagicString(object):
         return self.value.split(*args, **kw)
 
 
-long_description = UltraMagicString(u'\n\n'.join((
+long_description = UltraMagicString('\n\n'.join((
     file('README.rst').read(),
     file('CHANGES.rst').read(),
 )))
