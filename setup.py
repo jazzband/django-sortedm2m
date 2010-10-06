@@ -75,5 +75,6 @@ setup(
     ],
     install_requires = [],
     tests_require = [],
+    test_suite = 'runtests.runtests',
 )
 
