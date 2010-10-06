@@ -22,3 +22,10 @@ class MessyStore(models.Model):
     books = SortedManyToManyField('Book',
         sorted=False,
         related_name='messy_stores')
+
+
+class SelfReference(models.Model):
+    me = SortedManyToManyField('self', related_name='hide+')
+
+    def __unicode__(self):
+        return unicode(self.pk)

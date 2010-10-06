@@ -1,11 +1,67 @@
 # -*- coding: utf-8 -*-
-from django.db import models
-from django.db.models.fields.related import create_many_related_manager, ManyToManyField, ReverseManyRelatedObjectsDescriptor
+from django.db import router
+from django.db.models import signals
+from django.db.models.fields.related import add_lazy_relation, create_many_related_manager
+from django.db.models.fields.related import ManyToManyField, ReverseManyRelatedObjectsDescriptor
+from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
+from django.utils.functional import curry
 from sortedm2m.forms import SortedMultipleChoiceField
-from sortedm2m.utils import execute_after_model_is_loaded, get_model_label
 
 
 SORT_VALUE_FIELD_NAME = 'sort_value'
+
+
+def create_sorted_many_to_many_intermediate_model(field, klass):
+    from django.db import models
+    managed = True
+    if isinstance(field.rel.to, basestring) and field.rel.to != RECURSIVE_RELATIONSHIP_CONSTANT:
+        to_model = field.rel.to
+        to = to_model.split('.')[-1]
+        def set_managed(field, model, cls):
+            field.rel.through._meta.managed = model._meta.managed or cls._meta.managed
+        add_lazy_relation(klass, field, to_model, set_managed)
+    elif isinstance(field.rel.to, basestring):
+        to = klass._meta.object_name
+        to_model = klass
+        managed = klass._meta.managed
+    else:
+        to = field.rel.to._meta.object_name
+        to_model = field.rel.to
+        managed = klass._meta.managed or to_model._meta.managed
+    name = '%s_%s' % (klass._meta.object_name, field.name)
+    if field.rel.to == RECURSIVE_RELATIONSHIP_CONSTANT or to == klass._meta.object_name:
+        from_ = 'from_%s' % to.lower()
+        to = 'to_%s' % to.lower()
+    else:
+        from_ = klass._meta.object_name.lower()
+        to = to.lower()
+    meta = type('Meta', (object,), {
+        'db_table': field._get_m2m_db_table(klass._meta),
+        'managed': managed,
+        'auto_created': klass,
+        'app_label': klass._meta.app_label,
+        'unique_together': (from_, to),
+        'ordering': (SORT_VALUE_FIELD_NAME,),
+        'verbose_name': '%(from)s-%(to)s relationship' % {'from': from_, 'to': to},
+        'verbose_name_plural': '%(from)s-%(to)s relationships' % {'from': from_, 'to': to},
+    })
+    # Construct and return the new class.
+    def default_sort_value(name):
+        model = models.get_model(klass._meta.app_label, name)
+        return model._default_manager.count()
+
+    default_sort_value = curry(default_sort_value, name)
+
+    return type(name, (models.Model,), {
+        'Meta': meta,
+        '__module__': klass.__module__,
+        from_: models.ForeignKey(klass, related_name='%s+' % name),
+        to: models.ForeignKey(to_model, related_name='%s+' % name),
+        SORT_VALUE_FIELD_NAME: models.IntegerField(default=default_sort_value),
+        '_sort_field_name': SORT_VALUE_FIELD_NAME,
+        '_from_field_name': from_,
+        '_to_field_name': to,
+    })
 
 
 def create_sorted_many_related_manager(superclass, rel):
@@ -24,30 +80,62 @@ def create_sorted_many_related_manager(superclass, rel):
                     rel.through._sort_field_name,
                 )])
 
-        def add(self, *objs):
-            through = rel.through
-            count = through._default_manager.count
-            for obj in objs:
-                related_name = rel.to._meta.object_name.lower()
-                if not isinstance(obj, rel.to):
-                    related_name = '%s_id' % related_name
-                through._default_manager.create(**{
-                    related_name: obj,
-                    # using from model's name as field name
-                    self.source_field_name: self.instance,
-                    through._sort_field_name: count(),
-                })
-        add.alters_data = True
+        def _add_items(self, source_field_name, target_field_name, *objs):
+            # join_table: name of the m2m link table
+            # source_field_name: the PK fieldname in join_table for the source object
+            # target_field_name: the PK fieldname in join_table for the target object
+            # *objs - objects to add. Either object instances, or primary keys of object instances.
 
-        def remove(self, *objs):
-            through = rel.through
-            for obj in objs:
-                through._default_manager.filter(**{
-                    '%s__in' % rel.to._meta.object_name.lower(): objs,
-                    # using from model's name as field name
-                    self.source_field_name: self.instance,
-                }).delete()
-        remove.alters_data = True
+            # If there aren't any objects, there is nothing to do.
+            from django.db.models import Model
+            if objs:
+                new_ids = []
+                for obj in objs:
+                    if isinstance(obj, self.model):
+                        if not router.allow_relation(obj, self.instance):
+                           raise ValueError('Cannot add "%r": instance is on database "%s", value is on database "%s"' %
+                                               (obj, self.instance._state.db, obj._state.db))
+                        new_ids.append(obj.pk)
+                    elif isinstance(obj, Model):
+                        raise TypeError("'%s' instance expected" % self.model._meta.object_name)
+                    else:
+                        new_ids.append(obj)
+                db = router.db_for_write(self.through.__class__, instance=self.instance)
+                vals = self.through._default_manager.using(db).values_list(target_field_name, flat=True)
+                vals = vals.filter(**{
+                    source_field_name: self._pk_val,
+                    '%s__in' % target_field_name: new_ids,
+                })
+                for val in vals:
+                    if val in new_ids:
+                        new_ids.remove(val)
+                _new_ids = []
+                for pk in new_ids:
+                    if pk not in _new_ids:
+                        _new_ids.append(pk)
+                new_ids = _new_ids
+                new_ids_set = set(new_ids)
+                if self.reverse or source_field_name == self.source_field_name:
+                    # Don't send the signal when we are inserting the
+                    # duplicate data row for symmetrical reverse entries.
+                    signals.m2m_changed.send(sender=rel.through, action='pre_add',
+                        instance=self.instance, reverse=self.reverse,
+                        model=self.model, pk_set=new_ids_set)
+                # Add the ones that aren't there already
+                sort_field_name = self.through._sort_field_name
+                sort_field = self.through._meta.get_field_by_name(sort_field_name)[0]
+                for obj_id in new_ids:
+                    self.through._default_manager.using(db).create(**{
+                        '%s_id' % source_field_name: self._pk_val,
+                        '%s_id' % target_field_name: obj_id,
+                        sort_field_name: sort_field.get_default(),
+                    })
+                if self.reverse or source_field_name == self.source_field_name:
+                    # Don't send the signal when we are inserting the
+                    # duplicate data row for symmetrical reverse entries.
+                    signals.m2m_changed.send(sender=rel.through, action='post_add',
+                        instance=self.instance, reverse=self.reverse,
+                        model=self.model, pk_set=new_ids_set)
 
     return SortedRelatedManager
 
@@ -95,82 +183,49 @@ class SortedManyToManyField(ManyToManyField):
     '''
     def __init__(self, to, sorted=True, **kwargs):
         self.sorted = sorted
-        if self.sorted:
-            # This is very hacky and should be removed if a better solution is
-            # found.
-            kwargs.setdefault('through', True)
         super(SortedManyToManyField, self).__init__(to, **kwargs)
-        self.help_text = kwargs.get('help_text', None)
-
-    def create_intermediary_model(self, cls, field_name):
-        '''
-        Create intermediary model that stores the relation's data.
-        '''
-        module = ''
-
-        model_name = '%s_%s_%s' % (
-            cls._meta.app_label,
-            cls._meta.object_name,
-            field_name)
-        from_ = '%s.%s' % (
-            cls._meta.app_label,
-            cls._meta.object_name)
-
-        def default_sort_value():
-            model = models.get_model(cls._meta.app_label, model_name)
-            return model._default_manager.count()
-
-        # Using from and to model's name as field names for relations. This is
-        # also django default behaviour for m2m intermediary tables.
-        fields = {
-            cls._meta.object_name.lower():
-                models.ForeignKey(from_),
-            # using to model's name as field name for the other relation
-            self.rel.to._meta.object_name.lower():
-                models.ForeignKey(self.rel.to),
-            SORT_VALUE_FIELD_NAME:
-                models.IntegerField(default=default_sort_value),
-        }
-
-        class Meta:
-            db_table = '%s_%s_%s' % (
-                cls._meta.app_label.lower(),
-                cls._meta.object_name.lower(),
-                field_name.lower())
-            app_label = cls._meta.app_label
-            ordering = (SORT_VALUE_FIELD_NAME,)
-            auto_created = cls
-
-        attrs = {
-            '__module__': module,
-            'Meta': Meta,
-            '_sort_field_name': SORT_VALUE_FIELD_NAME,
-            '__unicode__': lambda s: 'pk=%d' % s.pk,
-        }
-
-        attrs.update(fields)
-
-        # Create the class, which automatically triggers ModelBase processing
-        model = type(model_name, (models.Model,), attrs)
-
-        return model
+        if self.sorted:
+            self.help_text = kwargs.get('help_text', None)
 
     def contribute_to_class(self, cls, name):
-        if self.sorted:
-            def set_everything_related(model, self, cls, name):
-                self.rel.to = model
-                self.rel.through = self.create_intermediary_model(cls, name)
-                # overwrite default descriptor with reverse and sorted one
-                super(SortedManyToManyField, self).contribute_to_class(cls, name)
-                setattr(cls, self.name, ReverseSortedManyRelatedObjectsDescriptor(self))
+        if not self.sorted:
+            return super(SortedManyToManyField, self).contribute_to_class(cls, name)
 
-            model_label = get_model_label(self.rel.to, cls._meta.app_label)
-            execute_after_model_is_loaded(
-                model_label,
-                set_everything_related,
-                args=(self, cls, name))
+        # To support multiple relations to self, it's useful to have a non-None
+        # related name on symmetrical relations for internal reasons. The
+        # concept doesn't make a lot of sense externally ("you want me to
+        # specify *what* on my non-reversible relation?!"), so we set it up
+        # automatically. The funky name reduces the chance of an accidental
+        # clash.
+        if self.rel.symmetrical and (self.rel.to == "self" or self.rel.to == cls._meta.object_name):
+            self.rel.related_name = "%s_rel_+" % name
+
+        super(ManyToManyField, self).contribute_to_class(cls, name)
+
+        # The intermediate m2m model is not auto created if:
+        #  1) There is a manually specified intermediate, or
+        #  2) The class owning the m2m field is abstract.
+        if not self.rel.through and not cls._meta.abstract:
+            self.rel.through = create_sorted_many_to_many_intermediate_model(self, cls)
+
+        # Add the descriptor for the m2m relation
+        setattr(cls, self.name, ReverseSortedManyRelatedObjectsDescriptor(self))
+
+        # Set up the accessor for the m2m table name for the relation
+        self.m2m_db_table = curry(self._get_m2m_db_table, cls._meta)
+
+        # Populate some necessary rel arguments so that cross-app relations
+        # work correctly.
+        if isinstance(self.rel.through, basestring):
+            def resolve_through_model(field, model, cls):
+                field.rel.through = model
+            add_lazy_relation(cls, self, self.rel.through, resolve_through_model)
+
+        if isinstance(self.rel.to, basestring):
+            target = self.rel.to
         else:
-            super(SortedManyToManyField, self).contribute_to_class(cls, name)
+            target = self.rel.to._meta.db_table
+        cls._meta.duplicate_targets[self.column] = (target, "m2m")
 
     def formfield(self, **kwargs):
         defaults = {}

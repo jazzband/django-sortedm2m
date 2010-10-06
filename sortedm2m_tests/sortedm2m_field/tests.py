@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
-from sortedm2m_tests.models import Book, Shelf, Store, MessyStore
+from sortedm2m_tests.models import Book, Shelf, Store, MessyStore, SelfReference
 
 
 class TestSortedManyToManyField(TestCase):
@@ -16,23 +16,26 @@ class TestSortedManyToManyField(TestCase):
         shelf.books.add(self.books[2])
         self.assertEqual(list(shelf.books.all()), [self.books[2]])
 
-        shelf.books.add(self.books[5], self.books[1])
+        # adding many with each in one call
+        shelf.books.add(self.books[5])
+        shelf.books.add(self.books[1])
         self.assertEqual(list(shelf.books.all()), [
             self.books[2],
             self.books[5],
             self.books[1]])
 
-        # adding the same item again will append it another time
+        # adding the same item again won't append another one, order remains
+        # the same
         shelf.books.add(self.books[2])
         self.assertEqual(list(shelf.books.all()), [
             self.books[2],
             self.books[5],
-            self.books[1],
-            self.books[2]])
+            self.books[1]])
 
         shelf.books.clear()
         self.assertEqual(list(shelf.books.all()), [])
 
+        # adding many with all in the same call
         shelf.books.add(self.books[3], self.books[1], self.books[2])
         self.assertEqual(list(shelf.books.all()), [
             self.books[3],
@@ -156,3 +159,15 @@ class TestStringReference(TestSortedManyToManyField):
     point to.
     '''
     model = Store
+
+
+class TestSelfReference(TestCase):
+    def test_self_adding(self):
+        s1 = SelfReference.objects.create()
+        s2 = SelfReference.objects.create()
+        s3 = SelfReference.objects.create()
+        s4 = SelfReference.objects.create()
+        s1.me.add(s3)
+        s1.me.add(s4, s2)
+
+        self.assertEquals(list(s1.me.all()), [s3,s4,s2])
