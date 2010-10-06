@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.3.0
+-----
+
+* Heavy internal refactorings. These were necessary to solve a problem with
+  ``SortedManyToManyField`` and a reference to ``'self'``.
+
 0.2.5
 -----
 
