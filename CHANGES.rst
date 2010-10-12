@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.3.1
+-----
+
+* Fixed packaging error.
+
 0.3.0
 -----
 
