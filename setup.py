@@ -55,7 +55,7 @@ setup(
     url = 'http://github.com/gregmuellegger/django-sortedm2m',
     license = 'BSD',
     description =
-        'Drop in replacement for django\'s many to many field with '
+        'Drop-in replacement for django\'s many to many field with '
         'sorted relations.',
     long_description = long_description,
     author = UltraMagicString('Gregor Müllegger'),

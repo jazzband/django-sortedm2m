@@ -2,7 +2,7 @@
 django-sortedm2m
 ================
 
-``sortedm2m`` is a drop in replacement for django's own ``ManyToManyField``.
+``sortedm2m`` is a drop-in replacement for django's own ``ManyToManyField``.
 The provided ``SortedManyToManyField`` behaves like the original one but
 remembers the order of added relations.
 
@@ -68,8 +68,8 @@ Example::
     class GalleryAdmin(admin.ModelAdmin):
         raw_id_fields = ('photos',)
 
-Contribue
-=========
+Contribute
+==========
 
 You can find the latest development version on github_. Get there and fork it,
 file bugs or send me nice wishes.
