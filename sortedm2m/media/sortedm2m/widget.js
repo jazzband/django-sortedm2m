@@ -1,3 +1,7 @@
+if (jQuery === undefined) {
+    jQuery = django.jQuery;
+}
+
 (function ($) {
     $(function () {
         $('.sortedm2m').parents('ul').each(function () {
@@ -66,5 +70,4 @@
             };
         }
     });
-})(django.jQuery);
-jQuery = django.jQuery;
+})(jQuery);
