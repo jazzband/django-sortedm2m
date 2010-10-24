@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.3.2
+-----
+
+* Use already included jQuery version in global scope and don't override with
+  django's version. Thank you to Hendrik van der Linde for reporting this
+  issue.
+
 0.3.1
 -----
 
