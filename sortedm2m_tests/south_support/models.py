@@ -15,3 +15,11 @@ class Gallery(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class UnsortedGallery(models.Model):
+    name = models.CharField(max_length=30)
+    photos = SortedManyToManyField(Photo, sorted=False)
+
+    def __unicode__(self):
+        return self.name
