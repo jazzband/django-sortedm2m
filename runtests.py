@@ -12,7 +12,12 @@ from django.test.simple import run_tests
 
 def runtests():
     failures = run_tests(
-        ['after_model_loaded', 'sortedm2m_field', 'sortedm2m_form'],
+        [
+            'after_model_loaded',
+            'sortedm2m_field',
+            'sortedm2m_form',
+            'south_support',
+        ],
         verbosity=1, interactive=True)
     sys.exit(failures)
 
