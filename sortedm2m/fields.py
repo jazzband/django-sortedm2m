@@ -186,6 +186,10 @@ class SortedManyToManyField(ManyToManyField):
         super(SortedManyToManyField, self).__init__(to, **kwargs)
         if self.sorted:
             self.help_text = kwargs.get('help_text', None)
+        
+        self.args = [to]
+        self.kwargs = {'sorted': sorted}
+        self.kwargs.update(**kwargs)
 
     def contribute_to_class(self, cls, name):
         if not self.sorted:
@@ -233,3 +237,7 @@ class SortedManyToManyField(ManyToManyField):
             defaults['form_class'] = SortedMultipleChoiceField
         defaults.update(kwargs)
         return super(SortedManyToManyField, self).formfield(**defaults)
+
+    def south_field_triple(self):
+        return ('sortedm2m.fields.SortedManyToManyField', self.args, self.kwargs)
+
