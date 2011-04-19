@@ -7,13 +7,19 @@ parent = os.path.dirname(os.path.dirname(os.path.dirname(
 
 sys.path.insert(0, parent)
 
-from django.test.simple import run_tests
+from django.test.simple import DjangoTestSuiteRunner
 
 
 def runtests():
-    failures = run_tests(
-        ['after_model_loaded', 'sortedm2m_field', 'sortedm2m_form'],
-        verbosity=1, interactive=True)
+    test_runner = DjangoTestSuiteRunner(
+        verbosity=1,
+        interactive=True,
+        failfast=False)
+    failures = test_runner.run_tests([
+        'after_model_loaded',
+        'sortedm2m_field',
+        'sortedm2m_form',
+    ])
     sys.exit(failures)
 
 if __name__ == '__main__':

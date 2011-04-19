@@ -1,5 +1,4 @@
-django
+Django==1.3
 django-extensions
-django-staticfiles
 ipython
 south
