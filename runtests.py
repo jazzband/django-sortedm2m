@@ -16,7 +16,6 @@ def runtests():
         interactive=True,
         failfast=False)
     failures = test_runner.run_tests([
-        'after_model_loaded',
         'sortedm2m_field',
         'sortedm2m_form',
     ])
