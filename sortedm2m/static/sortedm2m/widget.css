@@ -1,0 +1,8 @@
+ul.sortedm2m {
+    padding-left:3em !important;
+    margin-left:15em !important;
+}
+
+ul.sortedm2m + .add-another {
+    margin-left:18em !important;
+}
