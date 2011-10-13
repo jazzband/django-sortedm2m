@@ -233,3 +233,18 @@ class SortedManyToManyField(ManyToManyField):
             defaults['form_class'] = SortedMultipleChoiceField
         defaults.update(kwargs)
         return super(SortedManyToManyField, self).formfield(**defaults)
+
+# Add introspection rules for South database migrations
+# See http://south.aeracode.org/docs/customfields.html
+try:
+	from south.modelsinspector import add_introspection_rules
+	add_introspection_rules(
+        [(
+            (SortedManyToManyField,),
+            [],
+            {"sorted": ["sorted", {"default": True}]},
+        )],
+        [r'^sortedm2m\.fields\.SortedManyToManyField']
+    )
+except ImportError:
+	pass
