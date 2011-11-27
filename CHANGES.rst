@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.3.3
+-----
+
+* Merged south-support branch into master.
+
 0.3.2
 -----
 
