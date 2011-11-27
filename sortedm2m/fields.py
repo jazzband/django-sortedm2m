@@ -186,6 +186,10 @@ class SortedManyToManyField(ManyToManyField):
         super(SortedManyToManyField, self).__init__(to, **kwargs)
         if self.sorted:
             self.help_text = kwargs.get('help_text', None)
+        
+        self.args = [to]
+        self.kwargs = {'sorted': sorted}
+        self.kwargs.update(**kwargs)
 
     def contribute_to_class(self, cls, name):
         if not self.sorted:
@@ -234,23 +238,5 @@ class SortedManyToManyField(ManyToManyField):
         defaults.update(kwargs)
         return super(SortedManyToManyField, self).formfield(**defaults)
 
-
-try:
-    import south
-except ImportError:
-    south = None
-
-
-if south:
-    from south.modelsinspector import add_introspection_rules
-    add_introspection_rules(
-        (
-            (
-                (SortedManyToManyField,),
-                (),
-                {
-                    'sorted': ('sorted', {'default': True}),
-                },
-            ),
-        ),
-        ("^sortedm2m\.fields\.SortedManyToManyField",))
+    def south_field_triple(self):
+        return ('sortedm2m.fields.SortedManyToManyField', self.args, self.kwargs)
