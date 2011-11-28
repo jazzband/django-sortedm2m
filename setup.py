@@ -39,9 +39,6 @@ sys.path.insert(0, os.path.join(
 sys.path.insert(0, os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'src'))
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
-
-
 import sortedm2m
 version = '.'.join([str(x) for x in sortedm2m.__version__[:3]])
 
@@ -74,7 +71,7 @@ setup(
         'Programming Language :: Python',
     ],
     install_requires = [],
-    tests_require = [],
-    test_suite = 'runtests.runtests',
+    tests_require=['Django', 'South', 'django-setuptest'],
+    test_suite='sortedm2m_tests.TestSuite',
 )
 
