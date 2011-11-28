@@ -7,7 +7,8 @@ The provided ``SortedManyToManyField`` behaves like the original one but
 remembers the order of added relations.
 
 ``sortedm2m`` requires at least django 1.2. Django 1.1 or earlier is not
-supported.
+supported.  ``sortedm2m`` now supports South database migrations, if South is
+installed.
 
 Usecases
 ========

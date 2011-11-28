@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.3.3
+-----
+
+* Updated South support to actually work, updated automated test runner.
+
 0.3.2
 -----
 
