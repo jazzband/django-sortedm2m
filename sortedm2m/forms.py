@@ -62,15 +62,9 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
-        if name in data:
-            if hasattr(data, 'getlist'):
-                value = data.getlist(name)
-            else:
-                value = data[name]
-            if isinstance(value, basestring):
-                return [v for v in value.split(',') if v]
-            return value
-        return None
+        if isinstance(value, basestring):
+            return [v for v in value.split(',') if v]
+        return value
 
 
 class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
