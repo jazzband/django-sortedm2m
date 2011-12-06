@@ -81,7 +81,6 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles',
 
-    'django_extensions',
     'south',
 
     'sortedm2m',

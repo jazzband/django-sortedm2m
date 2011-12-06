@@ -238,6 +238,11 @@ class SortedManyToManyField(ManyToManyField):
 # Add introspection rules for South database migrations
 # See http://south.aeracode.org/docs/customfields.html
 try:
+    import south
+except ImportError:
+    south = None
+
+if south is not None:
     from south.modelsinspector import add_introspection_rules
     add_introspection_rules(
         [(
@@ -247,13 +252,13 @@ try:
         )],
         [r'^sortedm2m\.fields\.SortedManyToManyField']
     )
+
     # Monkeypatch South M2M actions to create the sorted through model.
     # FIXME: This doesn't detect if you changed the sorted argument to the field.
     import south.creator.actions
     from south.creator.freezer import model_key
 
     class AddM2M(south.creator.actions.AddM2M):
-
         SORTED_FORWARDS_TEMPLATE = '''
         # Adding SortedM2M table for field %(field_name)s on '%(model_name)s'
         db.create_table(%(table_name)r, (
@@ -268,7 +273,7 @@ try:
             if isinstance(self.field, SortedManyToManyField) and self.field.sorted:
                 return " + Added SortedM2M table for %s on %s.%s" % (
                     self.field.name,
-                    self.model._meta.app_label, 
+                    self.model._meta.app_label,
                     self.model._meta.object_name,
                 )
             else:
@@ -290,13 +295,12 @@ try:
                 }
             else:
                 return super(AddM2M, self).forwards_code()
-    
-    class DeleteM2M(AddM2M):
 
+    class DeleteM2M(AddM2M):
         def console_line(self):
             return " - Deleted M2M table for %s on %s.%s" % (
                 self.field.name,
-                self.model._meta.app_label, 
+                self.model._meta.app_label,
                 self.model._meta.object_name,
             )
 
@@ -308,5 +312,3 @@ try:
 
     south.creator.actions.AddM2M = AddM2M
     south.creator.actions.DeleteM2M = DeleteM2M
-except ImportError:
-   pass

@@ -1,4 +1,7 @@
 *.pyc
 *.pyo
+*.egg
 *.egg-info
+coverage.xml
 db.sqlite
+pep8.txt

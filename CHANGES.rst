@@ -4,7 +4,8 @@ Changelog
 0.3.3
 -----
 
-* Updated South support to actually work, updated automated test runner.
+* South support (via monkeypatching, but anyway... it's there!). Thanks to
+  Chris Church for the patch.
 
 0.3.2
 -----

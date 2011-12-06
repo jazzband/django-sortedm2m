@@ -1,13 +1,11 @@
-# Python
 import os
-
-# django-setuptest
 import setuptest
+
 
 TEST_APPS = ['sortedm2m_tests', 'sortedm2m_field', 'sortedm2m_form', 'south_support']
 
-class TestSuite(setuptest.SetupTestSuite):
 
+class TestSuite(setuptest.SetupTestSuite):
     def __init__(self, *args, **kwargs):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'test_settings'
         from south.management.commands import patch_for_test_db_setup
@@ -20,5 +18,3 @@ class TestSuite(setuptest.SetupTestSuite):
             if test_app not in packages:
                 packages.append(test_app)
         return packages
-
-        
