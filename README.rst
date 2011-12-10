@@ -81,8 +81,3 @@ in touch with me by mail_ or twitter_.
 .. _github: http://github.com/gregmuellegger/django-sortedm2m
 .. _mail: mailto:gregor@muellegger.de
 .. _twitter: http://twitter.com/gregmuellegger
-
-Authors
-=======
-
-* Gregor Müllegger <gregor@muellegger.de>
