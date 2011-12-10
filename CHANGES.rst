@@ -5,7 +5,8 @@ Changelog
 -----
 
 * South support (via monkeypatching, but anyway... it's there!). Thanks to
-  Chris Church for the patch.
+  Chris Church for the patch. South migrations won't pick up a changed
+  ``sorted`` argument though.
 
 0.3.2
 -----
