@@ -3,4 +3,4 @@ include LICENSE.txt
 include MANIFEST.in
 include README.rst
 include AUTHORS.rst
-recursive-include sortedm2m/media *
+recursive-include sortedm2m/static *
