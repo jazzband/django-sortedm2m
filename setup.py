@@ -71,7 +71,7 @@ setup(
         'Programming Language :: Python',
     ],
     install_requires = [],
-    tests_require=['Django', 'South', 'django-setuptest'],
+    tests_require=['Django', 'South', 'django-setuptest', 'mock'],
     test_suite='sortedm2m_tests.TestSuite',
 )
 
