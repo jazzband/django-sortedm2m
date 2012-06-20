@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django import VERSION as DJANGO_VERSION
 from django.db import router
 from django.db.models import signals
 from django.db.models.fields.related import add_lazy_relation, create_many_related_manager
@@ -151,15 +152,21 @@ class ReverseSortedManyRelatedObjectsDescriptor(ReverseManyRelatedObjectsDescrip
         superclass = rel_model._default_manager.__class__
         RelatedManager = create_sorted_many_related_manager(superclass, self.field.rel)
 
-        manager = RelatedManager(
-            model=rel_model,
-            core_filters={'%s__pk' % self.field.related_query_name(): instance._get_pk_val()},
-            instance=instance,
-            symmetrical=(self.field.rel.symmetrical and isinstance(instance, rel_model)),
-            source_field_name=self.field.m2m_field_name(),
-            target_field_name=self.field.m2m_reverse_field_name(),
-            reverse=False
-        )
+        init_kwargs = {
+            'model': rel_model,
+            'instance': instance,
+            'symmetrical': (self.field.rel.symmetrical and isinstance(instance, rel_model)),
+            'source_field_name': self.field.m2m_field_name(),
+            'target_field_name': self.field.m2m_reverse_field_name(),
+            'reverse': False,
+            'through': self.field.rel.through
+        }
+
+        if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 4:
+            init_kwargs['core_filters'] = {'%s__pk' % self.field.related_query_name(): instance._get_pk_val()}
+        else:
+            init_kwargs['query_field_name'] = self.field.related_query_name()
+        manager = RelatedManager(**init_kwargs)
 
         return manager
 
