@@ -158,7 +158,8 @@ class ReverseSortedManyRelatedObjectsDescriptor(ReverseManyRelatedObjectsDescrip
             'symmetrical': (self.field.rel.symmetrical and isinstance(instance, rel_model)),
             'source_field_name': self.field.m2m_field_name(),
             'target_field_name': self.field.m2m_reverse_field_name(),
-            'reverse': False
+            'reverse': False,
+            'through': self.field.rel.through
         }
 
         if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 4:
