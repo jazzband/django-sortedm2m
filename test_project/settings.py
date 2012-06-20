@@ -46,20 +46,8 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/admin/'
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'define in local settings file'
-
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.load_template_source',
-)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -80,6 +68,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
     'django.contrib.staticfiles',
+    'django_extensions',
 
     'south',
 
@@ -90,14 +79,6 @@ INSTALLED_APPS = (
     'sortedm2m_tests.south_support',
 
     'example.testapp',
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
 )
 
 try:
