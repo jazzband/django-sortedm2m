@@ -159,13 +159,13 @@ class ReverseSortedManyRelatedObjectsDescriptor(ReverseManyRelatedObjectsDescrip
             'source_field_name': self.field.m2m_field_name(),
             'target_field_name': self.field.m2m_reverse_field_name(),
             'reverse': False,
-            'through': self.field.rel.through
         }
 
-        if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 4:
-            init_kwargs['core_filters'] = {'%s__pk' % self.field.related_query_name(): instance._get_pk_val()}
-        else:
+        if DJANGO_VERSION[:2] >= (1, 4):
+            init_kwargs['through'] = self.field.rel.through
             init_kwargs['query_field_name'] = self.field.related_query_name()
+        else:
+            init_kwargs['core_filters'] = {'%s__pk' % self.field.related_query_name(): instance._get_pk_val()}
         manager = RelatedManager(**init_kwargs)
 
         return manager
