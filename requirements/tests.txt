@@ -1,0 +1,4 @@
+https://github.com/gregmuellegger/django-setuptest/tarball/master#egg=django-setuptest
+argparse
+South
+mock

@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import mock
 from django.core.management import call_command
 from django.test import TestCase
