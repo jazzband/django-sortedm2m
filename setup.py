@@ -1,8 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import codecs
 import os
+import re
 import sys
 from setuptools import find_packages, setup
+
+
+def read(*parts):
+    return codecs.open(os.path.join(os.path.dirname(__file__), *parts)).read()
+
+
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
 
 
 class UltraMagicString(object):
@@ -27,28 +42,14 @@ class UltraMagicString(object):
 
 
 long_description = UltraMagicString('\n\n'.join((
-    file('README.rst').read(),
-    file('CHANGES.rst').read(),
+    read('README.rst'),
+    read('CHANGES.rst'),
 )))
-
-
-# determine package version
-
-sys.path.insert(0, os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'example'))
-sys.path.insert(0, os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'src'))
-
-import sortedm2m
-version = '.'.join([str(x) for x in sortedm2m.__version__[:3]])
-
-if len(sortedm2m.__version__) > 3:
-    version += ''.join([str(x) for x in sortedm2m.__version__[3:]])
 
 
 setup(
     name = 'django-sortedm2m',
-    version = version,
+    version = find_version('sortedm2m', '__init__.py'),
     url = 'http://github.com/gregmuellegger/django-sortedm2m',
     license = 'BSD',
     description =
@@ -73,4 +74,3 @@ setup(
     install_requires = [],
     test_suite='sortedm2m_tests.SetupTestSuite',
 )
-
