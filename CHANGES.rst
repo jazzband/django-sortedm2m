@@ -6,7 +6,7 @@ Changelog
 
 * Django 1.4 support. Thanks to Flavio Curella for the patch.
 * south support is only enabled if south is actually in your INSTALLED_APPS
-  setting. Thanks to tcmb for the report and patch.
+  setting. Thanks to tcmb for the report and Florian Ilgenfritz for the patch.
 
 0.3.3
 -----
