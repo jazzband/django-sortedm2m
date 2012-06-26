@@ -2,6 +2,10 @@
 django-sortedm2m
 ================
 
+.. image:: https://secure.travis-ci.org/gregmuellegger/django-sortedm2m.png
+   :alt: Build Status
+   :target: https://secure.travis-ci.org/gregmuellegger/django-sortedm2m
+
 ``sortedm2m`` is a drop-in replacement for django's own ``ManyToManyField``.
 The provided ``SortedManyToManyField`` behaves like the original one but
 remembers the order of added relations.
