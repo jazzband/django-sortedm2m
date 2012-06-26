@@ -5,6 +5,7 @@ from django.db.models import signals
 from django.db.models.fields.related import add_lazy_relation, create_many_related_manager
 from django.db.models.fields.related import ManyToManyField, ReverseManyRelatedObjectsDescriptor
 from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
+from django.conf import settings
 from django.utils.functional import curry
 from sortedm2m.forms import SortedMultipleChoiceField
 
@@ -249,7 +250,7 @@ try:
 except ImportError:
     south = None
 
-if south is not None:
+if south is not None and 'south' in settings.INSTALLED_APPS:
     from south.modelsinspector import add_introspection_rules
     add_introspection_rules(
         [(
