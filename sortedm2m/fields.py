@@ -77,7 +77,7 @@ def create_sorted_many_related_manager(superclass, rel):
             # intermediary's meta options.
             return super(SortedRelatedManager, self).\
                 get_query_set().\
-                extra(order_by=['%s.%s' % (
+                extra(order_by=['%s.`%s`' % (
                     rel.through._meta.db_table,
                     rel.through._sort_field_name,
                 )])
