@@ -10,7 +10,7 @@ from django.utils.functional import curry
 from sortedm2m.forms import SortedMultipleChoiceField
 
 
-SORT_VALUE_FIELD_NAME = 'sort_value'
+SORT_VALUE_FIELD_NAME = getattr(settings, 'SORTEDM2M_FIELD_NAME', 'sort_value')
 
 
 def create_sorted_many_to_many_intermediate_model(field, klass):
