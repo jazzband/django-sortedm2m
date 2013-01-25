@@ -11,3 +11,4 @@ Contributors
 * Sean O'Connor
 * Flavio Curella
 * Florian Ilgenfritz
+* Antti Kaihola
