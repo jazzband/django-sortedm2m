@@ -100,3 +100,20 @@ class SouthSchemaMigrationTests(TestCase):
         self.assertUnexpectedStrings([
             "+ Added model south_support_new_field.PhotoStream",
         ], errput)
+
+    def test_custom_sort_field_name(self):
+        output, errput = self.perform_migration(
+            'schemamigration',
+            'south_support_custom_sort_field_name',
+            stdout=True,
+            auto=True)
+
+        self.assertExpectedStrings([
+            "Adding SortedM2M table for field photos on 'FeaturedPhotos'",
+            "('featured_nr', models.IntegerField())",
+        ], output)
+
+        self.assertExpectedStrings([
+            "+ Added model south_support_custom_sort_field_name.FeaturedPhotos",
+            "+ Added SortedM2M table for photos on south_support_custom_sort_field_name.FeaturedPhotos",
+        ], errput)

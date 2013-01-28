@@ -43,7 +43,7 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
         'auto_created': klass,
         'app_label': klass._meta.app_label,
         'unique_together': (from_, to),
-        'ordering': (SORT_VALUE_FIELD_NAME,),
+        'ordering': (field.sort_value_field_name,),
         'verbose_name': '%(from)s-%(to)s relationship' % {'from': from_, 'to': to},
         'verbose_name_plural': '%(from)s-%(to)s relationships' % {'from': from_, 'to': to},
     })
@@ -59,8 +59,8 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
         '__module__': klass.__module__,
         from_: models.ForeignKey(klass, related_name='%s+' % name),
         to: models.ForeignKey(to_model, related_name='%s+' % name),
-        SORT_VALUE_FIELD_NAME: models.IntegerField(default=default_sort_value),
-        '_sort_field_name': SORT_VALUE_FIELD_NAME,
+        field.sort_value_field_name: models.IntegerField(default=default_sort_value),
+        '_sort_field_name': field.sort_value_field_name,
         '_from_field_name': from_,
         '_to_field_name': to,
     })
@@ -174,6 +174,9 @@ class SortedManyToManyField(ManyToManyField):
     '''
     def __init__(self, to, sorted=True, **kwargs):
         self.sorted = sorted
+        self.sort_value_field_name = kwargs.pop(
+            'sort_value_field_name',
+            SORT_VALUE_FIELD_NAME)
         super(SortedManyToManyField, self).__init__(to, **kwargs)
         if self.sorted:
             self.help_text = kwargs.get('help_text', None)
@@ -283,7 +286,7 @@ if south is not None and 'south' in settings.INSTALLED_APPS:
                     "right_field": self.field.m2m_reverse_name()[:-3], # Remove the _id part
                     "right_column": self.field.m2m_reverse_name(),
                     "right_model_key": model_key(self.field.rel.to),
-                    "sort_field": SORT_VALUE_FIELD_NAME,
+                    "sort_field": self.field.sort_value_field_name,
                 }
             else:
                 return super(AddM2M, self).forwards_code()

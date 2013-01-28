@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from django.db.models.fields import FieldDoesNotExist
 from django.test import TestCase
-from sortedm2m_tests.models import Book, Shelf, Store, MessyStore, SelfReference
+from sortedm2m_tests.models import Book, Shelf, DoItYourselfShelf, Store, \
+    MessyStore, SelfReference
 
 
 class TestSortedManyToManyField(TestCase):
@@ -159,6 +161,31 @@ class TestStringReference(TestSortedManyToManyField):
     point to.
     '''
     model = Store
+
+
+class TestStringReference(TestSortedManyToManyField):
+    '''
+    Test the same things as ``TestSortedManyToManyField`` but using a model
+    that using a string to reference the relation where the m2m field should
+    point to.
+    '''
+    model = DoItYourselfShelf
+
+    def test_custom_sort_value_field_name(self):
+        from sortedm2m.fields import SORT_VALUE_FIELD_NAME
+
+        self.assertEqual(len(self.model._meta.many_to_many), 1)
+        sortedm2m = self.model._meta.many_to_many[0]
+        intermediate_model = sortedm2m.rel.through
+
+        # make sure that standard sort field is not used
+        self.assertRaises(
+            FieldDoesNotExist,
+            intermediate_model._meta.get_field_by_name,
+            SORT_VALUE_FIELD_NAME)
+
+        field = intermediate_model._meta.get_field_by_name('diy_sort_number')
+        self.assertTrue(field)
 
 
 class TestSelfReference(TestCase):
