@@ -241,11 +241,12 @@ class SortedManyToManyField(ManyToManyField):
                 field.rel.through = model
             add_lazy_relation(cls, self, self.rel.through, resolve_through_model)
 
-        if isinstance(self.rel.to, basestring):
-            target = self.rel.to
-        else:
-            target = self.rel.to._meta.db_table
-        cls._meta.duplicate_targets[self.column] = (target, "m2m")
+        if hasattr(cls._meta, 'duplicate_targets'):  # Django<1.5
+            if isinstance(self.rel.to, basestring):
+                target = self.rel.to
+            else:
+                target = self.rel.to._meta.db_table
+            cls._meta.duplicate_targets[self.column] = (target, "m2m")
 
     def formfield(self, **kwargs):
         defaults = {}

@@ -5,6 +5,7 @@ post-0.4.0
 ----------
 
 * Fixed issue #10 - an obstacle to Django 1.5 support
+* Fixed issue #8 - another obstacle to Django 1.5 support
 
 0.4.0
 -----
