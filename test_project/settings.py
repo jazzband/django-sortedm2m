@@ -77,6 +77,8 @@ INSTALLED_APPS = (
     'sortedm2m_tests.sortedm2m_field',
     'sortedm2m_tests.sortedm2m_form',
     'sortedm2m_tests.south_support',
+    'sortedm2m_tests.south_support.south_support_new_model',
+    'sortedm2m_tests.south_support.south_support_new_field',
 
     'example.testapp',
 )

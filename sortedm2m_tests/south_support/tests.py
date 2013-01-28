@@ -25,24 +25,22 @@ class SouthMigratedModelTests(TestCase):
 
 
 class SouthSchemaMigrationTests(TestCase):
-    def test_1(self):
+    def perform_migration(self, *args, **kwargs):
         from StringIO import StringIO
         stdout = StringIO()
         stderr = StringIO()
         with mock.patch('sys.stdout', stdout):
             with mock.patch('sys.stderr', stderr):
-                call_command('schemamigration', 'south_support', stdout=True, auto=True)
+                call_command(*args, **kwargs)
         stdout.seek(0)
         stderr.seek(0)
         output = stdout.read()
         errput = stderr.read()
-        expected_out_strings = [
-            "Adding SortedM2M table for field photos on 'PhotoStream'",
-            "('sort_value', models.IntegerField())",
-        ]
-        last = 0
+        return output, errput
 
-        for expect in expected_out_strings:
+    def assertExpectedStrings(self, expected_strings, output):
+        last = 0
+        for expect in expected_strings:
             current = output.find(expect)
             if current == -1:
                 self.fail(
@@ -54,19 +52,51 @@ class SouthSchemaMigrationTests(TestCase):
                 "south migration: %s" % expect)
             last = current
 
-        expected_err_strings = [
-            "+ Added model south_support.PhotoStream",
-            "+ Added SortedM2M table for photos on south_support.PhotoStream",
-        ]
-        last = 0
-        for expect in expected_err_strings:
-            current = errput.find(expect)
-            if current == -1:
+    def assertUnexpectedStrings(self, unexpected_strings, output):
+        for unexpected in unexpected_strings:
+            current = output.find(unexpected)
+            if current != -1:
                 self.fail(
-                    "Following string is missing from "
-                    "south stderr: %s" % expect)
-            self.assertTrue(
-                last < current,
-                "Following string is not in correct position in "
-                "south stderr: %s" % expect)
-            last = current
+                    "Following string is content of "
+                    "south migration: %s" % unexpected)
+
+
+    def test_new_model(self):
+        from sortedm2m.fields import SORT_VALUE_FIELD_NAME
+
+        output, errput = self.perform_migration(
+            'schemamigration',
+            'south_support_new_model',
+            stdout=True,
+            auto=True)
+
+        self.assertExpectedStrings([
+            "Adding SortedM2M table for field new_photos on 'CompleteNewPhotoStream'",
+            "('%s', models.IntegerField())" % SORT_VALUE_FIELD_NAME,
+        ], output)
+
+        self.assertExpectedStrings([
+            "+ Added model south_support_new_model.CompleteNewPhotoStream",
+            "+ Added SortedM2M table for new_photos on south_support_new_model.CompleteNewPhotoStream",
+        ], errput)
+
+    def test_new_field(self):
+        from sortedm2m.fields import SORT_VALUE_FIELD_NAME
+
+        output, errput = self.perform_migration(
+            'schemamigration',
+            'south_support_new_field',
+            stdout=True,
+            auto=True)
+
+        self.assertExpectedStrings([
+            "Adding SortedM2M table for field photos on 'PhotoStream'",
+            "('%s', models.IntegerField())" % SORT_VALUE_FIELD_NAME,
+        ], output)
+
+        self.assertExpectedStrings([
+            "+ Added SortedM2M table for photos on south_support_new_field.PhotoStream",
+        ], errput)
+        self.assertUnexpectedStrings([
+            "+ Added model south_support_new_field.PhotoStream",
+        ], errput)

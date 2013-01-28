@@ -23,11 +23,3 @@ class UnsortedGallery(models.Model):
 
     def __unicode__(self):
         return self.name
-
-
-class PhotoStream(models.Model):
-    name = models.CharField(max_length=30)
-    photos = SortedManyToManyField(Photo, sorted=True)
-
-    def __unicode__(self):
-        return self.name
