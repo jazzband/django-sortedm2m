@@ -97,15 +97,27 @@ def create_sorted_many_related_manager(superclass, rel):
                         if not router.allow_relation(obj, self.instance):
                            raise ValueError('Cannot add "%r": instance is on database "%s", value is on database "%s"' %
                                                (obj, self.instance._state.db, obj._state.db))
-                        new_ids.append(obj.pk)
+                        if hasattr(self, '_get_fk_val'):  # Django>=1.5
+                            fk_val = self._get_fk_val(obj, target_field_name)
+                            if fk_val is None:
+                                raise ValueError('Cannot add "%r": the value for field "%s" is None' %
+                                                 (obj, target_field_name))
+                            new_ids.append(self._get_fk_val(obj, target_field_name))
+                        else:  # Django<1.5
+                            new_ids.append(obj.pk)
                     elif isinstance(obj, Model):
-                        raise TypeError("'%s' instance expected" % self.model._meta.object_name)
+                        raise TypeError("'%s' instance expected, got %r" % (self.model._meta.object_name, obj))
                     else:
                         new_ids.append(obj)
+                # Django 1.5 drops the ------------> .__class__ <-- here. Incompatibility?
                 db = router.db_for_write(self.through.__class__, instance=self.instance)
                 vals = self.through._default_manager.using(db).values_list(target_field_name, flat=True)
+                try:  # Django>=1.5
+                    fk_val = self._fk_val
+                except AttributeError:  # Django<1.5
+                    fk_val = self._pk_val
                 vals = vals.filter(**{
-                    source_field_name: self._pk_val,
+                    source_field_name: fk_val,  # Django 1.5 compatibility
                     '%s__in' % target_field_name: new_ids,
                 })
                 for val in vals:
@@ -122,13 +134,13 @@ def create_sorted_many_related_manager(superclass, rel):
                     # duplicate data row for symmetrical reverse entries.
                     signals.m2m_changed.send(sender=rel.through, action='pre_add',
                         instance=self.instance, reverse=self.reverse,
-                        model=self.model, pk_set=new_ids_set)
+                        model=self.model, pk_set=new_ids_set, using=db)
                 # Add the ones that aren't there already
                 sort_field_name = self.through._sort_field_name
                 sort_field = self.through._meta.get_field_by_name(sort_field_name)[0]
                 for obj_id in new_ids:
                     self.through._default_manager.using(db).create(**{
-                        '%s_id' % source_field_name: self._pk_val,
+                        '%s_id' % source_field_name: fk_val,  # Django 1.5 compatibility
                         '%s_id' % target_field_name: obj_id,
                         sort_field_name: sort_field.get_default(),
                     })
@@ -137,7 +149,7 @@ def create_sorted_many_related_manager(superclass, rel):
                     # duplicate data row for symmetrical reverse entries.
                     signals.m2m_changed.send(sender=rel.through, action='post_add',
                         instance=self.instance, reverse=self.reverse,
-                        model=self.model, pk_set=new_ids_set)
+                        model=self.model, pk_set=new_ids_set, using=db)
 
     return SortedRelatedManager
 
