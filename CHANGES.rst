@@ -1,11 +1,12 @@
 Changelog
 =========
 
-post-0.4.0
-----------
+0.5.0
+-----
 
-* Fixed issue #10 - an obstacle to Django 1.5 support
-* Fixed issue #8 - another obstacle to Django 1.5 support
+* Django 1.5 support. Thanks to Antti Kaihola for the patches.
+* Dropping Django 1.3 support. Please use django-sortedm2m<0.5 if you need to
+  use Django 1.3.
 
 0.4.0
 -----
