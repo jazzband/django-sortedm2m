@@ -7,6 +7,8 @@ Changelog
 * Django 1.5 support. Thanks to Antti Kaihola for the patches.
 * Dropping Django 1.3 support. Please use django-sortedm2m<0.5 if you need to
   use Django 1.3.
+* Adding support for a ``sort_value_field_name`` argument in
+  ``SortedManyToManyField``. Thanks to Trey Hunner for the idea.
 
 0.4.0
 -----

@@ -49,6 +49,30 @@ order in which you have added photos to the gallery. ::
     for photo in Photo.objects.order_by('name'):
         gallery.photos.add(photo)
 
+``SortedManyToManyField``
+-------------------------
+
+You can use the following arguments to modify the default behavior:
+
+``sorted``
+~~~~~~~~~~
+
+**Default:** ``True``
+
+You can set the ``sorted`` to ``False`` which will force the
+``SortedManyToManyField`` in behaving like Django's original
+``ManyToManyField``. No ordering will be performed on relation nor will the
+intermediate table have a database field for storing ordering information.
+
+``sort_value_field_name``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Default:** ``'sort_value'``
+
+Specifies how the field is called in the intermediate database table by which
+the relationship is ordered. You can change its name if you have a legacy
+database that you need to integrate into your application.
+
 Admin
 =====
 
