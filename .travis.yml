@@ -1,21 +1,19 @@
 language: python
-python:
-  - "2.5"
-  - "2.6"
-  - "2.7"
-  - "pypy"
 env:
-  - DJANGO_VERSION=1.3.1
-  - DJANGO_VERSION=1.4
+  - TOX_ENV=py25-1.4
+  - TOX_ENV=py26-1.4
+  - TOX_ENV=py26-1.5
+  - TOX_ENV=py27-1.4
+  - TOX_ENV=py27-1.5
+  - TOX_ENV=py27-trunk
+  - TOX_ENV=pypy-1.4
 before_install:
   - export PIP_USE_MIRRORS=true
   - export PIP_INDEX_URL=https://simple.crate.io/
   - export DJANGO_SETTINGS_MODULE=test_settings
-install:
-  - pip install -e .
-  - pip install -r requirements/tests.txt Django==$DJANGO_VERSION
+  - sudo pip install tox
 script:
-  - python setup.py test
+  - tox -e $TOX_ENV
 branches:
   only:
     - master
