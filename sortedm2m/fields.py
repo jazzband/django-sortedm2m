@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from django import VERSION as DJANGO_VERSION
+from __future__ import unicode_literals
+import sys
 from django.db import router
 from django.db.models import signals
 from django.db.models.fields.related import add_lazy_relation, create_many_related_manager
@@ -10,19 +11,25 @@ from django.utils.functional import curry
 from sortedm2m.forms import SortedMultipleChoiceField
 
 
+if sys.version_info[0] < 3:
+    string_types = basestring
+else:
+    string_types = str
+
+
 SORT_VALUE_FIELD_NAME = 'sort_value'
 
 
 def create_sorted_many_to_many_intermediate_model(field, klass):
     from django.db import models
     managed = True
-    if isinstance(field.rel.to, basestring) and field.rel.to != RECURSIVE_RELATIONSHIP_CONSTANT:
+    if isinstance(field.rel.to, string_types) and field.rel.to != RECURSIVE_RELATIONSHIP_CONSTANT:
         to_model = field.rel.to
         to = to_model.split('.')[-1]
         def set_managed(field, model, cls):
             field.rel.through._meta.managed = model._meta.managed or cls._meta.managed
         add_lazy_relation(klass, field, to_model, set_managed)
-    elif isinstance(field.rel.to, basestring):
+    elif isinstance(field.rel.to, string_types):
         to = klass._meta.object_name
         to_model = klass
         managed = klass._meta.managed
@@ -37,7 +44,7 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
     else:
         from_ = klass._meta.object_name.lower()
         to = to.lower()
-    meta = type('Meta', (object,), {
+    meta = type(str('Meta'), (object,), {
         'db_table': field._get_m2m_db_table(klass._meta),
         'managed': managed,
         'auto_created': klass,
@@ -54,7 +61,7 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
 
     default_sort_value = curry(default_sort_value, name)
 
-    return type(name, (models.Model,), {
+    return type(str(name), (models.Model,), {
         'Meta': meta,
         '__module__': klass.__module__,
         from_: models.ForeignKey(klass, related_name='%s+' % name),
@@ -210,13 +217,13 @@ class SortedManyToManyField(ManyToManyField):
 
         # Populate some necessary rel arguments so that cross-app relations
         # work correctly.
-        if isinstance(self.rel.through, basestring):
+        if isinstance(self.rel.through, string_types):
             def resolve_through_model(field, model, cls):
                 field.rel.through = model
             add_lazy_relation(cls, self, self.rel.through, resolve_through_model)
 
         if hasattr(cls._meta, 'duplicate_targets'):  # Django<1.5
-            if isinstance(self.rel.to, basestring):
+            if isinstance(self.rel.to, string_types):
                 target = self.rel.to
             else:
                 target = self.rel.to._meta.db_table

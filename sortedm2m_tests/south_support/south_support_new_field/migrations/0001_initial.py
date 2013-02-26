@@ -9,22 +9,22 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding model 'PhotoStream'
-        db.create_table(u'south_support_new_field_photostream', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        db.create_table('south_support_new_field_photostream', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=30)),
         ))
-        db.send_create_signal(u'south_support_new_field', ['PhotoStream'])
+        db.send_create_signal('south_support_new_field', ['PhotoStream'])
 
 
     def backwards(self, orm):
         # Deleting model 'PhotoStream'
-        db.delete_table(u'south_support_new_field_photostream')
+        db.delete_table('south_support_new_field_photostream')
 
 
     models = {
-        u'south_support_new_field.photostream': {
+        'south_support_new_field.photostream': {
             'Meta': {'object_name': 'PhotoStream'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '30'})
         }
     }

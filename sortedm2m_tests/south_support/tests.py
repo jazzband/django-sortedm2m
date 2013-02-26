@@ -1,9 +1,19 @@
+# -*- coding: utf-8 -*-
 from __future__ import with_statement
+import sys
 import mock
 from django.core.management import call_command
 from django.test import TestCase
 from sortedm2m_tests.south_support.models import Gallery, Photo, \
     UnsortedGallery
+
+if sys.version_info[0] < 3:
+    from StringIO import StringIO
+    _string_prefix = 'u'
+
+else:
+    from io import StringIO
+    _string_prefix = ''
 
 
 class SouthMigratedModelTests(TestCase):
@@ -26,7 +36,6 @@ class SouthMigratedModelTests(TestCase):
 
 class SouthSchemaMigrationTests(TestCase):
     def perform_migration(self, *args, **kwargs):
-        from StringIO import StringIO
         stdout = StringIO()
         stderr = StringIO()
         with mock.patch('sys.stdout', stdout):
@@ -72,7 +81,7 @@ class SouthSchemaMigrationTests(TestCase):
 
         self.assertExpectedStrings([
             "Adding SortedM2M table for field new_photos on 'CompleteNewPhotoStream'",
-            "('%s', models.IntegerField())" % SORT_VALUE_FIELD_NAME,
+            "(%s'%s', models.IntegerField())" % (_string_prefix, SORT_VALUE_FIELD_NAME),
         ], output)
 
         self.assertExpectedStrings([
@@ -91,7 +100,7 @@ class SouthSchemaMigrationTests(TestCase):
 
         self.assertExpectedStrings([
             "Adding SortedM2M table for field photos on 'PhotoStream'",
-            "('%s', models.IntegerField())" % SORT_VALUE_FIELD_NAME,
+            "(%s'%s', models.IntegerField())" % (_string_prefix, SORT_VALUE_FIELD_NAME),
         ], output)
 
         self.assertExpectedStrings([
@@ -110,7 +119,7 @@ class SouthSchemaMigrationTests(TestCase):
 
         self.assertExpectedStrings([
             "Adding SortedM2M table for field photos on 'FeaturedPhotos'",
-            "('featured_nr', models.IntegerField())",
+            "(%s'featured_nr', models.IntegerField())" % _string_prefix,
         ], output)
 
         self.assertExpectedStrings([
