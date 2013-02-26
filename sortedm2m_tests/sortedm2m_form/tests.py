@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from django import forms
 from django.test import TestCase
 from sortedm2m.forms import SortedMultipleChoiceField

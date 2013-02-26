@@ -9,11 +9,9 @@ from sortedm2m_tests.south_support.models import Gallery, Photo, \
 
 if sys.version_info[0] < 3:
     from StringIO import StringIO
-    _string_prefix = 'u'
 
 else:
     from io import StringIO
-    _string_prefix = ''
 
 
 class SouthMigratedModelTests(TestCase):
@@ -81,7 +79,7 @@ class SouthSchemaMigrationTests(TestCase):
 
         self.assertExpectedStrings([
             "Adding SortedM2M table for field new_photos on 'CompleteNewPhotoStream'",
-            "(%s'%s', models.IntegerField())" % (_string_prefix, SORT_VALUE_FIELD_NAME),
+            "('%s', models.IntegerField())" % SORT_VALUE_FIELD_NAME,
         ], output)
 
         self.assertExpectedStrings([
@@ -100,7 +98,7 @@ class SouthSchemaMigrationTests(TestCase):
 
         self.assertExpectedStrings([
             "Adding SortedM2M table for field photos on 'PhotoStream'",
-            "(%s'%s', models.IntegerField())" % (_string_prefix, SORT_VALUE_FIELD_NAME),
+            "('%s', models.IntegerField())" % SORT_VALUE_FIELD_NAME,
         ], output)
 
         self.assertExpectedStrings([
@@ -119,7 +117,7 @@ class SouthSchemaMigrationTests(TestCase):
 
         self.assertExpectedStrings([
             "Adding SortedM2M table for field photos on 'FeaturedPhotos'",
-            "(%s'featured_nr', models.IntegerField())" % _string_prefix,
+            "('featured_nr', models.IntegerField())",
         ], output)
 
         self.assertExpectedStrings([
