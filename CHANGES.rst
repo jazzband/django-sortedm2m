@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.6.0 (not released)
+--------------------
+
+* Python 3 support!
+
 0.5.0
 -----
 

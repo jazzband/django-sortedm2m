@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.db.models.fields import FieldDoesNotExist
 from django.test import TestCase
+from django.utils import six
 from sortedm2m_tests.models import Book, Shelf, DoItYourselfShelf, Store, \
     MessyStore, SelfReference
+
+
+str_ = six.text_type
 
 
 class TestSortedManyToManyField(TestCase):
@@ -51,7 +55,7 @@ class TestSortedManyToManyField(TestCase):
         shelf.books.add(self.books[2].pk)
         self.assertEqual(list(shelf.books.all()), [self.books[2]])
 
-        shelf.books.add(self.books[5].pk, unicode(self.books[1].pk))
+        shelf.books.add(self.books[5].pk, str_(self.books[1].pk))
         self.assertEqual(list(shelf.books.all()), [
             self.books[2],
             self.books[5],
@@ -60,7 +64,7 @@ class TestSortedManyToManyField(TestCase):
         shelf.books.clear()
         self.assertEqual(list(shelf.books.all()), [])
 
-        shelf.books.add(self.books[3].pk, self.books[1], unicode(self.books[2].pk))
+        shelf.books.add(self.books[3].pk, self.books[1], str_(self.books[2].pk))
         self.assertEqual(list(shelf.books.all()), [
             self.books[3],
             self.books[1],
@@ -104,7 +108,7 @@ class TestSortedManyToManyField(TestCase):
             self.books[5],
             self.books[2]])
 
-        shelf.books = [unicode(self.books[8].pk)]
+        shelf.books = [str_(self.books[8].pk)]
         self.assertEqual(list(shelf.books.all()), [self.books[8]])
 
     def test_remove_items(self):
@@ -136,7 +140,7 @@ class TestSortedManyToManyField(TestCase):
             self.books[2],
             self.books[4]])
 
-        shelf.books.remove(self.books[2], unicode(self.books[4].pk))
+        shelf.books.remove(self.books[2], str_(self.books[4].pk))
         self.assertEqual(list(shelf.books.all()), [])
 
 #    def test_add_relation_by_hand(self):
@@ -197,4 +201,4 @@ class TestSelfReference(TestCase):
         s1.me.add(s3)
         s1.me.add(s4, s2)
 
-        self.assertEquals(list(s1.me.all()), [s3,s4,s2])
+        self.assertEqual(list(s1.me.all()), [s3,s4,s2])

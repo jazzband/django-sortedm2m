@@ -1,4 +1,3 @@
-https://github.com/praekelt/django-setuptest/tarball/master#egg=django-setuptest
-argparse
 South
+argparse
 mock

@@ -7,10 +7,6 @@ import sys
 from setuptools import find_packages, setup
 
 
-def read(*parts):
-    return codecs.open(os.path.join(os.path.dirname(__file__), *parts)).read()
-
-
 def find_version(*file_paths):
     version_file = read(*file_paths)
     version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
@@ -18,6 +14,15 @@ def find_version(*file_paths):
     if version_match:
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
+
+
+if sys.version_info[0] < 3:
+    def read(*parts):
+        return codecs.open(os.path.join(os.path.dirname(__file__), *parts)).read()
+
+else:
+    def read(*parts):
+        return open(os.path.join(os.path.dirname(__file__), *parts), 'r').read()
 
 
 class UltraMagicString(object):
@@ -70,7 +75,11 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2.5',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
     ],
     install_requires = [],
-    test_suite='sortedm2m_tests.SetupTestSuite',
 )
