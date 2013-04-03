@@ -80,6 +80,25 @@ Admin
 the selected items. It renders a list of checkboxes that can be sorted by
 drag'n'drop.
 
+To use the widget in the admin you need to add ``sortedm2m`` to your
+INSTALLED_APPS settings, like::
+
+   INSTALLED_APPS = (
+       'django.contrib.auth',
+       'django.contrib.contenttypes',
+       'django.contrib.sessions',
+       'django.contrib.sites',
+       'django.contrib.messages',
+       'django.contrib.staticfiles',
+       'django.contrib.admin',
+   
+       'sortedm2m',
+
+       '...',
+   )
+
+Otherwise it will not find the css and js files needed to sort by drag'n'drop.
+
 It's also possible to use the ``SortedManyToManyField`` with admin's
 ``raw_id_fields`` option in the ``ModelAdmin`` definition. Add the name of the
 ``SortedManyToManyField`` to this list to get a simple text input field. The
