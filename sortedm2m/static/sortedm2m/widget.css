@@ -1,8 +1,36 @@
-ul.sortedm2m {
-    padding-left:3em !important;
-    margin-left:15em !important;
+div.sortedm2m-container {
+    margin-right: 10px !important;
+    width: 570px;
 }
 
-ul.sortedm2m + .add-another {
-    margin-left:18em !important;
+.sortedm2m-container h2 {
+    width: 560px;
+}
+
+ul.sortedm2m {
+    border: 1px solid #ccc !important;
+    border-top: 0px !important;
+    display: block;
+    width: 554px;
+    min-height: 200px !important;
+    max-height: 400px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    margin: 0 !important;
+    padding: 6px 8px !important;
+    list-style-type: none !important;
+    text-align: left;
+}
+
+ul.sortedm2m li {
+    list-style-type: none;
+    text-align: left;
+    width: 550px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre;
+}
+
+ul.sortedm2m li, ul.sortedm2m label {
+    cursor: move !important;
 }
