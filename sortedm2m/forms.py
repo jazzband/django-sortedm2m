@@ -35,7 +35,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         final_attrs = self.build_attrs(attrs, name=name)
 
         # Normalize to strings
-        str_values = set([force_unicode(v) for v in value])
+        str_values = [force_unicode(v) for v in value]
 
         selected = []
         unselected = []
