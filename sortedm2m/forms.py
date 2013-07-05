@@ -72,7 +72,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         <h2>Choose items and order (drag)</h2>
 
         <p class="selector-filter">
-        <img src="/static/admin/img/selector-search.gif" class="help-tooltip" alt="" title="Type into this box to filter down the list." />
+        <img src="{{ STATIC_URL }}admin/img/selector-search.gif" class="help-tooltip" alt="" title="Type into this box to filter down the list." />
         <input type="text" placeholder="Filter">
         </p>
 
@@ -90,8 +90,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
         </div>
         {% endspaceless %}"""
-
-        html = Template(template).render(Context({'selected': selected, 'unselected': unselected}))
+        html = Template(template).render(Context({'selected': selected, 'unselected': unselected, 'STATIC_URL': settings.STATIC_URL}))
         return mark_safe(html)
 
     def value_from_datadict(self, data, files, name):
