@@ -53,15 +53,28 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             option_value = force_unicode(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_unicode(option_label))
-            item = {'label_for': label_for, 'rendered_cb': rendered_cb, 'option_label': option_label}
+            item = {'label_for': label_for, 'rendered_cb': rendered_cb, 'option_label': option_label, 'option_value': option_value}
             if option_value in str_values:
                 selected.append(item)
             else:
                 unselected.append(item)
 
+        # re-order `selected` array according str_values which is a set of `option_value`s in the order they should be shown on screen
+        ordered = []
+        for value in str_values:
+            for select in selected:
+                if value == select['option_value']:
+                    ordered.append(select)
+        selected = ordered
+
         template = """{% spaceless %}
         <div class="selector-chosen sortedm2m-container">
         <h2>Choose items and order (drag)</h2>
+
+        <p class="selector-filter">
+        <img src="/static/admin/img/selector-search.gif" class="help-tooltip" alt="" title="Type into this box to filter down the list." />
+        <input type="text" placeholder="Filter">
+        </p>
 
         <ul>
         {% for row in selected %}

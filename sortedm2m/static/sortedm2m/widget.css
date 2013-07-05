@@ -7,6 +7,20 @@ div.sortedm2m-container {
     width: 560px;
 }
 
+div.sortedm2m-container p.selector-filter {
+    border-right: 1px solid #ccc !important;
+    border-left: 1px solid #ccc !important;
+    border-bottom: 1px solid #ccc !important;
+    width: 570px;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+div.sortedm2m-container p.selector-filter input {
+    width: 532px !important;
+    margin: 5px 4px !important;
+}
+
 ul.sortedm2m {
     border: 1px solid #ccc !important;
     border-top: 0px !important;

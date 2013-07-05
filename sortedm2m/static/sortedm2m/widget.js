@@ -28,6 +28,24 @@ if (jQuery === undefined) {
             });
         });
 
+        $('.sortedm2m-container .selector-filter input').each(function () {
+            $(this).bind('input', function() {
+                var search = $(this).val().toLowerCase();
+                var $el = $(this).closest('.selector-filter');
+                var $container = $el.siblings('ul').each(function() {
+                    // walk over each child list el and do name comparisons
+                    $(this).children().each(function() {
+                        var curr = $(this).find('label').text().toLowerCase();
+                        if (curr.indexOf(search) === -1) {
+                            $(this).css('display', 'none');
+                        } else {
+                            $(this).css('display', 'inherit');
+                        };
+                    });
+                });
+            });
+        });
+
         if (window.showAddAnotherPopup) {
             var django_dismissAddAnotherPopup = window.dismissAddAnotherPopup;
             window.dismissAddAnotherPopup = function (win, newId, newRepr) {
