@@ -4,10 +4,10 @@ from itertools import chain
 from django import forms
 from django.conf import settings
 from django.db.models.query import QuerySet
+from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-from django.template import Context, Template
 
 
 if sys.version_info[0] < 3:
@@ -79,30 +79,9 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
                     ordered.append(select)
         selected = ordered
 
-        template = """{% spaceless %}
-        <div class="selector-chosen sortedm2m-container">
-        <h2>Choose items and order (drag)</h2>
-
-        <p class="selector-filter">
-        <img src="{{ STATIC_URL }}admin/img/selector-search.gif" class="help-tooltip" alt="" title="Type into this box to filter down the list." />
-        <input type="text" placeholder="Filter">
-        </p>
-
-        <ul>
-        {% for row in selected %}
-            <li><label {{ row.label_for }}>{{ row.rendered_cb }} {{ row.option_label }}</label></li>
-        {% endfor %}
-
-        {% for row in unselected %}
-            <li><label {{ row.label_for }}>{{ row.rendered_cb }} {{ row.option_label }}</label></li>
-        {% endfor %}
-        </ul>
-
-        <div style="clear: both;"></div>
-
-        </div>
-        {% endspaceless %}"""
-        html = Template(template).render(Context({'selected': selected, 'unselected': unselected, 'STATIC_URL': settings.STATIC_URL}))
+        html = render_to_string(
+            'sortedm2m/sorted_checkbox_select_multiple_widget.html',
+            {'selected': selected, 'unselected': unselected})
         return mark_safe(html)
 
     def value_from_datadict(self, data, files, name):
