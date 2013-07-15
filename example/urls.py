@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.conf import settings
@@ -20,5 +19,6 @@ handler500 = 'example.urls.handle500'
 urlpatterns = patterns('',
     url(r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
     url(r'^admin/', include(admin.site.urls), name="admin"),
-    url(r'^', include('staticfiles.urls')),
+    url(r'^parkingarea/(?P<pk>\d+)/$', 'example.testapp.views.parkingarea_update', name='parkingarea'),
+    url(r'^', include('django.contrib.staticfiles.urls')),
 )
