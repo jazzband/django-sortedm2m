@@ -12,3 +12,4 @@ Contributors
 * Flavio Curella
 * Florian Ilgenfritz
 * Antti Kaihola
+* Mike Knoop

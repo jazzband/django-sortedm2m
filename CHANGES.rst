@@ -5,6 +5,7 @@ Changelog
 --------------------
 
 * Python 3 support!
+* Better widget. Thanks to Mike Knoop for the initial patch.
 
 0.5.0
 -----
