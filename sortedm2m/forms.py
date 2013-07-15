@@ -1,15 +1,27 @@
 # -*- coding: utf-8 -*-
+import sys
 from itertools import chain
 from django import forms
 from django.conf import settings
 from django.db.models.query import QuerySet
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.template import Context, Template
 
 
+if sys.version_info[0] < 3:
+    iteritems = lambda d: iter(d.iteritems())
+    string_types = basestring,
+    str_ = unicode
+else:
+    iteritems = lambda d: iter(d.items())
+    string_types = str,
+    str_ = str
+
+
 STATIC_URL = getattr(settings, 'STATIC_URL', settings.MEDIA_URL)
+
 
 class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     class Media:
@@ -26,7 +38,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             build_attrs(attrs, **kwargs)
         classes = attrs.setdefault('class', '').split()
         classes.append('sortedm2m')
-        attrs['class'] = u' '.join(classes)
+        attrs['class'] = ' '.join(classes)
         return attrs
 
     def render(self, name, value, attrs=None, choices=()):
@@ -35,7 +47,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         final_attrs = self.build_attrs(attrs, name=name)
 
         # Normalize to strings
-        str_values = [force_unicode(v) for v in value]
+        str_values = [force_text(v) for v in value]
 
         selected = []
         unselected = []
@@ -45,14 +57,14 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             # so that the checkboxes don't all have the same ID attribute.
             if has_id:
                 final_attrs = dict(final_attrs, id='%s_%s' % (attrs['id'], i))
-                label_for = u' for="%s"' % final_attrs['id']
+                label_for = ' for="%s"' % final_attrs['id']
             else:
                 label_for = ''
 
             cb = forms.CheckboxInput(final_attrs, check_test=lambda value: value in str_values)
-            option_value = force_unicode(option_value)
+            option_value = force_text(option_value)
             rendered_cb = cb.render(name, option_value)
-            option_label = conditional_escape(force_unicode(option_label))
+            option_label = conditional_escape(force_text(option_label))
             item = {'label_for': label_for, 'rendered_cb': rendered_cb, 'option_label': option_label, 'option_value': option_value}
             if option_value in str_values:
                 selected.append(item)
@@ -95,7 +107,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
-        if isinstance(value, basestring):
+        if isinstance(value, string_types):
             return [v for v in value.split(',') if v]
         return value
 
@@ -108,6 +120,6 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
         if value is None or not isinstance(queryset, QuerySet):
             return queryset
         object_list = dict((
-            (unicode(key), value)
-            for key, value in queryset.in_bulk(value).iteritems()))
-        return [object_list[unicode(pk)] for pk in value]
+            (str_(key), value)
+            for key, value in iteritems(queryset.in_bulk(value))))
+        return [object_list[str_(pk)] for pk in value]
