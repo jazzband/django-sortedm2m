@@ -104,7 +104,7 @@ or ``filter_vertical`` tuples inside of your ``ModelAdmin`` definitions.
 
 If you did it right, you'll wind up with something like this:
 
-.. image:: http://i.imgur.com/9Bjfo7Q.png
+.. image:: http://i.imgur.com/HjIW7MI.jpg
 
 It's also possible to use the ``SortedManyToManyField`` with admin's
 ``raw_id_fields`` option in the ``ModelAdmin`` definition. Add the name of the
