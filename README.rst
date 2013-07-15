@@ -99,6 +99,13 @@ INSTALLED_APPS settings, like::
 
 Otherwise it will not find the css and js files needed to sort by drag'n'drop.
 
+Finally, make sure *not* to have the model listed in any ``filter_horizontal``
+or ``filter_vertical`` tuples inside of your ``ModelAdmin`` definitions.
+
+If you did it right, you'll wind up with something like this:
+
+.. image:: http://i.imgur.com/9Bjfo7Q.png
+
 It's also possible to use the ``SortedManyToManyField`` with admin's
 ``raw_id_fields`` option in the ``ModelAdmin`` definition. Add the name of the
 ``SortedManyToManyField`` to this list to get a simple text input field. The
