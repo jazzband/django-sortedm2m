@@ -14,7 +14,7 @@ before_install:
   - export DJANGO_SETTINGS_MODULE=test_settings
   - sudo pip install tox
 script:
-  - tox -e $TOX_ENV
+  - tox -e $TOX_ENV -v
 branches:
   only:
     - master
