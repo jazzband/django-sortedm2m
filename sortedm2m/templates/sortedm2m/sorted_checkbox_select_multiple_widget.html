@@ -8,11 +8,11 @@
 
     <ul>
     {% for row in selected %}
-        <li><label {{ row.label_for }}>{{ row.rendered_cb }} {{ row.option_label }}</label></li>
+        <li><label {{ row.label_for|safe }}>{{ row.rendered_cb }} {{ row.option_label }}</label></li>
     {% endfor %}
 
     {% for row in unselected %}
-        <li><label {{ row.label_for }}>{{ row.rendered_cb }} {{ row.option_label }}</label></li>
+        <li><label {{ row.label_for|safe }}>{{ row.rendered_cb }} {{ row.option_label }}</label></li>
     {% endfor %}
     </ul>
 
