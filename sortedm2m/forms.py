@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db.models.query import QuerySet
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
-from django.utils.html import conditional_escape
+from django.utils.html import conditional_escape, escape
 from django.utils.safestring import mark_safe
 
 
@@ -57,7 +57,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             # so that the checkboxes don't all have the same ID attribute.
             if has_id:
                 final_attrs = dict(final_attrs, id='%s_%s' % (attrs['id'], i))
-                label_for = ' for="%s"' % final_attrs['id']
+                label_for = ' for="%s"' % conditional_escape(final_attrs['id'])
             else:
                 label_for = ''
 

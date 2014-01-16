@@ -59,3 +59,23 @@ class TestSortedFormField(TestCase):
         self.assertEqual(len(form.errors), 0)
         form = SortedForm({'values': '1,2'})
         self.assertEqual(len(form.errors), 0)
+
+    def test_for_attribute_in_label(self):
+        form = SortedForm()
+        rendered = unicode(form['values'])
+        self.assertTrue(' for="id_values_0"' in rendered)
+
+        form = SortedForm(prefix='prefix')
+        rendered = unicode(form['values'])
+        self.assertTrue(' for="id_prefix-values_0"' in rendered)
+
+        # check that it will be escaped properly
+
+        form = SortedForm(prefix='hacking"><a href="TRAP">')
+        rendered = unicode(form['values'])
+        self.assertTrue(' for="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
+
+    def test_input_id_is_escaped(self):
+        form = SortedForm(prefix='hacking"><a href="TRAP">')
+        rendered = unicode(form['values'])
+        self.assertTrue(' id="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
