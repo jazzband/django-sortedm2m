@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.6.1
+-----
+
+* Correct escaping of *for* attribute in label for the sortedm2m widget. Thanks
+  to Mystic-Mirage for the report and fix.
+
 0.6.0 
 -----
 
