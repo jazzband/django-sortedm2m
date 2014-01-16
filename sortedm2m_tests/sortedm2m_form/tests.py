@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.test import TestCase
+from django.utils import six
 from sortedm2m.forms import SortedMultipleChoiceField
 from sortedm2m_tests.models import Book, Shelf, Store, MessyStore
+
+
+str_ = six.text_type
 
 
 class SortedForm(forms.Form):
@@ -62,20 +66,20 @@ class TestSortedFormField(TestCase):
 
     def test_for_attribute_in_label(self):
         form = SortedForm()
-        rendered = unicode(form['values'])
+        rendered = str_(form['values'])
         self.assertTrue(' for="id_values_0"' in rendered)
 
         form = SortedForm(prefix='prefix')
-        rendered = unicode(form['values'])
+        rendered = str_(form['values'])
         self.assertTrue(' for="id_prefix-values_0"' in rendered)
 
         # check that it will be escaped properly
 
         form = SortedForm(prefix='hacking"><a href="TRAP">')
-        rendered = unicode(form['values'])
+        rendered = str_(form['values'])
         self.assertTrue(' for="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
 
     def test_input_id_is_escaped(self):
         form = SortedForm(prefix='hacking"><a href="TRAP">')
-        rendered = unicode(form['values'])
+        rendered = str_(form['values'])
         self.assertTrue(' id="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
