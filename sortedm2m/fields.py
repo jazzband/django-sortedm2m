@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from operator import attrgetter
 import sys
+from django.db import connections
 from django.db import router
 from django.db.models import signals
 from django.db.models.fields.related import add_lazy_relation, create_many_related_manager
@@ -81,17 +83,53 @@ def create_sorted_many_related_manager(superclass, rel):
             # the extra sorting field of the intermediary model. The fields
             # are hidden for joins because we set ``auto_created`` on the
             # intermediary's meta options.
-            return super(SortedRelatedManager, self).\
-                get_query_set().\
-                extra(order_by=['%s.%s' % (
-                    rel.through._meta.db_table,
-                    rel.through._sort_field_name,
-                )])
+            try:
+                return self.instance._prefetched_objects_cache[self.prefetch_cache_name]
+            except (AttributeError, KeyError):
+                return super(SortedRelatedManager, self).\
+                    get_query_set().\
+                    extra(order_by=['%s.%s' % (
+                        rel.through._meta.db_table,
+                        rel.through._sort_field_name,
+                    )])
 
         if not hasattr(RelatedManager, '_get_fk_val'):
             @property
             def _fk_val(self):
                 return self._pk_val
+
+        def get_prefetch_query_set(self, instances):
+            # mostly a copy of get_prefetch_query_set from ManyRelatedManager
+            # but with addition of proper ordering
+            db = self._db or router.db_for_read(instances[0].__class__, instance=instances[0])
+            query = {'%s__pk__in' % self.query_field_name:
+                         set(obj._get_pk_val() for obj in instances)}
+            qs = super(RelatedManager, self).get_query_set().using(db)._next_is_sticky().filter(**query)
+
+            # M2M: need to annotate the query in order to get the primary model
+            # that the secondary model was actually related to. We know that
+            # there will already be a join on the join table, so we can just add
+            # the select.
+
+            # For non-autocreated 'through' models, can't assume we are
+            # dealing with PK values.
+            fk = self.through._meta.get_field(self.source_field_name)
+            source_col = fk.column
+            join_table = self.through._meta.db_table
+            connection = connections[db]
+            qn = connection.ops.quote_name
+            qs = qs.extra(select={'_prefetch_related_val':
+                                      '%s.%s' % (qn(join_table), qn(source_col))},
+                          order_by=['%s.%s' % (
+                    rel.through._meta.db_table,
+                    rel.through._sort_field_name,
+                )])
+            select_attname = fk.rel.get_related_field().get_attname()
+            return (qs,
+                    attrgetter('_prefetch_related_val'),
+                    attrgetter(select_attname),
+                    False,
+                    self.prefetch_cache_name)
 
         def _add_items(self, source_field_name, target_field_name, *objs):
             # source_field_name: the PK fieldname in join_table for the source object

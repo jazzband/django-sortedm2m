@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+from django.db import connection
 from django.db.models.fields import FieldDoesNotExist
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.utils import six
 from sortedm2m_tests.models import Book, Shelf, DoItYourselfShelf, Store, \
     MessyStore, SelfReference
-
 
 str_ = six.text_type
 
@@ -157,6 +158,26 @@ class TestSortedManyToManyField(TestCase):
 #            self.books[3],
 #            self.books[4]])
 
+    # to enable population of connection.queries
+    @override_settings(DEBUG=True)
+    def test_prefetch_related_queries_num(self):
+        shelf = self.model.objects.create()
+        shelf.books.add(self.books[0])
+
+        shelf = self.model.objects.filter(pk=shelf.pk).prefetch_related('books')[0]
+        queries_num = len(connection.queries)
+        name = shelf.books.all()[0].name
+        self.assertEqual(queries_num, len(connection.queries))
+
+    def test_prefetch_related_sorting(self):
+        shelf = self.model.objects.create()
+        books = [self.books[0], self.books[2], self.books[1]]
+        shelf.books = books
+
+        shelf = self.model.objects.filter(pk=shelf.pk).prefetch_related('books')[0]
+        def get_ids(queryset):
+            return [obj.id for obj in queryset]
+        self.assertEqual(get_ids(shelf.books.all()), get_ids(books))
 
 class TestStringReference(TestSortedManyToManyField):
     '''
