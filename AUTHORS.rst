@@ -13,3 +13,4 @@ Contributors
 * Florian Ilgenfritz
 * Antti Kaihola
 * Mike Knoop
+* Marcin Ossowski

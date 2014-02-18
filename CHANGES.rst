@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.7.0
+-----
+
+* Adding support for ``prefetch_related()``. Thanks to Marcin Ossowski for
+  the idea and patch.
+
 0.6.1
 -----
 
