@@ -14,7 +14,6 @@ env:
   - TOX_ENV=py33-1.6
 before_install:
   - export PIP_USE_MIRRORS=true
-  - export PIP_INDEX_URL=https://simple.crate.io/
   - export DJANGO_SETTINGS_MODULE=test_settings
   - sudo pip install tox
 script:
