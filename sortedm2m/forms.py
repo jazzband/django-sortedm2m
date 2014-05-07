@@ -33,6 +33,11 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             STATIC_URL + 'sortedm2m/widget.css',
         )}
 
+    def __init__(self, image_preview=False, image_field='', *args, **kwargs):
+        super(SortedCheckboxSelectMultiple, self).__init__(*args, **kwargs)
+        self.image_preview = image_preview
+        self.image_field = image_field
+
     def build_attrs(self, attrs=None, **kwargs):
         attrs = super(SortedCheckboxSelectMultiple, self).\
             build_attrs(attrs, **kwargs)
@@ -51,6 +56,8 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
         selected = []
         unselected = []
+        if self.image_preview:
+            object_list = self.choices.queryset
 
         for i, (option_value, option_label) in enumerate(chain(self.choices, choices)):
             # If an ID attribute was given, add a numeric index as a suffix,
@@ -66,6 +73,13 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_text(option_label))
             item = {'label_for': label_for, 'rendered_cb': rendered_cb, 'option_label': option_label, 'option_value': option_value}
+            if self.image_preview:
+                try:
+                    url = getattr(object_list[i], self.image_field).url
+                    item['image_url'] = url
+                except IndexError:
+                    item['image_url'] = None
+
             if option_value in str_values:
                 selected.append(item)
             else:
@@ -82,6 +96,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         html = render_to_string(
             'sortedm2m/sorted_checkbox_select_multiple_widget.html',
             {'selected': selected, 'unselected': unselected})
+
         return mark_safe(html)
 
     def value_from_datadict(self, data, files, name):

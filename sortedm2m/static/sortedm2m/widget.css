@@ -40,6 +40,11 @@ ul.sortedm2m li, ul.sortedm2m label {
     cursor: move;
 }
 
+ul.sortedm2m img {
+    float: right;
+    padding-right: 10px;
+}
+
 /* required to work properly in django admin */
 body.change-form .sortedm2m-container {
     float: left;
