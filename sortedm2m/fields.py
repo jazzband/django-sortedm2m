@@ -96,7 +96,7 @@ def create_sorted_many_related_manager(superclass, rel):
         if not hasattr(RelatedManager, '_get_fk_val'):
             @property
             def _fk_val(self):
-                return self._pk_val
+                return self.related_val[0]
 
         def get_prefetch_query_set(self, instances):
             # mostly a copy of get_prefetch_query_set from ManyRelatedManager
@@ -160,7 +160,7 @@ def create_sorted_many_related_manager(superclass, rel):
                 db = router.db_for_write(self.through, instance=self.instance)
                 vals = self.through._default_manager.using(db).values_list(target_field_name, flat=True)
                 vals = vals.filter(**{
-                    source_field_name: self._fk_val,
+                    source_field_name: self.related_val[0],
                     '%s__in' % target_field_name: new_ids,
                 })
                 for val in vals:
