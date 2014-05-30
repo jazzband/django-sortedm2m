@@ -54,6 +54,7 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
         'app_label': klass._meta.app_label,
         'db_tablespace': klass._meta.db_tablespace,
         'unique_together': (from_, to),
+        'ordering': (field.sort_value_field_name,),
         'verbose_name': '%(from)s-%(to)s relationship' % {'from': from_, 'to': to},
         'verbose_name_plural': '%(from)s-%(to)s relationships' % {'from': from_, 'to': to},
         'apps': field.model._meta.apps,
@@ -69,7 +70,11 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
         'Meta': meta,
         '__module__': klass.__module__,
         from_: models.ForeignKey(klass, related_name='%s+' % name, db_tablespace=field.db_tablespace, db_constraint=field.rel.db_constraint),
-        to: models.ForeignKey(to_model, related_name='%s+' % name, db_tablespace=field.db_tablespace, db_constraint=field.rel.db_constraint)
+        to: models.ForeignKey(to_model, related_name='%s+' % name, db_tablespace=field.db_tablespace, db_constraint=field.rel.db_constraint),
+        field.sort_value_field_name: models.IntegerField(default=default_sort_value),
+        '_sort_field_name': field.sort_value_field_name,
+        '_from_field_name': from_,
+        '_to_field_name': to,
     })
 
 
