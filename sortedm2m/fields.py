@@ -9,6 +9,7 @@ from django.db.models.fields.related import ManyToManyField, ReverseManyRelatedO
 from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
 from django.conf import settings
 from django.utils.functional import curry
+from django.utils import six
 from sortedm2m.forms import SortedMultipleChoiceField
 
 
@@ -17,20 +18,20 @@ if sys.version_info[0] < 3:
 else:
     string_types = str
 
-
 SORT_VALUE_FIELD_NAME = 'sort_value'
 
 
 def create_sorted_many_to_many_intermediate_model(field, klass):
     from django.db import models
     managed = True
-    if isinstance(field.rel.to, string_types) and field.rel.to != RECURSIVE_RELATIONSHIP_CONSTANT:
+    if isinstance(field.rel.to, six.string_types) and field.rel.to != RECURSIVE_RELATIONSHIP_CONSTANT:
         to_model = field.rel.to
         to = to_model.split('.')[-1]
+
         def set_managed(field, model, cls):
             field.rel.through._meta.managed = model._meta.managed or cls._meta.managed
         add_lazy_relation(klass, field, to_model, set_managed)
-    elif isinstance(field.rel.to, string_types):
+    elif isinstance(field.rel.to, six.string_types):
         to = klass._meta.object_name
         to_model = klass
         managed = klass._meta.managed
@@ -43,17 +44,19 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
         from_ = 'from_%s' % to.lower()
         to = 'to_%s' % to.lower()
     else:
-        from_ = klass._meta.object_name.lower()
+        from_ = klass._meta.model_name
         to = to.lower()
-    meta = type(str('Meta'), (object,), {
+    meta = type('Meta', (object,), {
         'db_table': field._get_m2m_db_table(klass._meta),
         'managed': managed,
         'auto_created': klass,
         'app_label': klass._meta.app_label,
+        'db_tablespace': klass._meta.db_tablespace,
         'unique_together': (from_, to),
         'ordering': (field.sort_value_field_name,),
         'verbose_name': '%(from)s-%(to)s relationship' % {'from': from_, 'to': to},
         'verbose_name_plural': '%(from)s-%(to)s relationships' % {'from': from_, 'to': to},
+        'apps': field.model._meta.apps,
     })
     # Construct and return the new class.
     def default_sort_value(name):
@@ -65,8 +68,8 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
     return type(str(name), (models.Model,), {
         'Meta': meta,
         '__module__': klass.__module__,
-        from_: models.ForeignKey(klass, related_name='%s+' % name),
-        to: models.ForeignKey(to_model, related_name='%s+' % name),
+        from_: models.ForeignKey(klass, related_name='%s+' % name, db_tablespace=field.db_tablespace, db_constraint=field.rel.db_constraint),
+        to: models.ForeignKey(to_model, related_name='%s+' % name, db_tablespace=field.db_tablespace, db_constraint=field.rel.db_constraint),
         field.sort_value_field_name: models.IntegerField(default=default_sort_value),
         '_sort_field_name': field.sort_value_field_name,
         '_from_field_name': from_,
@@ -78,7 +81,7 @@ def create_sorted_many_related_manager(superclass, rel):
     RelatedManager = create_many_related_manager(superclass, rel)
 
     class SortedRelatedManager(RelatedManager):
-        def get_query_set(self):
+        def get_queryset(self):
             # We use ``extra`` method here because we have no other access to
             # the extra sorting field of the intermediary model. The fields
             # are hidden for joins because we set ``auto_created`` on the
@@ -96,9 +99,9 @@ def create_sorted_many_related_manager(superclass, rel):
         if not hasattr(RelatedManager, '_get_fk_val'):
             @property
             def _fk_val(self):
-                return self._pk_val
+                return self.related_val[0]
 
-        def get_prefetch_query_set(self, instances):
+        def get_prefetch_queryset(self, instances):
             # mostly a copy of get_prefetch_query_set from ManyRelatedManager
             # but with addition of proper ordering
             db = self._db or router.db_for_read(instances[0].__class__, instance=instances[0])
@@ -160,7 +163,7 @@ def create_sorted_many_related_manager(superclass, rel):
                 db = router.db_for_write(self.through, instance=self.instance)
                 vals = self.through._default_manager.using(db).values_list(target_field_name, flat=True)
                 vals = vals.filter(**{
-                    source_field_name: self._fk_val,
+                    source_field_name: self.related_val[0],
                     '%s__in' % target_field_name: new_ids,
                 })
                 for val in vals:
