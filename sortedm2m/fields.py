@@ -18,7 +18,6 @@ if sys.version_info[0] < 3:
 else:
     string_types = str
 
-
 SORT_VALUE_FIELD_NAME = 'sort_value'
 
 
@@ -82,7 +81,7 @@ def create_sorted_many_related_manager(superclass, rel):
     RelatedManager = create_many_related_manager(superclass, rel)
 
     class SortedRelatedManager(RelatedManager):
-        def get_query_set(self):
+        def get_queryset(self):
             # We use ``extra`` method here because we have no other access to
             # the extra sorting field of the intermediary model. The fields
             # are hidden for joins because we set ``auto_created`` on the
@@ -102,7 +101,7 @@ def create_sorted_many_related_manager(superclass, rel):
             def _fk_val(self):
                 return self.related_val[0]
 
-        def get_prefetch_query_set(self, instances):
+        def get_prefetch_queryset(self, instances):
             # mostly a copy of get_prefetch_query_set from ManyRelatedManager
             # but with addition of proper ordering
             db = self._db or router.db_for_read(instances[0].__class__, instance=instances[0])
