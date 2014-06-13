@@ -4,14 +4,13 @@ import sys
 import mock
 from django.core.management import call_command
 from django.test import TestCase
-from sortedm2m_tests.south_support.models import Gallery, Photo, \
-    UnsortedGallery
 
 if sys.version_info[0] < 3:
     from StringIO import StringIO
-
 else:
     from io import StringIO
+
+from .models import Gallery, Photo, UnsortedGallery
 
 
 class SouthMigratedModelTests(TestCase):

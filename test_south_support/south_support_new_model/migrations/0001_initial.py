@@ -14,7 +14,7 @@ class Migration(SchemaMigration):
         pass
 
     models = {
-        
+
     }
 
-    complete_apps = ['south_support_custom_sort_field_name']
+    complete_apps = ['south_support_new_model']

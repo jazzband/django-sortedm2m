@@ -3,7 +3,7 @@ from django import forms
 from django.test import TestCase
 from django.utils import six
 from sortedm2m.forms import SortedMultipleChoiceField
-from sortedm2m_tests.models import Book, Shelf, Store, MessyStore
+from .models import Book, Shelf, Store, MessyStore
 
 
 str_ = six.text_type
@@ -40,6 +40,9 @@ class TestSortedFormField(TestCase):
         class ShelfForm(forms.ModelForm):
             class Meta:
                 model = Shelf
+                fields = (
+                    'books',
+                )
 
         form = ShelfForm()
         self.assertTrue(
@@ -48,6 +51,9 @@ class TestSortedFormField(TestCase):
         class MessyStoreForm(forms.ModelForm):
             class Meta:
                 model = MessyStore
+                fields = (
+                    'books',
+                )
 
         form = MessyStoreForm()
         self.assertFalse(

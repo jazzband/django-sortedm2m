@@ -11,33 +11,29 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "test_project.settings")
 
 
 import django
-from django.core.management import call_command
+from django.core.management import execute_from_command_line
 
 
 if django.VERSION < (1, 6):
     default_test_apps = [
         'sortedm2m_tests',
-        'sortedm2m_field',
-        'sortedm2m_form',
-        'south_support',
-        'south_support_new_model',
-        'south_support_new_field',
-        'south_support_custom_sort_field_name',
+        'test_south_support',
     ]
 else:
     default_test_apps = [
-        'sortedm2m_tests.sortedm2m_field',
-        'sortedm2m_tests.sortedm2m_form',
-        'sortedm2m_tests.south_support',
-        'sortedm2m_tests.south_support.south_support_new_model',
-        'sortedm2m_tests.south_support.south_support_new_field',
-        'sortedm2m_tests.south_support.south_support_custom_sort_field_name',
+        'sortedm2m_tests',
     ]
+
+    # Only test south support for Django 1.6 and lower.
+    if django.VERSION < (1, 7):
+        default_test_apps = [
+            'test_south_support',
+        ]
 
 
 def runtests(*args):
-    test_apps = args or default_test_apps
-    call_command('test', *test_apps, verbosity=1)
+    test_apps = list(args or default_test_apps)
+    execute_from_command_line([sys.argv[0], 'test', '--verbosity=1'] + test_apps)
 
 
 if __name__ == '__main__':
