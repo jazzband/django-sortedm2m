@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.0 (in development)
+----------------------
+
+* Adding support for Django 1.7 and dropping support for Django 1.4.
+
 0.7.0
 -----
 
