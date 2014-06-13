@@ -26,7 +26,7 @@ else:
 
     # Only test south support for Django 1.6 and lower.
     if django.VERSION < (1, 7):
-        default_test_apps = [
+        default_test_apps += [
             'test_south_support',
         ]
 
