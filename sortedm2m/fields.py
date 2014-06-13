@@ -3,6 +3,7 @@ from operator import attrgetter
 import sys
 from django.db import connections
 from django.db import router
+from django.db import transaction
 from django.db.models import signals
 from django.db.models.fields.related import add_lazy_relation, create_many_related_manager
 from django.db.models.fields.related import ManyToManyField, ReverseManyRelatedObjectsDescriptor
@@ -19,6 +20,22 @@ else:
 
 
 SORT_VALUE_FIELD_NAME = 'sort_value'
+
+
+if hasattr(transaction, 'atomic'):
+    atomic = transaction.atomic
+# Django 1.5 support
+# We mock the atomic context manager that does nothing.
+else:
+    class atomic(object):
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def __enter__(self):
+            pass
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            pass
 
 
 def create_sorted_many_to_many_intermediate_model(field, klass):
@@ -96,7 +113,10 @@ def create_sorted_many_related_manager(superclass, rel):
         if not hasattr(RelatedManager, '_get_fk_val'):
             @property
             def _fk_val(self):
-                return self._pk_val
+                # Django 1.5 support.
+                if not hasattr(self, 'related_val'):
+                    return self._pk_val
+                return self.related_val[0]
 
         def get_prefetch_query_set(self, instances):
             # mostly a copy of get_prefetch_query_set from ManyRelatedManager
@@ -132,19 +152,23 @@ def create_sorted_many_related_manager(superclass, rel):
                     self.prefetch_cache_name)
 
         def _add_items(self, source_field_name, target_field_name, *objs):
-            # source_field_name: the PK fieldname in join_table for the source object
-            # target_field_name: the PK fieldname in join_table for the target object
+            # source_field_name: the PK fieldname in join table for the source object
+            # target_field_name: the PK fieldname in join table for the target object
             # *objs - objects to add. Either object instances, or primary keys of object instances.
 
             # If there aren't any objects, there is nothing to do.
             from django.db.models import Model
             if objs:
+                # Django uses a set here, we need to use a list to keep the
+                # correct ordering.
                 new_ids = []
                 for obj in objs:
                     if isinstance(obj, self.model):
                         if not router.allow_relation(obj, self.instance):
-                           raise ValueError('Cannot add "%r": instance is on database "%s", value is on database "%s"' %
-                                               (obj, self.instance._state.db, obj._state.db))
+                            raise ValueError(
+                                'Cannot add "%r": instance is on database "%s", value is on database "%s"' %
+                                (obj, self.instance._state.db, obj._state.db)
+                            )
                         if hasattr(self, '_get_fk_val'):  # Django>=1.5
                             fk_val = self._get_fk_val(obj, target_field_name)
                             if fk_val is None:
@@ -154,15 +178,20 @@ def create_sorted_many_related_manager(superclass, rel):
                         else:  # Django<1.5
                             new_ids.append(obj.pk)
                     elif isinstance(obj, Model):
-                        raise TypeError("'%s' instance expected, got %r" % (self.model._meta.object_name, obj))
+                        raise TypeError(
+                            "'%s' instance expected, got %r" %
+                            (self.model._meta.object_name, obj)
+                        )
                     else:
                         new_ids.append(obj)
+
                 db = router.db_for_write(self.through, instance=self.instance)
-                vals = self.through._default_manager.using(db).values_list(target_field_name, flat=True)
-                vals = vals.filter(**{
-                    source_field_name: self._fk_val,
-                    '%s__in' % target_field_name: new_ids,
-                })
+                vals = (self.through._default_manager.using(db)
+                        .values_list(target_field_name, flat=True)
+                        .filter(**{
+                            source_field_name: self._fk_val,
+                            '%s__in' % target_field_name: new_ids,
+                        }))
                 for val in vals:
                     if val in new_ids:
                         new_ids.remove(val)
@@ -173,27 +202,28 @@ def create_sorted_many_related_manager(superclass, rel):
                 new_ids = _new_ids
                 new_ids_set = set(new_ids)
 
-                if self.reverse or source_field_name == self.source_field_name:
-                    # Don't send the signal when we are inserting the
-                    # duplicate data row for symmetrical reverse entries.
-                    signals.m2m_changed.send(sender=rel.through, action='pre_add',
-                        instance=self.instance, reverse=self.reverse,
-                        model=self.model, pk_set=new_ids_set, using=db)
-                # Add the ones that aren't there already
-                sort_field_name = self.through._sort_field_name
-                sort_field = self.through._meta.get_field_by_name(sort_field_name)[0]
-                for obj_id in new_ids:
-                    self.through._default_manager.using(db).create(**{
-                        '%s_id' % source_field_name: self._fk_val,  # Django 1.5 compatibility
-                        '%s_id' % target_field_name: obj_id,
-                        sort_field_name: sort_field.get_default(),
-                    })
-                if self.reverse or source_field_name == self.source_field_name:
-                    # Don't send the signal when we are inserting the
-                    # duplicate data row for symmetrical reverse entries.
-                    signals.m2m_changed.send(sender=rel.through, action='post_add',
-                        instance=self.instance, reverse=self.reverse,
-                        model=self.model, pk_set=new_ids_set, using=db)
+                with atomic(using=db, savepoint=False):
+                    if self.reverse or source_field_name == self.source_field_name:
+                        # Don't send the signal when we are inserting the
+                        # duplicate data row for symmetrical reverse entries.
+                        signals.m2m_changed.send(sender=rel.through, action='pre_add',
+                            instance=self.instance, reverse=self.reverse,
+                            model=self.model, pk_set=new_ids_set, using=db)
+                    # Add the ones that aren't there already
+                    sort_field_name = self.through._sort_field_name
+                    sort_field = self.through._meta.get_field_by_name(sort_field_name)[0]
+                    for obj_id in new_ids:
+                        self.through._default_manager.using(db).create(**{
+                            '%s_id' % source_field_name: self._fk_val,  # Django 1.5 compatibility
+                            '%s_id' % target_field_name: obj_id,
+                            sort_field_name: sort_field.get_default(),
+                        })
+                    if self.reverse or source_field_name == self.source_field_name:
+                        # Don't send the signal when we are inserting the
+                        # duplicate data row for symmetrical reverse entries.
+                        signals.m2m_changed.send(sender=rel.through, action='post_add',
+                            instance=self.instance, reverse=self.reverse,
+                            model=self.model, pk_set=new_ids_set, using=db)
 
     return SortedRelatedManager
 
