@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from operator import attrgetter
 import sys
+
+import django
 from django.db import connections
 from django.db import router
 from django.db import transaction
@@ -10,7 +12,8 @@ from django.db.models.fields.related import ManyToManyField, ReverseManyRelatedO
 from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
 from django.conf import settings
 from django.utils.functional import curry
-from sortedm2m.forms import SortedMultipleChoiceField
+
+from .forms import SortedMultipleChoiceField
 
 
 if sys.version_info[0] < 3:
@@ -25,7 +28,7 @@ SORT_VALUE_FIELD_NAME = 'sort_value'
 if hasattr(transaction, 'atomic'):
     atomic = transaction.atomic
 # Django 1.5 support
-# We mock the atomic context manager that does nothing.
+# We mock the atomic context manager.
 else:
     class atomic(object):
         def __init__(self, *args, **kwargs):
@@ -124,10 +127,12 @@ def create_sorted_many_related_manager(superclass, rel):
                 return self.related_val[0]
 
         def get_prefetch_queryset(self, instances, queryset=None):
-            # Django 1.5 support.
-            # It does not support the queryset parameter.
-            if not hasattr(RelatedManager, 'get_prefetch_queryset'):
+            # Django 1.5 support. The method name changed since.
+            if django.VERSION < (1, 6):
                 result = super(SortedRelatedManager, self).get_prefetch_query_set(instances)
+            # Django 1.6 support. The queryset parameter was not supported.
+            elif django.VERSION < (1, 7):
+                result = super(SortedRelatedManager, self).get_prefetch_queryset(instances)
             else:
                 result = super(SortedRelatedManager, self).get_prefetch_queryset(instances, queryset)
             queryset = result[0]
