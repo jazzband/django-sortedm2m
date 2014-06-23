@@ -5,3 +5,4 @@ include README.rst
 include AUTHORS.rst
 recursive-include sortedm2m/static *
 recursive-include sortedm2m/templates *
+recursive-include sortedm2m/locale *
