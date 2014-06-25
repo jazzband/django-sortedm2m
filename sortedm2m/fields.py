@@ -3,6 +3,7 @@ from operator import attrgetter
 import sys
 
 import django
+from django.conf import settings
 from django.db import connections
 from django.db import router
 from django.db import transaction
@@ -10,7 +11,7 @@ from django.db.models import signals
 from django.db.models.fields.related import add_lazy_relation, create_many_related_manager, create_many_to_many_intermediary_model
 from django.db.models.fields.related import ManyToManyField, ReverseManyRelatedObjectsDescriptor
 from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
-from django.conf import settings
+from django.db.utils import OperationalError
 from django.utils import six
 from django.utils.functional import curry
 
@@ -76,7 +77,13 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
     # Construct and return the new class.
     def default_sort_value(name):
         model = models.get_model(klass._meta.app_label, name)
-        return model._default_manager.count()
+        try:
+            # We need to catch if the model is not yet migrated in the
+            # database. The default function is still called in this case while
+            # running the migration. So we mock the return value of 0.
+            return model._default_manager.count()
+        except OperationalError:
+            return 0
 
     default_sort_value = curry(default_sort_value, name)
 
