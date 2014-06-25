@@ -1,15 +1,25 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from StringIO import StringIO
+import shutil
 
+# Python 2 support.
+if sys.version_info < (3,):
+    from StringIO import StringIO
+else:
+    from io import StringIO
+
+import django
 from django.db import connection
 from django.db.models.fields import FieldDoesNotExist
-from django.db.utils import OperationalError
+# Django 1.5 support.
+if django.VERSION >= (1, 6):
+    from django.db.utils import OperationalError
 from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import six
+from django.utils.unittest import skipIf
 
 from sortedm2m_tests.migrations_tests.models import Gallery, Photo
 
@@ -17,6 +27,7 @@ from sortedm2m_tests.migrations_tests.models import Gallery, Photo
 str_ = six.text_type
 
 
+@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
 class TestMigrateCommand(TestCase):
     def setUp(self):
         sys.stdout = StringIO()
@@ -29,10 +40,15 @@ class TestMigrateCommand(TestCase):
         call_command('migrate', interactive=False)
 
 
+@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
 class TestMigrations(TestCase):
     def setUp(self):
         sys.stdout = StringIO()
         self.orig_stdout = sys.stdout
+
+        # Roll back all migrations to be sure what we test against.
+        call_command('migrate', 'migrations_tests', 'zero')
+        call_command('migrate', 'migrations_tests', '0001')
 
     def tearDown(self):
         sys.stdout = self.orig_stdout
@@ -41,18 +57,21 @@ class TestMigrations(TestCase):
         migrations_path = os.path.join(
             os.path.dirname(__file__),
             'migrations_tests',
-            'migrations')
-        for filename in os.listdir(migrations_path):
-            if filename not in ('__init__.py', '0001_initial.py'):
-                os.remove(os.path.join(migrations_path, filename))
+            'django17_migrations')
+        if os.path.exists(migrations_path):
+            for filename in os.listdir(migrations_path):
+                if filename not in ('__init__.py', '0001_initial.py'):
+                    filepath = os.path.join(migrations_path, filename)
+                    if os.path.isdir(filepath):
+                        shutil.rmtree(filepath)
+                    else:
+                        os.remove(filepath)
 
     def test_defined_migration(self):
         photo = Photo.objects.create(name='Photo')
         gallery = Gallery.objects.create(name='Gallery')
-        # photos field is already migrated
+        # photos field is already migrated.
         self.assertEqual(gallery.photos.count(), 0)
-        # photos2 field is not yet migrated
-        self.assertRaises(OperationalError, gallery.photos2.count)
 
     def test_make_migration(self):
         call_command('makemigrations', 'migrations_tests')

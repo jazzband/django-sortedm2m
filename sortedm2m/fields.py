@@ -11,7 +11,6 @@ from django.db.models import signals
 from django.db.models.fields.related import add_lazy_relation, create_many_related_manager, create_many_to_many_intermediary_model
 from django.db.models.fields.related import ManyToManyField, ReverseManyRelatedObjectsDescriptor
 from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
-from django.db.utils import OperationalError
 from django.utils import six
 from django.utils.functional import curry
 
@@ -60,9 +59,13 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
         from_ = 'from_%s' % to.lower()
         to = 'to_%s' % to.lower()
     else:
-        from_ = klass._meta.model_name
+        # Django 1.5 support.
+        if not hasattr(klass._meta, 'model_name'):
+            from_ = klass._meta.object_name.lower()
+        else:
+            from_ = klass._meta.model_name
         to = to.lower()
-    meta = type(str('Meta'), (object,), {
+    options = {
         'db_table': field._get_m2m_db_table(klass._meta),
         'managed': managed,
         'auto_created': klass,
@@ -72,26 +75,45 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
         'ordering': (field.sort_value_field_name,),
         'verbose_name': '%(from)s-%(to)s relationship' % {'from': from_, 'to': to},
         'verbose_name_plural': '%(from)s-%(to)s relationships' % {'from': from_, 'to': to},
-        'apps': field.model._meta.apps,
-    })
+    }
+    # Django 1.6 support.
+    if hasattr(field.model._meta, 'apps'):
+        options.update({
+            'apps': field.model._meta.apps,
+        })
+
+    meta = type(str('Meta'), (object,), options)
     # Construct and return the new class.
     def default_sort_value(name):
         model = models.get_model(klass._meta.app_label, name)
-        try:
-            # We need to catch if the model is not yet migrated in the
-            # database. The default function is still called in this case while
-            # running the migration. So we mock the return value of 0.
+        # Django 1.5 support.
+        if django.VERSION < (1, 6):
             return model._default_manager.count()
-        except OperationalError:
-            return 0
+        else:
+            from django.db.utils import OperationalError
+            try:
+                # We need to catch if the model is not yet migrated in the
+                # database. The default function is still called in this case while
+                # running the migration. So we mock the return value of 0.
+                return model._default_manager.count()
+            except OperationalError:
+                return 0
 
     default_sort_value = curry(default_sort_value, name)
+
+    # Django 1.5 support.
+    if django.VERSION < (1, 6):
+        foreignkey_field_kwargs = {}
+    else:
+        foreignkey_field_kwargs = dict(
+            db_tablespace=field.db_tablespace,
+            db_constraint=field.rel.db_constraint)
 
     return type(str(name), (models.Model,), {
         'Meta': meta,
         '__module__': klass.__module__,
-        from_: models.ForeignKey(klass, related_name='%s+' % name, db_tablespace=field.db_tablespace, db_constraint=field.rel.db_constraint),
-        to: models.ForeignKey(to_model, related_name='%s+' % name, db_tablespace=field.db_tablespace, db_constraint=field.rel.db_constraint),
+        from_: models.ForeignKey(klass, related_name='%s+' % name, **foreignkey_field_kwargs),
+        to: models.ForeignKey(to_model, related_name='%s+' % name, **foreignkey_field_kwargs),
         field.sort_value_field_name: models.IntegerField(default=default_sort_value),
         '_sort_field_name': field.sort_value_field_name,
         '_from_field_name': from_,
