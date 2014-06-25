@@ -77,14 +77,14 @@ INSTALLED_APPS = (
     'example.testapp',
 )
 
+MIGRATION_MODULES = {
+    'migrations_tests': 'sortedm2m_tests.migrations_tests.django17_migrations',
+}
+
 import django
 
 if django.VERSION >= (1, 6):
     TEST_RUNNER = 'django.test.runner.DiscoverRunner'
-
-    MIGRATION_MODULES = {
-        'migrations_tests': 'migrations_tests.django17_migrations',
-    }
 
 # Only test south for django versions lower as 1.7
 # 1.7 introduced it's own migrations framework

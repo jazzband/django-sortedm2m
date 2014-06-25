@@ -72,6 +72,8 @@ class TestMigrations(TestCase):
         gallery = Gallery.objects.create(name='Gallery')
         # photos field is already migrated.
         self.assertEqual(gallery.photos.count(), 0)
+        # photos2 field is not yet migrated.
+        self.assertRaises(OperationalError, gallery.photos2.count)
 
     def test_make_migration(self):
         call_command('makemigrations', 'migrations_tests')
