@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.9.0 (not released)
+--------------------
+
+* Adding czech translations. Thanks to @cuchac for the pull request.
+
 0.8.0
 -----
 
