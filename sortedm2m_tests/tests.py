@@ -4,3 +4,4 @@ import django
 if django.VERSION < (1, 6):
     from .test_forms import *
     from .test_field import *
+    from .test_migrations import *
