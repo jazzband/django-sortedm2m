@@ -18,6 +18,9 @@ class SortedForm(forms.Form):
 class TestSortedFormField(TestCase):
     def setUp(self):
         self.books = [Book.objects.create(name=c) for c in 'abcdefghik']
+        (
+            self.a, self.b, self.c, self.d, self.e, self.f, self.g, self.h,
+            self.i, self.k) = self.books
 
     def test_empty_field(self):
         form = SortedForm({'values': []})
@@ -25,7 +28,7 @@ class TestSortedFormField(TestCase):
         self.assertFalse(form.cleaned_data['values'])
 
     def test_sorted_field_input(self):
-        form = SortedForm({'values': [4,2,9]})
+        form = SortedForm({'values': [self.d.pk, self.b.pk, self.i.pk]})
         self.assertTrue(form.is_valid())
         self.assertEqual(list(form.cleaned_data['values']), [
                 self.books[3],
@@ -65,9 +68,9 @@ class TestSortedFormField(TestCase):
     def test_form_field_with_only_one_value(self):
         form = SortedForm({'values': ''})
         self.assertEqual(len(form.errors), 0)
-        form = SortedForm({'values': '1'})
+        form = SortedForm({'values': str(self.a.pk)})
         self.assertEqual(len(form.errors), 0)
-        form = SortedForm({'values': '1,2'})
+        form = SortedForm({'values': '{a.pk},{b.pk}'.format(a=self.a, b=self.b)})
         self.assertEqual(len(form.errors), 0)
 
     def test_for_attribute_in_label(self):
