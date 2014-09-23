@@ -125,6 +125,18 @@ Contribute
 You can find the latest development version on github_. Get there and fork it,
 file bugs or send me nice wishes.
 
+Running the tests
+-----------------
+
+I recommend to use ``tox`` to run the tests for all relevant python versions
+all at once. Therefore install ``tox`` with ``pip install tox``, then type in
+the root directory of the ``django-sortedm2m`` checkout::
+
+   tox
+
+Get in touch
+------------
+
 Feel free to drop me a message about critique or feature requests. You can get
 in touch with me by mail_ or twitter_.
 
