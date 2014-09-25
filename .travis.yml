@@ -5,6 +5,7 @@ env:
   - TOX_ENV=py27-1.5
   - TOX_ENV=py27-1.6
   - TOX_ENV=py27-1.7
+  - TOX_ENV=py27-1.7-postgres
   - TOX_ENV=pypy-1.5
   - TOX_ENV=pypy-1.6
   - TOX_ENV=pypy-1.7
@@ -12,10 +13,15 @@ env:
   - TOX_ENV=py32-1.7
   - TOX_ENV=py33-1.6
   - TOX_ENV=py33-1.7
+  - TOX_ENV=py33-1.7-postgres
 before_install:
   - export PIP_USE_MIRRORS=true
   - export DJANGO_SETTINGS_MODULE=test_settings
   - sudo pip install tox
+  - sudo apt-get install postgresql postgresql-client
+  - # Password is 'sortedm2m'
+  - echo "CREATE ROLE sortedm2m PASSWORD 'md5ba287bde612ca41b14776ec8f8dfdaa9' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;" | sudo -u postgres psql
+  - echo "CREATE DATABASE sortedm2m OWNER sortedm2m;" | sudo -u postgres psql
 script:
   - tox -e $TOX_ENV -v
 branches:

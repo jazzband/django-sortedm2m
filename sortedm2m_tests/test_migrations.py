@@ -10,14 +10,11 @@ else:
     from io import StringIO
 
 import django
-from django.db import connection
-from django.db.models.fields import FieldDoesNotExist
 # Django 1.5 support.
 if django.VERSION >= (1, 6):
-    from django.db.utils import OperationalError
+    from django.db.utils import OperationalError, ProgrammingError
 from django.core.management import call_command
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.utils import six
 from django.utils.unittest import skipIf
 
@@ -73,7 +70,7 @@ class TestMigrations(TestCase):
         # photos field is already migrated.
         self.assertEqual(gallery.photos.count(), 0)
         # photos2 field is not yet migrated.
-        self.assertRaises(OperationalError, gallery.photos2.count)
+        self.assertRaises((OperationalError, ProgrammingError), gallery.photos2.count)
 
     def test_make_migration(self):
         call_command('makemigrations', 'migrations_tests')

@@ -5,4 +5,5 @@
 coverage.xml
 db.sqlite
 pep8.txt
-.tox
+/.tox/
+/.vagrant/

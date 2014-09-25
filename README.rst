@@ -125,9 +125,35 @@ Contribute
 You can find the latest development version on github_. Get there and fork it,
 file bugs or send me nice wishes.
 
+.. _github: http://github.com/gregmuellegger/django-sortedm2m
+
+Running the tests
+-----------------
+
+I recommend to use ``tox`` to run the tests for all relevant python versions
+all at once. Therefore install ``tox`` with ``pip install tox``, then type in
+the root directory of the ``django-sortedm2m`` checkout::
+
+   tox
+
+However using tox will not include the tests that run against a PostgreSQL
+database. The project therefore contains a ``Vagrantfile`` that uses vagrant_
+to setup a virtual machine including a working PostgreSQL installation. To
+run the postgres tests, please `install vagrant`_ and then run::
+
+   make test-postgres
+
+This will bring up and provision the virtual machine and runs the testsuite
+against a PostgreSQL database.
+
+.. _vagrant: http://www.vagrantup.com/
+.. _install vagrant: http://www.vagrantup.com/downloads
+
+Get in touch
+------------
+
 Feel free to drop me a message about critique or feature requests. You can get
 in touch with me by mail_ or twitter_.
 
-.. _github: http://github.com/gregmuellegger/django-sortedm2m
 .. _mail: mailto:gregor@muellegger.de
 .. _twitter: http://twitter.com/gregmuellegger

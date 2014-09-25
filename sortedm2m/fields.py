@@ -95,7 +95,8 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
                 # We need to catch if the model is not yet migrated in the
                 # database. The default function is still called in this case while
                 # running the migration. So we mock the return value of 0.
-                return model._default_manager.count()
+                with transaction.atomic():
+                    return model._default_manager.count()
             except (ProgrammingError, OperationalError):
                 return 0
 

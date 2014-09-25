@@ -1,9 +1,11 @@
 Changelog
 =========
 
-0.9.0 (not released)
---------------------
+0.8.1
+-----
 
+* Adding support for Django 1.7 migrations. Thanks to Patryk Hes and Richard
+  Barran for their reports.
 * Adding czech translations. Thanks to @cuchac for the pull request.
 
 0.8.0
