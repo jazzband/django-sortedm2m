@@ -4,7 +4,7 @@ if (jQuery === undefined) {
 
 (function ($) {
     $(function () {
-        $('.sortedm2m').parents('ul').each(function () {
+        $('.sortedm2m').parents('ul:first').each(function () {
             $(this).addClass('sortedm2m');
             var checkboxes = $(this).find('input[type=checkbox]');
             var id = checkboxes.first().attr('id').match(/^(.*)_\d+$/)[1];
