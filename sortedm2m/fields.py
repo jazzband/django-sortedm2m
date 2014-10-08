@@ -7,7 +7,7 @@ from django.conf import settings
 from django.db import connections
 from django.db import router
 from django.db import transaction
-from django.db.models import signals
+from django.db.models import signals, CASCADE
 from django.db.models.fields.related import add_lazy_relation, create_many_related_manager, create_many_to_many_intermediary_model
 from django.db.models.fields.related import ManyToManyField, ReverseManyRelatedObjectsDescriptor
 from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
@@ -114,7 +114,7 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
         'Meta': meta,
         '__module__': klass.__module__,
         from_: models.ForeignKey(klass, related_name='%s+' % name, **foreignkey_field_kwargs),
-        to: models.ForeignKey(to_model, related_name='%s+' % name, **foreignkey_field_kwargs),
+        to: models.ForeignKey(to_model, related_name='%s+' % name, on_delete=field.on_delete, **foreignkey_field_kwargs),
         field.sort_value_field_name: models.IntegerField(default=default_sort_value),
         '_sort_field_name': field.sort_value_field_name,
         '_from_field_name': from_,
@@ -268,8 +268,9 @@ class SortedManyToManyField(ManyToManyField):
     ordered or not. Default is set to ``True``. If ``sorted`` is set to
     ``False`` the field will behave exactly like django's ``ManyToManyField``.
     '''
-    def __init__(self, to, sorted=True, **kwargs):
+    def __init__(self, to, sorted=True, on_delete=CASCADE, **kwargs):
         self.sorted = sorted
+        self.on_delete = on_delete
         self.sort_value_field_name = kwargs.pop(
             'sort_value_field_name',
             SORT_VALUE_FIELD_NAME)
