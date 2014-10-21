@@ -5,14 +5,13 @@ if (jQuery === undefined) {
 (function ($) {
     $(function () {
 
-        $.fn.prepare_ul = function () {
-            this.addClass('sortedm2m');
-            var checkboxes = this.find('input[type=checkbox]');
+        var prepare_ul = function (that) {
+            that.addClass('sortedm2m');
+            var checkboxes = that.find('input[type=checkbox]');
             var id = checkboxes.first().attr('id').match(/^(.*)_\d+$/)[1];
             var name = checkboxes.first().attr('name');
             checkboxes.removeAttr('name');
-            this.before('<input type="hidden" id="' + id + '" name="' + name + '" />');
-            var that = this;
+            that.before('<input type="hidden" id="' + id + '" name="' + name + '" />');
             var recalculate_value = function () {
                 var values = [];
                 that.find(':checked').each(function () {
@@ -22,17 +21,17 @@ if (jQuery === undefined) {
             }
             recalculate_value();
             checkboxes.change(recalculate_value);
-            this.sortable({
+            that.sortable({
                 axis: 'y',
                 //containment: 'parent',
                 update: recalculate_value
             });
-            return this;
+            return that;
         };
 
         var iterate_ul = function() {
             $('.sortedm2m').parents('ul').each(function () {
-                $(this).prepare_ul();
+                prepare_ul( $(this) );
             });
         }
 
