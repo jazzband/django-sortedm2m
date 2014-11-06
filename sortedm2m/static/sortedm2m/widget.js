@@ -4,29 +4,40 @@ if (jQuery === undefined) {
 
 (function ($) {
     $(function () {
-        $('.sortedm2m').parents('ul:first').each(function () {
-            $(this).addClass('sortedm2m');
-            var checkboxes = $(this).find('input[type=checkbox]');
+
+        function prepareUl(ul) {
+            ul.addClass('sortedm2m');
+            var checkboxes = ul.find('input[type=checkbox]');
             var id = checkboxes.first().attr('id').match(/^(.*)_\d+$/)[1];
             var name = checkboxes.first().attr('name');
             checkboxes.removeAttr('name');
-            $(this).before('<input type="hidden" id="' + id + '" name="' + name + '" />');
-            var that = this;
+            ul.before('<input type="hidden" id="' + id + '" name="' + name + '" />');
             var recalculate_value = function () {
                 var values = [];
-                $(that).find(':checked').each(function () {
+                ul.find(':checked').each(function () {
                     values.push($(this).val());
                 });
                 $('#' + id).val(values.join(','));
             }
             recalculate_value();
             checkboxes.change(recalculate_value);
-            $(this).sortable({
+            ul.sortable({
                 axis: 'y',
                 //containment: 'parent',
                 update: recalculate_value
             });
-        });
+            return ul;
+        }
+
+        function iterateUl() {
+            $('.sortedm2m').parents('ul').each(function () {
+                prepareUl( $(this) );
+            });
+        }
+
+        $(".add-row a").click(iterateUl);
+
+        iterateUl();
 
         $('.sortedm2m-container .selector-filter input').each(function () {
             $(this).bind('input', function() {
