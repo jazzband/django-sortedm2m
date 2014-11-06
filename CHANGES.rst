@@ -7,6 +7,8 @@ Changelog
 * Adding ``AlterSortedManyToManyField`` migration operation that allows you to
   migrate from ``ManyToManyField`` to ``SortedManyToManyField``. Thanks to
   Joaquín Pérez for the patch!
+* Fix: The admin widget is not broken anymore for dynamically added inline
+  forms. Thanks to Rubén Díaz for the patch!
 
 TODO: document ``AlterSortedManyToManyField``.
 TODO: write tests for ``AlterSortedManyToManyField``.

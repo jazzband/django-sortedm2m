@@ -14,3 +14,4 @@ Contributors
 * Antti Kaihola
 * Mike Knoop
 * Marcin Ossowski
+* Rubén Díaz
