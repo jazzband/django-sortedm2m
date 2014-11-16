@@ -173,6 +173,12 @@ def create_sorted_many_related_manager(superclass, rel):
 
         get_prefetch_query_set = get_prefetch_queryset
 
+        def _item_and_count(self, sequence):
+            count = 0
+            for item in sequence:
+                count += 1
+                yield (item, count)
+        
         def _add_items(self, source_field_name, target_field_name, *objs):
             # source_field_name: the PK fieldname in join table for the source object
             # target_field_name: the PK fieldname in join table for the target object
@@ -233,12 +239,24 @@ def create_sorted_many_related_manager(superclass, rel):
                 # Add the ones that aren't there already
                 sort_field_name = self.through._sort_field_name
                 sort_field = self.through._meta.get_field_by_name(sort_field_name)[0]
-                for obj_id in new_ids:
-                    self.through._default_manager.using(db).create(**{
-                        '%s_id' % source_field_name: self._fk_val,  # Django 1.5 compatibility
-                        '%s_id' % target_field_name: obj_id,
-                        sort_field_name: sort_field.get_default(),
-                    })
+                if django.VERSION < (1, 6):
+                    for obj_id in new_ids:
+                        self.through._default_manager.using(db).create(**{
+                            '%s_id' % source_field_name: self._fk_val,  # Django 1.5 compatibility
+                            '%s_id' % target_field_name: obj_id,
+                            sort_field_name: sort_field.get_default(),
+                        })
+                else:
+                    with transaction.atomic():
+                        sort_field_default = sort_field.get_default()
+                        self.through._default_manager.using(db).bulk_create([
+                            self.through(**{
+                                '%s_id' % source_field_name: self._fk_val,
+                                '%s_id' % target_field_name: item_count[0],
+                                sort_field_name: sort_field_default + item_count[1],
+                            })
+                            for item_count in self._item_and_count(new_ids)
+                        ])                  
                 if self.reverse or source_field_name == self.source_field_name:
                     # Don't send the signal when we are inserting the
                     # duplicate data row for symmetrical reverse entries.
