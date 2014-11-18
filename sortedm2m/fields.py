@@ -173,12 +173,6 @@ def create_sorted_many_related_manager(superclass, rel):
 
         get_prefetch_query_set = get_prefetch_queryset
 
-        def _item_and_count(self, sequence):
-            count = 0
-            for item in sequence:
-                count += 1
-                yield (item, count)
-        
         def _add_items(self, source_field_name, target_field_name, *objs):
             # source_field_name: the PK fieldname in join table for the source object
             # target_field_name: the PK fieldname in join table for the target object
@@ -252,10 +246,10 @@ def create_sorted_many_related_manager(superclass, rel):
                         self.through._default_manager.using(db).bulk_create([
                             self.through(**{
                                 '%s_id' % source_field_name: self._fk_val,
-                                '%s_id' % target_field_name: item_count[0],
-                                sort_field_name: sort_field_default + item_count[1],
+                                '%s_id' % target_field_name: v,
+                                sort_field_name: sort_field_default + i,
                             })
-                            for item_count in self._item_and_count(new_ids)
+                            for i, v in enumerate(new_ids)
                         ])                  
                 if self.reverse or source_field_name == self.source_field_name:
                     # Don't send the signal when we are inserting the
