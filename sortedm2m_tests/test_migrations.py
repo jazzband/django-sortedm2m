@@ -123,21 +123,26 @@ class TestAlterSortedManyToManyFieldOperation(TestCase):
         from .altersortedmanytomanyfield_tests.models import M2MToSortedM2M
         from .altersortedmanytomanyfield_tests.models import Target
 
+        field = M2MToSortedM2M._meta.get_field_by_name('m2m')[0]
+        through_model = field.rel.through
+        self.assertEqual(list(through_model._meta.ordering), ['sort_value'])
+
         t1 = Target.objects.create(pk=1)
         t2 = Target.objects.create(pk=2)
         t3 = Target.objects.create(pk=3)
 
-        model = M2MToSortedM2M.objects.create()
-        model.m2m.add(t3)
-        model.m2m.add(t1)
-        model.m2m.add(t2)
-        self.assertEqual(list(model.m2m.values_list('pk', flat=True)), [3, 1, 2])
+        # Order is recognized.
+        instance = M2MToSortedM2M.objects.create()
+        instance.m2m.add(t3)
+        instance.m2m.add(t1)
+        instance.m2m.add(t2)
+        self.assertEqual(list(instance.m2m.values_list('pk', flat=True)), [3, 1, 2])
 
-        model.m2m.remove(t1)
-        model.m2m.remove(t2)
-        model.m2m.add(t2)
-        model.m2m.add(t1)
-        self.assertEqual(list(model.m2m.values_list('pk', flat=True)), [3, 2, 1])
+        instance.m2m.remove(t1)
+        instance.m2m.remove(t2)
+        instance.m2m.add(t2)
+        instance.m2m.add(t1)
+        self.assertEqual(list(instance.m2m.values_list('pk', flat=True)), [3, 2, 1])
 
     def test_operation_sorted_m2m_to_m2m(self):
         # Make sure all is migrated as expected.
@@ -151,14 +156,15 @@ class TestAlterSortedManyToManyFieldOperation(TestCase):
         t2 = Target.objects.create(pk=2)
         t3 = Target.objects.create(pk=3)
 
-        model = SortedM2MToM2M.objects.create()
-        model.m2m.add(t3)
-        model.m2m.add(t1)
-        model.m2m.add(t2)
-        self.assertNotEqual(list(model.m2m.values_list('pk', flat=True)), [3, 1, 2])
+        instance = SortedM2MToM2M.objects.create()
+        # Adding, removing works.
+        instance.m2m.add(t3)
+        instance.m2m.add(t1)
+        instance.m2m.add(t2)
+        instance.m2m.remove(t1)
+        instance.m2m.remove(t2)
 
-        model.m2m.remove(t1)
-        model.m2m.remove(t2)
-        model.m2m.add(t2)
-        model.m2m.add(t1)
-        self.assertNotEqual(list(model.m2m.values_list('pk', flat=True)), [3, 2, 1])
+        # The query is not sorted in a particular order.
+        field = SortedM2MToM2M._meta.get_field_by_name('m2m')[0]
+        through_model = field.rel.through
+        self.assertEqual(list(through_model._meta.ordering), [])
