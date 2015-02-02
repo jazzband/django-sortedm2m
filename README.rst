@@ -73,6 +73,22 @@ Specifies how the field is called in the intermediate database table by which
 the relationship is ordered. You can change its name if you have a legacy
 database that you need to integrate into your application.
 
+Migrating existing models
+=========================
+
+The default behaviour of migrations might not be what you expect, since a
+``SortedManyToManyField`` will look to django like a regular ``ManyToManyField``
+field. For django 1.7 there is an operation to automatically migrate the data
+for your existing models.
+
+To use this, add in your models the ``SortedManyToManyField`` as appropriate
+and create a new migration with ``manage.py makemigrations``. Before applying
+it, edit the migration file and change in the ``operations`` list ``migrations.AlterField``
+to ``AlterSortedManyToManyField`` (import it from ``sortedm2m.operations``).
+This will change the intermediate tables, add the ordering field and fill in
+default values.
+
+
 Admin
 =====
 
