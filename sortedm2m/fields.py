@@ -233,12 +233,24 @@ def create_sorted_many_related_manager(superclass, rel):
                 # Add the ones that aren't there already
                 sort_field_name = self.through._sort_field_name
                 sort_field = self.through._meta.get_field_by_name(sort_field_name)[0]
-                for obj_id in new_ids:
-                    self.through._default_manager.using(db).create(**{
-                        '%s_id' % source_field_name: self._fk_val,  # Django 1.5 compatibility
-                        '%s_id' % target_field_name: obj_id,
-                        sort_field_name: sort_field.get_default(),
-                    })
+                if django.VERSION < (1, 6):
+                    for obj_id in new_ids:
+                        self.through._default_manager.using(db).create(**{
+                            '%s_id' % source_field_name: self._fk_val,  # Django 1.5 compatibility
+                            '%s_id' % target_field_name: obj_id,
+                            sort_field_name: sort_field.get_default(),
+                        })
+                else:
+                    with transaction.atomic():
+                        sort_field_default = sort_field.get_default()
+                        self.through._default_manager.using(db).bulk_create([
+                            self.through(**{
+                                '%s_id' % source_field_name: self._fk_val,
+                                '%s_id' % target_field_name: v,
+                                sort_field_name: sort_field_default + i,
+                            })
+                            for i, v in enumerate(new_ids)
+                        ])                  
                 if self.reverse or source_field_name == self.source_field_name:
                     # Don't send the signal when we are inserting the
                     # duplicate data row for symmetrical reverse entries.
