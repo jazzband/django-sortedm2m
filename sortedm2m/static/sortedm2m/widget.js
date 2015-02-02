@@ -20,7 +20,7 @@ if (jQuery === undefined) {
                 $('#' + id).val(values.join(','));
             }
             recalculate_value();
-            checkboxes.change(recalculate_value);
+            ul.on('change','input[type=checkbox]',recalculate_value);
             ul.sortable({
                 axis: 'y',
                 //containment: 'parent',
