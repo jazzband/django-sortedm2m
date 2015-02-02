@@ -19,6 +19,7 @@ from django.utils import six
 from django.utils.unittest import skipIf
 
 from sortedm2m_tests.migrations_tests.models import Gallery, Photo
+from .utils import capture_stdout
 
 
 str_ = six.text_type
@@ -34,7 +35,8 @@ class TestMigrateCommand(TestCase):
         sys.stdout = self.orig_stdout
 
     def test_migrate(self):
-        call_command('migrate', interactive=False)
+        with capture_stdout():
+            call_command('migrate', interactive=False)
 
 
 @skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
@@ -44,8 +46,9 @@ class TestMigrations(TestCase):
         self.orig_stdout = sys.stdout
 
         # Roll back all migrations to be sure what we test against.
-        call_command('migrate', 'migrations_tests', 'zero')
-        call_command('migrate', 'migrations_tests', '0001')
+        with capture_stdout():
+            call_command('migrate', 'migrations_tests', 'zero')
+            call_command('migrate', 'migrations_tests', '0001')
 
     def tearDown(self):
         sys.stdout = self.orig_stdout
@@ -73,16 +76,18 @@ class TestMigrations(TestCase):
         self.assertRaises((OperationalError, ProgrammingError), gallery.photos2.count)
 
     def test_make_migration(self):
-        call_command('makemigrations', 'migrations_tests')
-        call_command('migrate')
+        with capture_stdout():
+            call_command('makemigrations', 'migrations_tests')
+            call_command('migrate')
 
         gallery = Gallery.objects.create(name='Gallery')
         self.assertEqual(gallery.photos.count(), 0)
         self.assertEqual(gallery.photos2.count(), 0)
 
     def test_stable_sorting_after_migration(self):
-        call_command('makemigrations', 'migrations_tests')
-        call_command('migrate')
+        with capture_stdout():
+            call_command('makemigrations', 'migrations_tests')
+            call_command('migrate')
 
         p1 = Photo.objects.create(name='A')
         p2 = Photo.objects.create(name='C')
