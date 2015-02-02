@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.9.1
+-----
+
+* Fix: When using the sortable admin widget, deselecting an item in the list
+  had not effect. Thank you to madEng84 for the report and patch!
+
 0.9.0
 -----
 
