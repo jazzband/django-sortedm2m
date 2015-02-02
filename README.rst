@@ -77,8 +77,9 @@ Migrating a ``ManyToManyField`` to be a ``SortedManyToManyField``
 =================================================================
 
 If you are using Django's migration framework and want to change a
-``ManyToManyField`` to be a ``SortedManyToManyField``, you will find that a
-migration created by Django's ``makemigrations`` will not work as expected.
+``ManyToManyField`` to be a ``SortedManyToManyField`` (or the other way
+around), you will find that a migration created by Django's ``makemigrations``
+will not work as expected.
 
 In order to migrate a ``ManyToManyField`` to a ``SortedManyToManyField``, you
 change the field in your models to be a ``SortedManyToManyField`` as
