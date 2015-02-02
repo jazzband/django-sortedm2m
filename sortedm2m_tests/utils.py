@@ -1,6 +1,9 @@
 import contextlib
 import sys
-from StringIO import StringIO
+try:
+    from io import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 
 @contextlib.contextmanager
