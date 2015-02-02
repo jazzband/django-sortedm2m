@@ -1,9 +1,11 @@
 import contextlib
 import sys
-try:
-    from io import StringIO
-except ImportError:
+
+# Python 2 support.
+if sys.version_info < (3,):
     from StringIO import StringIO
+else:
+    from io import StringIO
 
 
 @contextlib.contextmanager
