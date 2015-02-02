@@ -107,3 +107,58 @@ class TestMigrations(TestCase):
 
         gallery = Gallery.objects.get(name='Gallery')
         self.assertEqual(list(gallery.photos.values_list('name', flat=True)), ['B', 'C'])
+
+
+@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
+class TestAlterSortedManyToManyFieldOperation(TestCase):
+    def test_apply_migrations_backwards(self):
+        with capture_stdout():
+            call_command('migrate', 'altersortedmanytomanyfield_tests', '0001')
+
+    def test_operation_m2m_to_sorted_m2m(self):
+        # Make sure all is migrated as expected.
+        with capture_stdout():
+            call_command('migrate', 'altersortedmanytomanyfield_tests')
+
+        from .altersortedmanytomanyfield_tests.models import M2MToSortedM2M
+        from .altersortedmanytomanyfield_tests.models import Target
+
+        t1 = Target.objects.create(pk=1)
+        t2 = Target.objects.create(pk=2)
+        t3 = Target.objects.create(pk=3)
+
+        model = M2MToSortedM2M.objects.create()
+        model.m2m.add(t3)
+        model.m2m.add(t1)
+        model.m2m.add(t2)
+        self.assertEqual(list(model.m2m.values_list('pk', flat=True)), [3, 1, 2])
+
+        model.m2m.remove(t1)
+        model.m2m.remove(t2)
+        model.m2m.add(t2)
+        model.m2m.add(t1)
+        self.assertEqual(list(model.m2m.values_list('pk', flat=True)), [3, 2, 1])
+
+    def test_operation_sorted_m2m_to_m2m(self):
+        # Make sure all is migrated as expected.
+        with capture_stdout():
+            call_command('migrate', 'altersortedmanytomanyfield_tests')
+
+        from .altersortedmanytomanyfield_tests.models import SortedM2MToM2M
+        from .altersortedmanytomanyfield_tests.models import Target
+
+        t1 = Target.objects.create(pk=1)
+        t2 = Target.objects.create(pk=2)
+        t3 = Target.objects.create(pk=3)
+
+        model = SortedM2MToM2M.objects.create()
+        model.m2m.add(t3)
+        model.m2m.add(t1)
+        model.m2m.add(t2)
+        self.assertNotEqual(list(model.m2m.values_list('pk', flat=True)), [3, 1, 2])
+
+        model.m2m.remove(t1)
+        model.m2m.remove(t2)
+        model.m2m.add(t2)
+        model.m2m.add(t1)
+        self.assertNotEqual(list(model.m2m.values_list('pk', flat=True)), [3, 2, 1])
