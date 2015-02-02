@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.9.0 (not released yet)
-------------------------
+0.9.0
+-----
 
 * Adding ``AlterSortedManyToManyField`` migration operation that allows you to
   migrate from ``ManyToManyField`` to ``SortedManyToManyField`` and vice
