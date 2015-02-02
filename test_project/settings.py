@@ -80,6 +80,7 @@ INSTALLED_APPS = (
 
 MIGRATION_MODULES = {
     'migrations_tests': 'sortedm2m_tests.migrations_tests.django17_migrations',
+    'altersortedmanytomanyfield_tests': 'sortedm2m_tests.altersortedmanytomanyfield_tests.django17_migrations',
 }
 
 import django
