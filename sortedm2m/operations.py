@@ -1,10 +1,12 @@
-
 from django.db import models
 from django.db.migrations.operations import AlterField
 
 from sortedm2m.fields import SORT_VALUE_FIELD_NAME
 
+
 class AlterSortedManyToManyField(AlterField):
+    """A migration operation to transform a ManyToManyField."""
+
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         super(AlterSortedManyToManyField, self).database_forwards(app_label, schema_editor, from_state, to_state)
 
