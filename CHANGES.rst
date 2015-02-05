@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.9.2
+-----
+
+* Fix: ``AlterSortedManyToManyField`` operation failed for many to many fields
+  which already contained some data.
+
 0.9.1
 -----
 
