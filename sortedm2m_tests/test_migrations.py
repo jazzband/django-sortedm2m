@@ -111,60 +111,84 @@ class TestMigrations(TestCase):
 
 @skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
 class TestAlterSortedManyToManyFieldOperation(TestCase):
+    def setUp(self):
+        from django.db.migrations.executor import MigrationExecutor
+        from django.db.migrations.loader import MigrationLoader
+        from django.db import connection
+
+        self.migration_executor = MigrationExecutor(connection)
+        self.migration_loader = MigrationLoader(connection)
+        self.state_0001 = self.migration_loader.project_state(
+            ('altersortedmanytomanyfield_tests', '0001_initial'))
+        self.state_0002 = self.migration_loader.project_state(
+            ('altersortedmanytomanyfield_tests', '0002_alter_m2m_fields'))
+        self.state_0001_apps = self.state_0001.render()
+        self.state_0002_apps = self.state_0002.render()
+
+        # Make sure we are at the latest migration when starting the test.
+        with capture_stdout():
+            call_command('migrate', 'altersortedmanytomanyfield_tests')
+
     def test_apply_migrations_backwards(self):
         with capture_stdout():
             call_command('migrate', 'altersortedmanytomanyfield_tests', '0001')
 
     def test_operation_m2m_to_sorted_m2m(self):
-        # Make sure all is migrated as expected.
-        with capture_stdout():
-            call_command('migrate', 'altersortedmanytomanyfield_tests')
 
-        from .altersortedmanytomanyfield_tests.models import M2MToSortedM2M
-        from .altersortedmanytomanyfield_tests.models import Target
+        # Let's start with state after 0001
+        with capture_stdout():
+            call_command('migrate', 'altersortedmanytomanyfield_tests', '0001')
+
+        Target = self.state_0001_apps.get_model(
+            'altersortedmanytomanyfield_tests', 'target')
+        M2MToSortedM2M = self.state_0001_apps.get_model(
+            'altersortedmanytomanyfield_tests', 'm2mtosortedm2m')
+
+        t1 = Target.objects.create(pk=1)
+        t2 = Target.objects.create(pk=2)
+        t3 = Target.objects.create(pk=3)
 
         field = M2MToSortedM2M._meta.get_field_by_name('m2m')[0]
         through_model = field.rel.through
-        self.assertEqual(list(through_model._meta.ordering), ['sort_value'])
+        # No ordering is in place.
+        self.assertTrue(not through_model._meta.ordering)
 
-        t1 = Target.objects.create(pk=1)
-        t2 = Target.objects.create(pk=2)
-        t3 = Target.objects.create(pk=3)
 
-        # Order is recognized.
-        instance = M2MToSortedM2M.objects.create()
+        instance = M2MToSortedM2M.objects.create(pk=1)
         instance.m2m.add(t3)
         instance.m2m.add(t1)
         instance.m2m.add(t2)
-        self.assertEqual(list(instance.m2m.values_list('pk', flat=True)), [3, 1, 2])
 
-        instance.m2m.remove(t1)
-        instance.m2m.remove(t2)
-        instance.m2m.add(t2)
-        instance.m2m.add(t1)
-        self.assertEqual(list(instance.m2m.values_list('pk', flat=True)), [3, 2, 1])
+        # We cannot assume any particular order now.
 
-    def test_operation_sorted_m2m_to_m2m(self):
-        # Make sure all is migrated as expected.
+        # Migrate to state 0002, then we should be able to apply order.
         with capture_stdout():
-            call_command('migrate', 'altersortedmanytomanyfield_tests')
+            call_command('migrate', 'altersortedmanytomanyfield_tests', '0002')
 
-        from .altersortedmanytomanyfield_tests.models import SortedM2MToM2M
-        from .altersortedmanytomanyfield_tests.models import Target
+        Target = self.state_0002_apps.get_model(
+            'altersortedmanytomanyfield_tests', 'target')
+        M2MToSortedM2M = self.state_0002_apps.get_model(
+            'altersortedmanytomanyfield_tests', 'm2mtosortedm2m')
 
-        t1 = Target.objects.create(pk=1)
-        t2 = Target.objects.create(pk=2)
-        t3 = Target.objects.create(pk=3)
+        t1 = Target.objects.get(pk=1)
+        t2 = Target.objects.get(pk=2)
+        t3 = Target.objects.get(pk=3)
 
-        instance = SortedM2MToM2M.objects.create()
-        # Adding, removing works.
-        instance.m2m.add(t3)
-        instance.m2m.add(t1)
-        instance.m2m.add(t2)
+        field = M2MToSortedM2M._meta.get_field_by_name('m2m')[0]
+        through_model = field.rel.through
+        # Now, ordering is there.
+        self.assertTrue(list(through_model._meta.ordering), ['sort_value'])
+
+        instance = M2MToSortedM2M.objects.get(pk=1)
+        self.assertEqual(list(instance.m2m.order_by('pk')), [t1, t2, t3])
+
+        instance.m2m = [t3, t1, t2]
+
+        self.assertEqual(list(instance.m2m.all()), [t3, t1, t2])
+
         instance.m2m.remove(t1)
         instance.m2m.remove(t2)
+        instance.m2m.add(t2)
+        instance.m2m.add(t1)
 
-        # The query is not sorted in a particular order.
-        field = SortedM2MToM2M._meta.get_field_by_name('m2m')[0]
-        through_model = field.rel.through
-        self.assertEqual(list(through_model._meta.ordering), [])
+        self.assertEqual(list(instance.m2m.all()), [t3, t2, t1])

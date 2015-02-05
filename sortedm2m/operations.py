@@ -38,21 +38,23 @@ class AlterSortedManyToManyField(AlterField):
         super(AlterSortedManyToManyField, self).database_backwards(
             app_label, schema_editor, from_state, to_state)
 
-        to_model = to_state.render().get_model(app_label, self.model_name)
-        to_field = to_model._meta.get_field_by_name(self.name)[0]
-
         from_model = from_state.render().get_model(app_label, self.model_name)
         from_field = from_model._meta.get_field_by_name(self.name)[0]
 
-        to_m2m_model = to_field.rel.through
+        to_model = to_state.render().get_model(app_label, self.model_name)
+        to_field = to_model._meta.get_field_by_name(self.name)[0]
+
         from_m2m_model = from_field.rel.through
+        to_m2m_model = to_field.rel.through
+
+        # The `to_state` is the OLDER state.
 
         # M2M -> SortedM2M (backwards)
         if getattr(to_field, 'sorted', False):
-            self.remove_sort_value_field(schema_editor, to_m2m_model)
+            self.add_sort_value_field(schema_editor, to_m2m_model)
         # SortedM2M -> M2M (backwards)
         elif getattr(from_field, 'sorted', False):
-            self.add_sort_value_field(schema_editor, from_m2m_model)
+            self.remove_sort_value_field(schema_editor, from_m2m_model)
         else:
             raise TypeError(
                 '{operation} should only be used when changing a '
@@ -69,6 +71,6 @@ class AlterSortedManyToManyField(AlterField):
         schema_editor.remove_field(model, field)
 
     def make_sort_by_field(self, model):
-        field = models.IntegerField(name=SORT_VALUE_FIELD_NAME)
+        field = models.IntegerField(name=SORT_VALUE_FIELD_NAME, default=0)
         field.set_attributes_from_name(SORT_VALUE_FIELD_NAME)
         return field
