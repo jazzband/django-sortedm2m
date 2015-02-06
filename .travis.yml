@@ -28,9 +28,8 @@ before_install:
   - echo "CREATE ROLE sortedm2m PASSWORD 'md5ba287bde612ca41b14776ec8f8dfdaa9' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;" | sudo -u postgres psql
   - echo "CREATE DATABASE sortedm2m OWNER sortedm2m;" | sudo -u postgres psql
   # MySQL setup.
-  - echo mysql-server mysql-server/root_password select root | sudo debconf-set-selections
-  - echo mysql-server mysql-server/root_password_again select root | sudo debconf-set-selections
-  - sudo apt-get install -y mysql-server
+  - echo "CREATE USER 'sortedm2m'@'localhost' IDENTIFIED BY 'sortedm2m';" | mysql -u root
+  - echo "GRANT ALL PRIVILEGES ON *.* TO 'sortedm2m'@'localhost' WITH GRANT OPTION;" | mysql -u root
 script:
   - tox -e $TOX_ENV -v
 branches:
