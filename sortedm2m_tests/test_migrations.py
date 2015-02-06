@@ -27,33 +27,15 @@ str_ = six.text_type
 
 
 @skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
-class TestMigrateCommand(TestCase):
-    def setUp(self):
-        sys.stdout = StringIO()
-        self.orig_stdout = sys.stdout
-
-    def tearDown(self):
-        sys.stdout = self.orig_stdout
-
+class TestMigrateCommand(TransactionTestCase):
     def test_migrate(self):
         with capture_stdout():
             call_command('migrate', interactive=False)
 
 
 @skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
-class TestMigrations(TestCase):
-    def setUp(self):
-        sys.stdout = StringIO()
-        self.orig_stdout = sys.stdout
-
-        # Roll back all migrations to be sure what we test against.
-        with capture_stdout():
-            call_command('migrate', 'migrations_tests', 'zero')
-            call_command('migrate', 'migrations_tests', '0001')
-
+class TestMigrations(TransactionTestCase):
     def tearDown(self):
-        sys.stdout = self.orig_stdout
-
         # Remove created migrations.
         migrations_path = os.path.join(
             os.path.dirname(__file__),

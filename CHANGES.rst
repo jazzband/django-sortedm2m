@@ -5,6 +5,7 @@ Changelog
 ----------------------
 
 * Fix: ``AlterSortedManyToManyField`` operation failed for postgres databases.
+* Testing against MySQL databases.
 
 0.9.2
 -----
