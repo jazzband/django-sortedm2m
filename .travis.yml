@@ -6,6 +6,7 @@ env:
   - TOX_ENV=py27-16
   - TOX_ENV=py27-17
   - TOX_ENV=py27-17-postgres
+  - TOX_ENV=py27-17-mysql
   - TOX_ENV=pypy-15
   - TOX_ENV=pypy-16
   - TOX_ENV=pypy-17
@@ -16,14 +17,20 @@ env:
   - TOX_ENV=py34-16
   - TOX_ENV=py34-17
   - TOX_ENV=py34-17-postgres
+  - TOX_ENV=py34-17-mysql
 before_install:
   - export PIP_USE_MIRRORS=true
   - export DJANGO_SETTINGS_MODULE=test_settings
   - sudo pip install tox
+  # Postgres setup.
   - sudo apt-get install postgresql postgresql-client
   - # Password is 'sortedm2m'
   - echo "CREATE ROLE sortedm2m PASSWORD 'md5ba287bde612ca41b14776ec8f8dfdaa9' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;" | sudo -u postgres psql
   - echo "CREATE DATABASE sortedm2m OWNER sortedm2m;" | sudo -u postgres psql
+  # MySQL setup.
+  - echo mysql-server mysql-server/root_password select root | sudo debconf-set-selections
+  - echo mysql-server mysql-server/root_password_again select root | sudo debconf-set-selections
+  - sudo apt-get install -y mysql-server
 script:
   - tox -e $TOX_ENV -v
 branches:

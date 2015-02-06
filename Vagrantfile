@@ -3,11 +3,19 @@
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
-  
+
 $provision_script = <<SCRIPT
+sudo dpkg-reconfigure -f noninteractive
+sudo apt-get install -y debconf
 sudo apt-get install -y python-pip python-tox
 sudo apt-get install -y postgresql postgresql-client python-psycopg2
+echo mysql-server mysql-server/root_password select root | sudo debconf-set-selections
+echo mysql-server mysql-server/root_password_again select root | sudo debconf-set-selections
+sudo apt-get install -y mysql-server python-mysqldb
 sudo pip install Django
+
+echo "CREATE USER 'sortedm2m'@'localhost' IDENTIFIED BY 'sortedm2m';" | mysql -u root -proot
+echo "GRANT ALL PRIVILEGES ON *.* TO 'sortedm2m'@'localhost' WITH GRANT OPTION;" | mysql -u root -proot
 
 # Password is 'sortedm2m'
 echo "CREATE ROLE sortedm2m PASSWORD 'md5ba287bde612ca41b14776ec8f8dfdaa9' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;" | sudo -u postgres psql
