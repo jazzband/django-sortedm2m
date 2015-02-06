@@ -15,6 +15,7 @@ if django.VERSION >= (1, 6):
     from django.db.utils import OperationalError, ProgrammingError
 from django.core.management import call_command
 from django.test import TestCase
+from django.test import TransactionTestCase
 from django.utils import six
 from django.utils.unittest import skipIf
 
@@ -110,7 +111,7 @@ class TestMigrations(TestCase):
 
 
 @skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
-class TestAlterSortedManyToManyFieldOperation(TestCase):
+class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
     def setUp(self):
         from django.db.migrations.executor import MigrationExecutor
         from django.db.migrations.loader import MigrationLoader
