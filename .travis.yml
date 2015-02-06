@@ -10,6 +10,7 @@ env:
   - TOX_ENV=pypy-15
   - TOX_ENV=pypy-16
   - TOX_ENV=pypy-17
+  - TOX_ENV=pypy-17-mysql
   - TOX_ENV=py32-16
   - TOX_ENV=py32-17
   - TOX_ENV=py33-16
@@ -17,7 +18,6 @@ env:
   - TOX_ENV=py34-16
   - TOX_ENV=py34-17
   - TOX_ENV=py34-17-postgres
-  - TOX_ENV=py34-17-mysql
 before_install:
   - export PIP_USE_MIRRORS=true
   - export DJANGO_SETTINGS_MODULE=test_settings
