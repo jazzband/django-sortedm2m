@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.9.3 (in development)
+----------------------
+
+* Fix: ``AlterSortedManyToManyField`` operation failed for postgres databases.
+
 0.9.2
 -----
 
