@@ -9,9 +9,6 @@ class AlterSortedManyToManyField(AlterField):
     SortedManyToManyField and vice versa."""
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
-        super(AlterSortedManyToManyField, self).database_forwards(
-            app_label, schema_editor, from_state, to_state)
-
         to_model = to_state.render().get_model(app_label, self.model_name)
         to_field = to_model._meta.get_field_by_name(self.name)[0]
 
@@ -35,9 +32,6 @@ class AlterSortedManyToManyField(AlterField):
                 .format(operation=self.__class__.__name__))
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
-        super(AlterSortedManyToManyField, self).database_backwards(
-            app_label, schema_editor, from_state, to_state)
-
         from_model = from_state.render().get_model(app_label, self.model_name)
         from_field = from_model._meta.get_field_by_name(self.name)[0]
 
