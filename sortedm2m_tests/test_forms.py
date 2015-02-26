@@ -92,3 +92,8 @@ class TestSortedFormField(TestCase):
         form = SortedForm(prefix='hacking"><a href="TRAP">')
         rendered = str_(form['values'])
         self.assertTrue(' id="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
+
+    def test_form_field_detects_reordering(self):
+        form = SortedForm({'values': '{a.pk},{b.pk}'.format(a=self.a, b=self.b)})
+        form.fields['values'].initial = [self.b.pk, self.a.pk]
+        self.assertTrue('values' in form.changed_data)
