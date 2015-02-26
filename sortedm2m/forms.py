@@ -102,3 +102,14 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
             (str_(key), value)
             for key, value in iteritems(queryset.in_bulk(value))))
         return [object_list[str_(pk)] for pk in value]
+
+    def _has_changed(self, initial, data):
+        if initial is None:
+            initial = []
+        if data is None:
+            data = []
+        if len(initial) != len(data):
+            return True
+        initial_set = [force_text(value) for value in self.prepare_value(initial)]
+        data_set = [force_text(value) for value in data]
+        return data_set != initial_set
