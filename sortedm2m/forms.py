@@ -90,6 +90,17 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             return [v for v in value.split(',') if v]
         return value
 
+    def _has_changed(self, initial, data):
+        if initial is None:
+            initial = []
+        if data is None:
+            data = []
+        if len(initial) != len(data):
+            return True
+        initial_set = [force_text(value) for value in initial]
+        data_set = [force_text(value) for value in data]
+        return data_set != initial_set
+
 
 class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = SortedCheckboxSelectMultiple
