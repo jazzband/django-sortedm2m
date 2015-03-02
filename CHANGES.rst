@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.9.4
+-----
+
+* Fix: ``SortedMultipleChoiceField`` did not properly report changes of the
+  data to ``Form.changed_data``. Thanks to @smcoll for the patch.
+
 0.9.3
 -----
 
