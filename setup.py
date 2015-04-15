@@ -16,13 +16,9 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
-if sys.version_info[0] < 3:
-    def read(*parts):
-        return codecs.open(os.path.join(os.path.dirname(__file__), *parts)).read()
-
-else:
-    def read(*parts):
-        return open(os.path.join(os.path.dirname(__file__), *parts), 'r').read()
+def read(*parts):
+    return codecs.open(os.path.join(os.path.dirname(__file__), *parts),
+                       encoding='utf8').read()
 
 
 class UltraMagicString(object):
