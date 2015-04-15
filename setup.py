@@ -21,25 +21,38 @@ def read(*parts):
                        encoding='utf8').read()
 
 
+try:
+    bytes
+except NameError:
+    bytes = str
+
+
 class UltraMagicString(object):
     '''
     Taken from
     http://stackoverflow.com/questions/1162338/whats-the-right-way-to-use-unicode-metadata-in-setup-py
     '''
     def __init__(self, value):
+        if not isinstance(value, bytes):
+            value = value.encode('utf8')
         self.value = value
 
-    def __str__(self):
+    def __bytes__(self):
         return self.value
 
     def __unicode__(self):
         return self.value.decode('UTF-8')
 
+    if sys.version_info[0] < 3:
+        __str__ = __bytes__
+    else:
+        __str__ = __unicode__
+
     def __add__(self, other):
-        return UltraMagicString(self.value + str(other))
+        return UltraMagicString(self.value + bytes(other))
 
     def split(self, *args, **kw):
-        return self.value.split(*args, **kw)
+        return str(self).split(*args, **kw)
 
 
 long_description = UltraMagicString('\n\n'.join((
