@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.9.5
+-----
+
+* Fixing ``setup.py`` when run on a system that does not use UTF-8 as default
+  encoding. See `#48`_ for details. Thanks to Richard Mitchell for the patch.
+
+.. _#48: https://github.com/gregmuellegger/django-sortedm2m/pull/48
+
 0.9.4
 -----
 
