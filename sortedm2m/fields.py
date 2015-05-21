@@ -202,6 +202,24 @@ class SortedManyToManyField(ManyToManyField):
         if self.sorted:
             self.help_text = kwargs.get('help_text', None)
 
+    '''
+    Destructor is needed beginning to the new migration framework introduced
+    in Django 1.7.
+
+    You have to persist custom added options in the ``kwargs`` dictionary.
+    For readability only non-default values are stored.
+    '''
+    def deconstruct(self):
+        name, path, args, kwargs = super(SortedManyToManyField, self).deconstruct()
+
+        if self.sort_value_field_name is not SORT_VALUE_FIELD_NAME:
+            kwargs['sort_value_field_name'] = self.sort_value_field_name
+
+        if self.sorted is not True:
+            kwargs['sorted'] = self.sorted
+
+        return name, path, args, kwargs
+
     def contribute_to_class(self, cls, name):
         if not self.sorted:
             return super(SortedManyToManyField, self).contribute_to_class(cls, name)
