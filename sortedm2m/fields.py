@@ -14,6 +14,7 @@ from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
 from django.utils import six
 from django.utils.functional import curry
 
+from .compat import get_model
 from .forms import SortedMultipleChoiceField
 
 
@@ -85,7 +86,7 @@ def create_sorted_many_to_many_intermediate_model(field, klass):
     meta = type(str('Meta'), (object,), options)
     # Construct and return the new class.
     def default_sort_value(name):
-        model = models.get_model(klass._meta.app_label, name)
+        model = get_model(klass._meta.app_label, name)
         # Django 1.5 support.
         if django.VERSION < (1, 6):
             return model._default_manager.count()
