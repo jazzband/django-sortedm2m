@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.10.0 (in development)
+-----------------------
+
+* The creation of the sortedm2m intermediate model and database table is now
+  fully done inside of the ``SortedManyToManyField`` class. That makes it much
+  easier to modify the creation of this when creating a custom subclass of this
+  field. See `#49`_ for an example usecase.
+
+.. _#49: https://github.com/gregmuellegger/django-sortedm2m/issues/49
+
 0.9.5
 -----
 
