@@ -3,6 +3,7 @@ import django
 from django.conf import settings
 from django.db import router
 from django.db import transaction
+from django.db import models
 from django.db.models import signals
 from django.db.models.fields.related import add_lazy_relation, create_many_related_manager
 from django.db.models.fields.related import ManyToManyField, ReverseManyRelatedObjectsDescriptor
@@ -10,7 +11,9 @@ from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
 from django.utils import six
 from django.utils.functional import curry
 
+from .compat import get_foreignkey_field_kwargs
 from .compat import get_model
+from .compat import get_model_name
 from .forms import SortedMultipleChoiceField
 
 
@@ -199,98 +202,6 @@ class SortedManyToManyField(ManyToManyField):
         if self.sorted:
             self.help_text = kwargs.get('help_text', None)
 
-    def create_sorted_many_to_many_intermediate_model(self, klass):
-        field = self
-
-        from django.db import models
-        managed = True
-        if isinstance(field.rel.to, six.string_types) and field.rel.to != RECURSIVE_RELATIONSHIP_CONSTANT:
-            to_model = field.rel.to
-            to = to_model.split('.')[-1]
-
-            def set_managed(field, model, cls):
-                field.rel.through._meta.managed = model._meta.managed or cls._meta.managed
-            add_lazy_relation(klass, field, to_model, set_managed)
-        elif isinstance(field.rel.to, six.string_types):
-            to = klass._meta.object_name
-            to_model = klass
-            managed = klass._meta.managed
-        else:
-            to = field.rel.to._meta.object_name
-            to_model = field.rel.to
-            managed = klass._meta.managed or to_model._meta.managed
-        name = '%s_%s' % (klass._meta.object_name, field.name)
-        if field.rel.to == RECURSIVE_RELATIONSHIP_CONSTANT or to == klass._meta.object_name:
-            from_ = 'from_%s' % to.lower()
-            to = 'to_%s' % to.lower()
-        else:
-            # Django 1.5 support.
-            if not hasattr(klass._meta, 'model_name'):
-                from_ = klass._meta.object_name.lower()
-            else:
-                from_ = klass._meta.model_name
-            to = to.lower()
-        options = {
-            'db_table': field._get_m2m_db_table(klass._meta),
-            'managed': managed,
-            'auto_created': klass,
-            'app_label': klass._meta.app_label,
-            'db_tablespace': klass._meta.db_tablespace,
-            'unique_together': ((from_, to),),
-            'ordering': (field.sort_value_field_name,),
-            'verbose_name': '%(from)s-%(to)s relationship' % {'from': from_, 'to': to},
-            'verbose_name_plural': '%(from)s-%(to)s relationships' % {'from': from_, 'to': to},
-        }
-        # Django 1.6 support.
-        if hasattr(field.model._meta, 'apps'):
-            options.update({
-                'apps': field.model._meta.apps,
-            })
-
-        meta = type(str('Meta'), (object,), options)
-        # Construct and return the new class.
-        def default_sort_value(name):
-            model = get_model(klass._meta.app_label, name)
-            # Django 1.5 support.
-            if django.VERSION < (1, 6):
-                return model._default_manager.count()
-            else:
-                from django.db.utils import ProgrammingError, OperationalError
-                try:
-                    # We need to catch if the model is not yet migrated in the
-                    # database. The default function is still called in this case while
-                    # running the migration. So we mock the return value of 0.
-                    with transaction.atomic():
-                        return model._default_manager.count()
-                except (ProgrammingError, OperationalError):
-                    return 0
-
-        default_sort_value = curry(default_sort_value, name)
-
-        # Django 1.5 support.
-        if django.VERSION < (1, 6):
-            foreignkey_field_kwargs = {}
-        else:
-            foreignkey_field_kwargs = dict(
-                db_tablespace=field.db_tablespace,
-                db_constraint=field.rel.db_constraint)
-
-        attrs = {
-            'Meta': meta,
-            '__module__': klass.__module__,
-            from_: models.ForeignKey(klass, related_name='%s+' % name, **foreignkey_field_kwargs),
-            to: models.ForeignKey(to_model, related_name='%s+' % name, **foreignkey_field_kwargs),
-            field.sort_value_field_name: models.IntegerField(default=default_sort_value),
-            '_sort_field_name': field.sort_value_field_name,
-            '_from_field_name': from_,
-            '_to_field_name': to,
-        }
-        attrs = self.get_intermediate_model_attributes(attrs)
-        return type(str(name), (models.Model,), attrs)
-
-    def get_intermediate_model_attributes(self, attrs):
-        return attrs
-
     def contribute_to_class(self, cls, name):
         if not self.sorted:
             return super(SortedManyToManyField, self).contribute_to_class(cls, name)
@@ -310,7 +221,7 @@ class SortedManyToManyField(ManyToManyField):
         #  1) There is a manually specified intermediate, or
         #  2) The class owning the m2m field is abstract.
         if not self.rel.through and not cls._meta.abstract:
-            self.rel.through = self.create_sorted_many_to_many_intermediate_model(cls)
+            self.rel.through = self.create_intermediate_model(cls)
 
         # Add the descriptor for the m2m relation
         setattr(cls, self.name, ReverseSortedManyRelatedObjectsDescriptor(self))
@@ -341,6 +252,139 @@ class SortedManyToManyField(ManyToManyField):
             defaults['form_class'] = SortedMultipleChoiceField
         defaults.update(kwargs)
         return super(SortedManyToManyField, self).formfield(**defaults)
+
+    ###############################
+    # Intermediate Model Creation #
+    ###############################
+
+    def get_intermediate_model_name(self, klass):
+        return '%s_%s' % (klass._meta.object_name, self.name)
+
+    def get_intermediate_model_meta_class(self, klass, from_field_name,
+                                          to_field_name,
+                                          sort_value_field_name):
+        managed = True
+        to_model = self.rel.to
+        if isinstance(self.rel.to, six.string_types):
+            if self.rel.to != RECURSIVE_RELATIONSHIP_CONSTANT:
+                def set_managed(field, model, cls):
+                    field.rel.through._meta.managed = model._meta.managed or cls._meta.managed
+                add_lazy_relation(klass, self, to_model, set_managed)
+            else:
+                managed = klass._meta.managed
+        else:
+            managed = klass._meta.managed or to_model._meta.managed
+
+        options = {
+            'db_table': self._get_m2m_db_table(klass._meta),
+            'managed': managed,
+            'auto_created': klass,
+            'app_label': klass._meta.app_label,
+            'db_tablespace': klass._meta.db_tablespace,
+            'unique_together': ((from_field_name, to_field_name),),
+            'ordering': (sort_value_field_name,),
+            'verbose_name': '%(from)s-%(to)s relationship' % {'from': from_field_name, 'to': to_field_name},
+            'verbose_name_plural': '%(from)s-%(to)s relationships' % {'from': from_field_name, 'to': to_field_name},
+        }
+        # Django 1.6 support.
+        if hasattr(self.model._meta, 'apps'):
+            options.update({
+                'apps': self.model._meta.apps,
+            })
+        return type(str('Meta'), (object,), options)
+
+    def get_rel_to_model_and_object_name(self, klass):
+        if isinstance(self.rel.to, six.string_types):
+            if self.rel.to != RECURSIVE_RELATIONSHIP_CONSTANT:
+                to_model = self.rel.to
+                to_object_name = to_model.split('.')[-1]
+            else:
+                to_model = klass
+                to_object_name = to_model._meta.object_name
+        else:
+            to_model = self.rel.to
+            to_object_name = to_model._meta.object_name
+        return to_model, to_object_name
+
+    def get_intermediate_model_sort_value_field_default(self, klass):
+        def default_sort_value(name):
+            model = get_model(klass._meta.app_label, name)
+            # Django 1.5 support.
+            if django.VERSION < (1, 6):
+                return model._default_manager.count()
+            else:
+                from django.db.utils import ProgrammingError, OperationalError
+                try:
+                    # We need to catch if the model is not yet migrated in the
+                    # database. The default function is still called in this case while
+                    # running the migration. So we mock the return value of 0.
+                    with transaction.atomic():
+                        return model._default_manager.count()
+                except (ProgrammingError, OperationalError):
+                    return 0
+
+        name = self.get_intermediate_model_name(klass)
+        default_sort_value = curry(default_sort_value, name)
+        return default_sort_value
+
+    def get_intermediate_model_sort_value_field(self, klass):
+        default_sort_value = self.get_intermediate_model_sort_value_field_default(klass)
+        field_name = self.sort_value_field_name
+        field = models.IntegerField(default=default_sort_value)
+        return field_name, field
+
+    def get_intermediate_model_from_field(self, klass):
+        name = self.get_intermediate_model_name(klass)
+
+        to_model, to_object_name = self.get_rel_to_model_and_object_name(klass)
+
+        if self.rel.to == RECURSIVE_RELATIONSHIP_CONSTANT or to_object_name == klass._meta.object_name:
+            field_name = 'from_%s' % to_object_name.lower()
+        else:
+            field_name = get_model_name(klass)
+
+        field = models.ForeignKey(klass, related_name='%s+' % name,
+                                  **get_foreignkey_field_kwargs(self))
+        return field_name, field
+
+    def get_intermediate_model_to_field(self, klass):
+        name = self.get_intermediate_model_name(klass)
+
+        to_model, to_object_name = self.get_rel_to_model_and_object_name(klass)
+
+        if self.rel.to == RECURSIVE_RELATIONSHIP_CONSTANT or to_object_name == klass._meta.object_name:
+            field_name = 'to_%s' % to_object_name.lower()
+        else:
+            field_name = to_object_name.lower()
+
+        field = models.ForeignKey(to_model, related_name='%s+' % name,
+                                  **get_foreignkey_field_kwargs(self))
+        return field_name, field
+
+    def create_intermediate_model_from_attrs(self, klass, attrs):
+        name = self.get_intermediate_model_name(klass)
+        return type(str(name), (models.Model,), attrs)
+
+    def create_intermediate_model(self, klass):
+        # Construct and return the new class.
+        from_field_name, from_field = self.get_intermediate_model_from_field(klass)
+        to_field_name, to_field = self.get_intermediate_model_to_field(klass)
+        sort_value_field_name, sort_value_field = self.get_intermediate_model_sort_value_field(klass)
+
+        meta = self.get_intermediate_model_meta_class(
+            klass, from_field_name, to_field_name, sort_value_field_name)
+
+        attrs = {
+            'Meta': meta,
+            '__module__': klass.__module__,
+            from_field_name: from_field,
+            to_field_name: to_field,
+            sort_value_field_name: sort_value_field,
+            '_sort_field_name': sort_value_field_name,
+            '_from_field_name': from_field_name,
+            '_to_field_name': to_field_name,
+        }
+        return self.create_intermediate_model_from_attrs(klass, attrs)
 
 
 # Add introspection rules for South database migrations
