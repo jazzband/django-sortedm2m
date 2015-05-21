@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.10.0 (in development)
------------------------
+0.10.0
+------
 
 * The creation of the sortedm2m intermediate model and database table is now
   fully done inside of the ``SortedManyToManyField`` class. That makes it much
