@@ -8,6 +8,9 @@ Changelog
   fully done inside of the ``SortedManyToManyField`` class. That makes it much
   easier to modify the creation of this when creating a custom subclass of this
   field. See `#49`_ for an example usecase.
+* Adding support for the custom field arguments like ``sorted`` and
+  ``sort_value_field_name`` in Django 1.7 migrations. Thanks to Christian
+  Kohlstedde for the patch.
 
 .. _#49: https://github.com/gregmuellegger/django-sortedm2m/issues/49
 
