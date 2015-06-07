@@ -9,11 +9,11 @@ class AlterSortedManyToManyField(AlterField):
     SortedManyToManyField and vice versa."""
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
-        to_model = to_state.render().get_model(app_label, self.model_name)
-        to_field = to_model._meta.get_field_by_name(self.name)[0]
+        to_model = to_state.apps.get_model(app_label, self.model_name)
+        to_field = to_model._meta.get_field(self.name)
 
-        from_model = from_state.render().get_model(app_label, self.model_name)
-        from_field = from_model._meta.get_field_by_name(self.name)[0]
+        from_model = from_state.apps.get_model(app_label, self.model_name)
+        from_field = from_model._meta.get_field(self.name)
 
         to_m2m_model = to_field.rel.through
         from_m2m_model = from_field.rel.through
