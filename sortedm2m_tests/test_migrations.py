@@ -17,10 +17,10 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.test import TransactionTestCase
 from django.utils import six
-from django.utils.unittest import skipIf
 
 from sortedm2m.compat import get_apps_from_state
 from sortedm2m_tests.migrations_tests.models import Gallery, Photo
+from .compat import skipIf
 from .utils import capture_stdout
 
 
