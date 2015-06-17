@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.0.0
+-----
+
+* Hooray, we officially declare **django-sortedm2m** to be stable and
+  promise to be backwards compatible to new releases (we already doing good
+  since since the beginning in that regard).
+* Django 1.8 support for ``AlterSortedManyToManyField`` operation. Thanks to
+  Nicolas Trésegnie for starting the implementation.
+
 0.10.0
 ------
 
