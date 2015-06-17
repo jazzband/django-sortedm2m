@@ -19,6 +19,7 @@ from django.test import TransactionTestCase
 from django.utils import six
 from django.utils.unittest import skipIf
 
+from sortedm2m.compat import get_apps_from_state
 from sortedm2m_tests.migrations_tests.models import Gallery, Photo
 from .utils import capture_stdout
 
@@ -105,8 +106,8 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
             ('altersortedmanytomanyfield_tests', '0001_initial'))
         self.state_0002 = self.migration_loader.project_state(
             ('altersortedmanytomanyfield_tests', '0002_alter_m2m_fields'))
-        self.state_0001_apps = self.state_0001.render()
-        self.state_0002_apps = self.state_0002.render()
+        self.state_0001_apps = get_apps_from_state(self.state_0001)
+        self.state_0002_apps = get_apps_from_state(self.state_0002)
 
         # Make sure we are at the latest migration when starting the test.
         with capture_stdout():

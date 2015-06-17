@@ -28,3 +28,17 @@ def get_foreignkey_field_kwargs(field):
         return dict(
             db_tablespace=field.db_tablespace,
             db_constraint=field.rel.db_constraint)
+
+
+def get_field(model, field_name):
+    if django.VERSION < (1, 8):
+        return model._meta.get_field_by_name(field_name)[0]
+    else:
+        return model._meta.get_field(field_name)
+
+
+def get_apps_from_state(migration_state):
+    if django.VERSION < (1, 8):
+        return migration_state.render()
+    else:
+        return migration_state.apps
