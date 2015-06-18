@@ -48,3 +48,7 @@ body.change-form .sortedm2m-container {
     margin: 0;
     padding: 6px 8px;
 }
+
+.hide {
+    display: none;
+}

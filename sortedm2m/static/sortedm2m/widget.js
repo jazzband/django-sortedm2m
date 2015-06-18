@@ -4,7 +4,7 @@ if (jQuery === undefined) {
 
 (function ($) {
     $(function () {
-
+        $('.sortedm2m-container').find('ul').addClass('hide');
         function prepareUl(ul) {
             ul.addClass('sortedm2m');
             var checkboxes = ul.find('input[type=checkbox]');
@@ -18,7 +18,7 @@ if (jQuery === undefined) {
                     values.push($(this).val());
                 });
                 $('#' + id).val(values.join(','));
-            }
+            };
             recalculate_value();
             ul.on('change','input[type=checkbox]',recalculate_value);
             ul.sortable({
@@ -30,8 +30,9 @@ if (jQuery === undefined) {
         }
 
         function iterateUl() {
-            $('.sortedm2m').parents('ul').each(function () {
+            $('ul:has(.sortedm2m)').each(function () {
                 prepareUl( $(this) );
+                $(this).removeClass('hide');
             });
         }
 
@@ -51,7 +52,7 @@ if (jQuery === undefined) {
                             $(this).css('display', 'none');
                         } else {
                             $(this).css('display', 'inherit');
-                        };
+                        }
                     });
                 });
             });
