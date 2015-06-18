@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.0.1
+-----
+
+* Performance fix for sorted m2m admin widget. See `#54`_ for details. Thanks
+  to Jonathan Liuti for fixing this.
+
+.. _#54: https://github.com/gregmuellegger/django-sortedm2m/pull/54
+
 1.0.0
 -----
 
