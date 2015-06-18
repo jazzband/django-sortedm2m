@@ -4,7 +4,7 @@ if (jQuery === undefined) {
 
 (function ($) {
     $(function () {
-
+        $('.sortedm2m-container').find('ul').addClass('hide');
         function prepareUl(ul) {
             ul.addClass('sortedm2m');
             var checkboxes = ul.find('input[type=checkbox]');
