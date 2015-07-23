@@ -6,10 +6,10 @@ from django.db import transaction
 from django.db import models
 from django.db.models import signals
 from django.db.models.fields.related import add_lazy_relation, create_many_related_manager
-from django.db.models.fields.related import ManyToManyField, ReverseManyRelatedObjectsDescriptor
+from django.db.models.fields.related import ManyToManyField
 from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
 from django.utils import six
-from django.utils.functional import curry
+from django.utils.functional import cached_property, curry
 
 from .compat import get_foreignkey_field_kwargs
 from .compat import get_model_name
@@ -35,8 +35,8 @@ else:
             pass
 
 
-def create_sorted_many_related_manager(superclass, rel):
-    RelatedManager = create_many_related_manager(superclass, rel)
+def create_sorted_many_related_manager(superclass, rel, *args):
+    RelatedManager = create_many_related_manager(superclass, rel, *args)
 
     class SortedRelatedManager(RelatedManager):
         def get_queryset(self):
@@ -85,6 +85,12 @@ def create_sorted_many_related_manager(superclass, rel):
             return (queryset,) + result[1:]
 
         get_prefetch_query_set = get_prefetch_queryset
+
+        def set(self, objs, **kwargs):
+            # Choosing to clear first will ensure the order is maintained.
+            kwargs['clear'] = True
+            super(SortedRelatedManager, self).set(objs, **kwargs)
+        set.alters_data = True
 
         def _add_items(self, source_field_name, target_field_name, *objs):
             # source_field_name: the PK fieldname in join table for the source object
@@ -171,13 +177,31 @@ def create_sorted_many_related_manager(superclass, rel):
     return SortedRelatedManager
 
 
-class ReverseSortedManyRelatedObjectsDescriptor(ReverseManyRelatedObjectsDescriptor):
-    @property
-    def related_manager_cls(self):
-        return create_sorted_many_related_manager(
-            self.field.rel.to._default_manager.__class__,
-            self.field.rel
-        )
+try:
+    from django.db.models.fields.related import ReverseManyRelatedObjectsDescriptor
+
+    class ReverseSortedManyRelatedObjectsDescriptor(ReverseManyRelatedObjectsDescriptor):
+        @cached_property
+        def related_manager_cls(self):
+            return create_sorted_many_related_manager(
+                self.field.rel.to._default_manager.__class__,
+                self.field.rel
+            )
+except ImportError:
+    from django.db.models.fields.related import ManyRelatedObjectsDescriptor
+
+    # ReverseManyRelatedObjectsDescriptor was removed from Django 1.9
+    class ReverseSortedManyRelatedObjectsDescriptor(ManyRelatedObjectsDescriptor):
+        def __init__(self, field):
+            super(ReverseSortedManyRelatedObjectsDescriptor, self).__init__(field.remote_field)
+
+        @cached_property
+        def related_manager_cls(self):
+            return create_sorted_many_related_manager(
+                self.rel.model._default_manager.__class__,
+                self.rel,
+                False  # This is the new `reverse` argument (which ironically should be False)
+            )
 
 
 class SortedManyToManyField(ManyToManyField):
@@ -209,9 +233,9 @@ class SortedManyToManyField(ManyToManyField):
             kwargs['sorted'] = self.sorted
         return name, path, args, kwargs
 
-    def contribute_to_class(self, cls, name):
+    def contribute_to_class(self, cls, name, **kwargs):
         if not self.sorted:
-            return super(SortedManyToManyField, self).contribute_to_class(cls, name)
+            return super(SortedManyToManyField, self).contribute_to_class(cls, name, **kwargs)
 
         # To support multiple relations to self, it's useful to have a non-None
         # related name on symmetrical relations for internal reasons. The
@@ -222,7 +246,7 @@ class SortedManyToManyField(ManyToManyField):
         if self.rel.symmetrical and (self.rel.to == "self" or self.rel.to == cls._meta.object_name):
             self.rel.related_name = "%s_rel_+" % name
 
-        super(ManyToManyField, self).contribute_to_class(cls, name)
+        super(ManyToManyField, self).contribute_to_class(cls, name, **kwargs)
 
         # The intermediate m2m model is not auto created if:
         #  1) There is a manually specified intermediate, or
