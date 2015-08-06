@@ -1,6 +1,17 @@
 Changelog
 =========
 
+1.1.0 (in development)
+----------------------
+
+* `#56`_: Fix bug where order is wrong after adding objects. That had to do
+  with using the ``count`` of the m2m objects for the next ``sort_value``
+  value. We now use the corret ``Max`` aggregation to make sure that newly
+  added objects will be in order. Thanks to Scott Kyle for the report and
+  patch.
+
+.. _#56: https://github.com/gregmuellegger/django-sortedm2m/pull/56
+
 1.0.1
 -----
 
