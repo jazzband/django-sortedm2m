@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.1.0 (in development)
-----------------------
+1.0.2
+-----
 
 * `#56`_: Fix bug where order is wrong after adding objects. That had to do
   with using the ``count`` of the m2m objects for the next ``sort_value``
