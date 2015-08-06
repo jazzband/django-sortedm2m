@@ -26,6 +26,12 @@ You can work around this limitation by using the ``SortedManyToManyField``
 provided by this package as drop in replacement for django's
 ``ManyToManyField``.
 
+Requirements
+============
+
+**django-sortedm2m** runs on Python 2.6, 2.7, 3.2 and up. PyPy is supported as
+well. Django 1.6 and up is required.
+
 Usage
 =====
 
