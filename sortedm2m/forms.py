@@ -4,6 +4,7 @@ import sys
 from itertools import chain
 from django import forms
 from django.conf import settings
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models.query import QuerySet
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
@@ -21,17 +22,14 @@ else:
     str_ = str
 
 
-STATIC_URL = getattr(settings, 'STATIC_URL', settings.MEDIA_URL)
-
-
 class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     class Media:
         js = (
-            STATIC_URL + 'sortedm2m/widget.js',
-            STATIC_URL + 'sortedm2m/jquery-ui.js',
+            static('sortedm2m/widget.js'),
+            static('sortedm2m/jquery-ui.js'),
         )
         css = {'screen': (
-            STATIC_URL + 'sortedm2m/widget.css',
+            static('sortedm2m/widget.css'),
         )}
 
     def build_attrs(self, attrs=None, **kwargs):
