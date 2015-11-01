@@ -5,7 +5,7 @@ from django.db import router
 from django.db import transaction
 from django.db import models
 from django.db.models import signals
-from django.db.models.fields.related import add_lazy_relation, create_many_related_manager
+from django.db.models.fields.related import add_lazy_relation
 from django.db.models.fields.related import ManyToManyField
 from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
 from django.utils import six
@@ -15,6 +15,10 @@ from .compat import get_foreignkey_field_kwargs
 from .compat import get_model_name
 from .forms import SortedMultipleChoiceField
 
+try:
+    from django.db.models.fields.related import create_many_related_manager
+except ImportError:
+    from django.db.models.fields.related_descriptors import create_forward_many_to_many_manager as create_many_related_manager
 
 SORT_VALUE_FIELD_NAME = 'sort_value'
 
@@ -188,10 +192,10 @@ try:
                 self.field.rel
             )
 except ImportError:
-    from django.db.models.fields.related import ManyRelatedObjectsDescriptor
+    from django.db.models.fields.related_descriptors import ManyToManyDescriptor
 
     # ReverseManyRelatedObjectsDescriptor was removed from Django 1.9
-    class ReverseSortedManyRelatedObjectsDescriptor(ManyRelatedObjectsDescriptor):
+    class ReverseSortedManyRelatedObjectsDescriptor(ManyToManyDescriptor):
         def __init__(self, field):
             super(ReverseSortedManyRelatedObjectsDescriptor, self).__init__(field.remote_field)
 
