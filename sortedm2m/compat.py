@@ -49,3 +49,10 @@ def get_apps_from_state(migration_state):
         return migration_state.render()
     else:
         return migration_state.apps
+
+
+def allow_migrate_model(self, connection_alias, model):
+    if django.VERSION < (1, 8):
+        return self.allowed_to_migrate(connection_alias, model)
+    else:
+        return self.allow_migrate_model(connection_alias, model)
