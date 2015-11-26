@@ -4,9 +4,11 @@ Changelog
 1.1.0 (in development)
 ----------------------
 
-* `#59`_: Django 1.9 support. Thanks to Scott Kyle for the patch.
+* `#59`_, `#65`_: Django 1.9 support. Thanks to Scott Kyle and Jasper Maes for
+  patches.
 
 .. _#59: https://github.com/gregmuellegger/django-sortedm2m/pull/59
+.. _#65: https://github.com/gregmuellegger/django-sortedm2m/pull/65
 
 1.0.2
 -----
