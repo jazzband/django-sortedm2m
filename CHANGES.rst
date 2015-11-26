@@ -6,6 +6,9 @@ Changelog
 
 * `#59`_, `#65`_: Django 1.9 support. Thanks to Scott Kyle and Jasper Maes for
   patches.
+* `#67`_: Support for disabling migrations for some models, that can be
+  decided by Django's DB router (with the ``allow_migrate_model`` method).
+  Thanks to @hstanev for the patch.
 
 .. _#59: https://github.com/gregmuellegger/django-sortedm2m/pull/59
 .. _#65: https://github.com/gregmuellegger/django-sortedm2m/pull/65
