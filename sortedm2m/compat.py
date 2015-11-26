@@ -12,6 +12,13 @@ else:
     from django.db.models import get_model
 
 
+try:
+    from django.db.models.fields.related_descriptors import create_forward_many_to_many_manager
+except ImportError:
+    # Django <= 1.8 support.
+    from django.db.models.fields.related import create_many_related_manager as create_forward_many_to_many_manager
+
+
 def get_model_name(model):
     # Django 1.5 support.
     if not hasattr(model._meta, 'model_name'):
