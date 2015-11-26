@@ -8,21 +8,25 @@ env:
   - TOX_ENV=py27-18
   - TOX_ENV=py27-18-postgres
   - TOX_ENV=py27-18-mysql
+  - TOX_ENV=py27-19
   - TOX_ENV=pypy-15
   - TOX_ENV=pypy-16
   - TOX_ENV=pypy-17
   - TOX_ENV=pypy-18
   - TOX_ENV=pypy-18-mysql
+  - TOX_ENV=pypy-19
   - TOX_ENV=py32-16
   - TOX_ENV=py32-17
   - TOX_ENV=py32-18
   - TOX_ENV=py33-16
   - TOX_ENV=py33-17
   - TOX_ENV=py33-18
+  - TOX_ENV=py33-19
   - TOX_ENV=py34-16
   - TOX_ENV=py34-17
   - TOX_ENV=py34-18
   - TOX_ENV=py34-18-postgres
+  - TOX_ENV=py34-19
 before_install:
   - export PIP_USE_MIRRORS=true
   - export DJANGO_SETTINGS_MODULE=test_settings
