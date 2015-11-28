@@ -12,6 +12,13 @@ else:
     from django.db.models import get_model
 
 
+try:
+    from django.db.models.fields.related_descriptors import create_forward_many_to_many_manager
+except ImportError:
+    # Django <= 1.8 support.
+    from django.db.models.fields.related import create_many_related_manager as create_forward_many_to_many_manager
+
+
 def get_model_name(model):
     # Django 1.5 support.
     if not hasattr(model._meta, 'model_name'):
@@ -42,3 +49,10 @@ def get_apps_from_state(migration_state):
         return migration_state.render()
     else:
         return migration_state.apps
+
+
+def allow_migrate_model(self, connection_alias, model):
+    if django.VERSION < (1, 8):
+        return self.allowed_to_migrate(connection_alias, model)
+    else:
+        return self.allow_migrate_model(connection_alias, model)

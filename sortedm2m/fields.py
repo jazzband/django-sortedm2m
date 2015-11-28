@@ -11,14 +11,10 @@ from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
 from django.utils import six
 from django.utils.functional import cached_property, curry
 
+from .compat import create_forward_many_to_many_manager
 from .compat import get_foreignkey_field_kwargs
 from .compat import get_model_name
 from .forms import SortedMultipleChoiceField
-
-try:
-    from django.db.models.fields.related import create_many_related_manager
-except ImportError:
-    from django.db.models.fields.related_descriptors import create_forward_many_to_many_manager as create_many_related_manager
 
 SORT_VALUE_FIELD_NAME = 'sort_value'
 
@@ -39,8 +35,9 @@ else:
             pass
 
 
-def create_sorted_many_related_manager(superclass, rel, *args):
-    RelatedManager = create_many_related_manager(superclass, rel, *args)
+def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
+    RelatedManager = create_forward_many_to_many_manager(
+        superclass, rel, *args, **kwargs)
 
     class SortedRelatedManager(RelatedManager):
         def get_queryset(self):
@@ -182,29 +179,32 @@ def create_sorted_many_related_manager(superclass, rel, *args):
 
 
 try:
+    from django.db.models.fields.related_descriptors import ManyToManyDescriptor
+
+    class SortedManyToManyDescriptor(ManyToManyDescriptor):
+        def __init__(self, field):
+            super(SortedManyToManyDescriptor, self).__init__(field.remote_field)
+
+        @cached_property
+        def related_manager_cls(self):
+            model = self.rel.model
+            return create_sorted_many_related_manager(
+                model._default_manager.__class__,
+                self.rel,
+                # This is the new `reverse` argument (which ironically should
+                # be False)
+                reverse=False,
+            )
+except ImportError:
+    # Django 1.8 support
     from django.db.models.fields.related import ReverseManyRelatedObjectsDescriptor
 
-    class ReverseSortedManyRelatedObjectsDescriptor(ReverseManyRelatedObjectsDescriptor):
+    class SortedManyToManyDescriptor(ReverseManyRelatedObjectsDescriptor):
         @cached_property
         def related_manager_cls(self):
             return create_sorted_many_related_manager(
                 self.field.rel.to._default_manager.__class__,
                 self.field.rel
-            )
-except ImportError:
-    from django.db.models.fields.related_descriptors import ManyToManyDescriptor
-
-    # ReverseManyRelatedObjectsDescriptor was removed from Django 1.9
-    class ReverseSortedManyRelatedObjectsDescriptor(ManyToManyDescriptor):
-        def __init__(self, field):
-            super(ReverseSortedManyRelatedObjectsDescriptor, self).__init__(field.remote_field)
-
-        @cached_property
-        def related_manager_cls(self):
-            return create_sorted_many_related_manager(
-                self.rel.model._default_manager.__class__,
-                self.rel,
-                False  # This is the new `reverse` argument (which ironically should be False)
             )
 
 
@@ -259,7 +259,7 @@ class SortedManyToManyField(ManyToManyField):
             self.rel.through = self.create_intermediate_model(cls)
 
         # Add the descriptor for the m2m relation
-        setattr(cls, self.name, ReverseSortedManyRelatedObjectsDescriptor(self))
+        setattr(cls, self.name, SortedManyToManyDescriptor(self))
 
         # Set up the accessor for the m2m table name for the relation
         self.m2m_db_table = curry(self._get_m2m_db_table, cls._meta)
