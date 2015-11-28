@@ -114,7 +114,11 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
             for key, value in iteritems(queryset.in_bulk(value))))
         return [object_list[str_(pk)] for pk in value]
 
-    def _has_changed(self, initial, data):
+    if django.VERSION < (1, 8):
+        def _has_changed(self, initial, data):
+            return self.has_changed(initial, data)
+
+    def has_changed(self, initial, data):
         if initial is None:
             initial = []
         if data is None:
