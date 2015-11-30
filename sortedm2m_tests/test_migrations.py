@@ -18,7 +18,7 @@ from django.test import TestCase
 from django.test import TransactionTestCase
 from django.utils import six
 
-from sortedm2m.compat import get_apps_from_state
+from sortedm2m.compat import get_apps_from_state, get_field
 from sortedm2m_tests.migrations_tests.models import Gallery, Photo
 from .compat import skipIf
 from .utils import capture_stdout
@@ -132,7 +132,7 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
         t2 = Target.objects.create(pk=2)
         t3 = Target.objects.create(pk=3)
 
-        field = M2MToSortedM2M._meta.get_field_by_name('m2m')[0]
+        field = get_field(M2MToSortedM2M,'m2m')
         through_model = field.rel.through
         # No ordering is in place.
         self.assertTrue(not through_model._meta.ordering)
@@ -158,7 +158,7 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
         t2 = Target.objects.get(pk=2)
         t3 = Target.objects.get(pk=3)
 
-        field = M2MToSortedM2M._meta.get_field_by_name('m2m')[0]
+        field = get_field(M2MToSortedM2M,'m2m')
         through_model = field.rel.through
         # Now, ordering is there.
         self.assertTrue(list(through_model._meta.ordering), ['sort_value'])

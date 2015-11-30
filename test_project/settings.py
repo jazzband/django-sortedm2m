@@ -3,7 +3,6 @@ import os
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -58,10 +57,6 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'example.urls'
 
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_ROOT, 'templates'),
-)
-
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -97,6 +92,33 @@ if django.VERSION < (1, 7):
         'test_south_support.south_support_new_field',
         'test_south_support.south_support_custom_sort_field_name',
     )
+
+if django.VERSION >= (1, 8):
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [
+                os.path.join(PROJECT_ROOT, 'templates'),
+            ],
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                    'django.contrib.auth.context_processors.auth',
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.i18n',
+                    'django.template.context_processors.media',
+                    'django.template.context_processors.static',
+                    'django.template.context_processors.tz',
+                    'django.contrib.messages.context_processors.messages',
+                ],
+            },
+        },
+    ]
+else:
+    TEMPLATE_DIRS = (
+        os.path.join(PROJECT_ROOT, 'templates'),
+    )
+    TEMPLATE_DEBUG = DEBUG
 
 try:
     from local_settings import *

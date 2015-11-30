@@ -5,6 +5,8 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import six
 
+from sortedm2m.compat import get_field
+
 from .models import (
     Book, Shelf, DoItYourselfShelf, Store, MessyStore, SelfReference)
 
@@ -208,10 +210,10 @@ class TestStringReference(TestSortedManyToManyField):
         # make sure that standard sort field is not used
         self.assertRaises(
             FieldDoesNotExist,
-            intermediate_model._meta.get_field_by_name,
-            SORT_VALUE_FIELD_NAME)
+            get_field,
+            intermediate_model, SORT_VALUE_FIELD_NAME)
 
-        field = intermediate_model._meta.get_field_by_name('diy_sort_number')
+        field = get_field(intermediate_model, 'diy_sort_number')
         self.assertTrue(field)
 
 

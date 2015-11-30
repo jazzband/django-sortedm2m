@@ -70,7 +70,7 @@ class AlterSortedManyToManyField(AlterField):
         schema_editor.add_field(model, field)
 
     def remove_sort_value_field(self, schema_editor, model):
-        field = model._meta.get_field_by_name(SORT_VALUE_FIELD_NAME)[0]
+        field = get_field(model, SORT_VALUE_FIELD_NAME)
         schema_editor.remove_field(model, field)
 
     def make_sort_by_field(self, model):
