@@ -4,7 +4,7 @@ Changelog
 1.1.0 (in development)
 ----------------------
 
-* `#59`_, `#65`_: Django 1.9 support. Thanks to Scott Kyle and Jasper Maes for
+* `#59`_, `#65`_, `#68`_: Django 1.9 support. Thanks to Scott Kyle and Jasper Maes for
   patches.
 * `#67`_: Support for disabling migrations for some models, that can be
   decided by Django's DB router (with the ``allow_migrate_model`` method).
@@ -12,6 +12,7 @@ Changelog
 
 .. _#59: https://github.com/gregmuellegger/django-sortedm2m/pull/59
 .. _#65: https://github.com/gregmuellegger/django-sortedm2m/pull/65
+.. _#68: https://github.com/gregmuellegger/django-sortedm2m/pull/68
 
 1.0.2
 -----
