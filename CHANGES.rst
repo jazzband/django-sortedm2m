@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.1.1
+-----
+
+* `#70`_: CSS fix for Django 1.9 new admin design. Thanks to Maarten Draijer
+  for the patch.
+
+.. _#70: https://github.com/gregmuellegger/django-sortedm2m/pull/70
+
 1.1.0
 -----
 
