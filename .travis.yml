@@ -41,6 +41,3 @@ install:
   - pip install tox
 script:
   - tox -e $TOX_ENV -v
-branches:
-  only:
-    - master
