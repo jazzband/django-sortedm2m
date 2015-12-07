@@ -2,9 +2,7 @@
 django-sortedm2m
 ================
 
-.. image:: https://travis-ci.org/gregmuellegger/django-sortedm2m.png
-   :alt: Build Status
-   :target: https://travis-ci.org/gregmuellegger/django-sortedm2m
+|pypi-badge| |build-status|
 
 ``sortedm2m`` is a drop-in replacement for django's own ``ManyToManyField``.
 The provided ``SortedManyToManyField`` behaves like the original one but
@@ -179,3 +177,11 @@ in touch with me by mail_ or twitter_.
 
 .. _mail: mailto:gregor@muellegger.de
 .. _twitter: http://twitter.com/gregmuellegger
+
+.. |pypi-badge| image:: https://img.shields.io/pypi/v/django-sortedm2m.svg
+   :alt: PyPI Release
+   :target: https://pypi.python.org/pypi/django-sortedm2m
+
+.. |build-status| image:: https://travis-ci.org/gregmuellegger/django-sortedm2m.png
+   :alt: Build Status
+   :target: https://travis-ci.org/gregmuellegger/django-sortedm2m
