@@ -11,7 +11,7 @@
 
 .sortedm2m-container p.selector-filter input {
     width: 532px;
-    margin: 5px 4px;
+    margin: 0 0 0 4px;
 }
 
 ul.sortedm2m {
@@ -46,7 +46,7 @@ body.change-form .sortedm2m-container {
 }
 .module ul.sortedm2m {
     margin: 0;
-    padding: 6px 8px;
+    padding: 10px 0;
 }
 
 .hide {
