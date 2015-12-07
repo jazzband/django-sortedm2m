@@ -1,4 +1,5 @@
 language: python
+sudo: false
 env:
   - TOX_ENV=py26-15
   - TOX_ENV=py26-16
@@ -29,15 +30,15 @@ env:
 before_install:
   - export PIP_USE_MIRRORS=true
   - export DJANGO_SETTINGS_MODULE=test_settings
-  - sudo pip install tox
   # Postgres setup.
-  - sudo apt-get install postgresql postgresql-client
   - # Password is 'sortedm2m'
-  - echo "CREATE ROLE sortedm2m PASSWORD 'md5ba287bde612ca41b14776ec8f8dfdaa9' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;" | sudo -u postgres psql
-  - echo "CREATE DATABASE sortedm2m OWNER sortedm2m;" | sudo -u postgres psql
+  - psql -c "CREATE ROLE sortedm2m PASSWORD 'md5ba287bde612ca41b14776ec8f8dfdaa9' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;" -U postgres
+  - psql -c "CREATE DATABASE sortedm2m OWNER sortedm2m;" -U postgres
   # MySQL setup.
   - echo "CREATE USER 'sortedm2m'@'localhost' IDENTIFIED BY 'sortedm2m';" | mysql -u root
   - echo "GRANT ALL PRIVILEGES ON *.* TO 'sortedm2m'@'localhost' WITH GRANT OPTION;" | mysql -u root
+install:
+  - pip install tox
 script:
   - tox -e $TOX_ENV -v
 branches:
