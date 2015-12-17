@@ -1,6 +1,16 @@
 Changelog
 =========
 
+1.2.0 (in development)
+----------------------
+
+* `#71`_: Don't break collectstatic for some cases. Therefore we removed the
+  STATIC_URL prefix from the form media definition in
+  ``SortedCheckboxSelectMultiple``. Thanks to Kirill Ermolov for the
+  patch.
+
+.. _#71: https://github.com/gregmuellegger/django-sortedm2m/issue/71
+
 1.1.1
 -----
 
