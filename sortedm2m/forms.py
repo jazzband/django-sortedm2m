@@ -4,7 +4,6 @@ import sys
 from itertools import chain
 from django import forms
 from django.conf import settings
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models.query import QuerySet
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
@@ -25,11 +24,11 @@ else:
 class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     class Media:
         js = (
-            static('sortedm2m/widget.js'),
-            static('sortedm2m/jquery-ui.js'),
+            'sortedm2m/widget.js',
+            'sortedm2m/jquery-ui.js',
         )
         css = {'screen': (
-            static('sortedm2m/widget.css'),
+            'sortedm2m/widget.css',
         )}
 
     def build_attrs(self, attrs=None, **kwargs):
