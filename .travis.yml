@@ -43,3 +43,12 @@ install:
   - pip install tox
 script:
   - tox -e $TOX_ENV -v
+deploy:
+  provider: pypi
+  user: gremu
+  password:
+    secure: jyiiGrkjiXhyc5rtvE6o/+z5XlkgQhzFX1LvgHlKMjk+HtRkRYm3jtUHxd0ZbuRNWwo6DbxmFWW7xiGc0uqrpRiH1vyuxA4FvTIO8fdxUmGwiTg8/IObuXAaXEVkfoxPZnLimKIBbFq6OXygwum32jfNCnEWiOu3hSfj1R5sRPw=
+  on:
+    tags: true
+    repo: gregmuellegger/django-sortedm2m
+    condition: "$TOX_ENV = py35-18"
