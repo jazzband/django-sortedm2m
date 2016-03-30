@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.2.0 (in development)
+----------------------
+
+* Dropping Python 3.2 support. It has reached end of life in February 2016.
+
 1.1.2
 -----
 

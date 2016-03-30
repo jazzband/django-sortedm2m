@@ -16,9 +16,6 @@ env:
   - TOX_ENV=pypy-18
   - TOX_ENV=pypy-18-mysql
   - TOX_ENV=pypy-19
-  - TOX_ENV=py32-16
-  - TOX_ENV=py32-17
-  - TOX_ENV=py32-18
   - TOX_ENV=py33-16
   - TOX_ENV=py33-17
   - TOX_ENV=py33-18
