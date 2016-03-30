@@ -25,8 +25,10 @@ env:
   - TOX_ENV=py34-16
   - TOX_ENV=py34-17
   - TOX_ENV=py34-18
-  - TOX_ENV=py34-18-postgres
   - TOX_ENV=py34-19
+  - TOX_ENV=py35-18
+  - TOX_ENV=py35-18-postgres
+  - TOX_ENV=py35-19
 before_install:
   - export PIP_USE_MIRRORS=true
   - export DJANGO_SETTINGS_MODULE=test_settings
