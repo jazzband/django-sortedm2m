@@ -5,7 +5,11 @@ matrix:
     - python: 3.5
       env:
       - TOX_ENV=py35-18
+    - python: 3.5
+      env:
       - TOX_ENV=py35-18-postgres
+    - python: 3.5
+      env:
       - TOX_ENV=py35-19
 env:
   - TOX_ENV=py26-15
