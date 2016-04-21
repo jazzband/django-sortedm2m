@@ -58,9 +58,15 @@ if (jQuery === undefined) {
             });
         });
 
+        var dismissPopupFnName = 'dismissAddAnotherPopup';
+        // django 1.8+
+        if (window.dismissAddRelatedObjectPopup) {
+            dismissPopupFnName = 'dismissAddRelatedObjectPopup';
+        }
+
         if (window.showAddAnotherPopup) {
-            var django_dismissAddAnotherPopup = window.dismissAddAnotherPopup;
-            window.dismissAddAnotherPopup = function (win, newId, newRepr) {
+            var django_dismissAddAnotherPopup = window[dismissPopupFnName];
+            window[dismissPopupFnName] = function (win, newId, newRepr) {
                 // newId and newRepr are expected to have previously been escaped by
                 // django.utils.html.escape.
                 newId = html_unescape(newId);
