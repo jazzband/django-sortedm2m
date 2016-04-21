@@ -27,7 +27,7 @@ Changelog
   ``SortedCheckboxSelectMultiple``. Thanks to Kirill Ermolov for the
   patch.
 
-.. _#71: https://github.com/gregmuellegger/django-sortedm2m/issue/71
+.. _#71: https://github.com/gregmuellegger/django-sortedm2m/issues/71
 
 1.1.1
 -----
