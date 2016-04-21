@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.2.1 (in development)
-----------------------
+1.2.1
+-----
 
 * `#75`: Fix "add another" admin popup. It didn't refresh the list of items in Django
   1.8+. Thanks to Vadim Sikora for the patch.
