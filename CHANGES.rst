@@ -1,13 +1,18 @@
 Changelog
 =========
 
-1.2.1
+1.2.2
 -----
 
 * `#75`: Fix "add another" admin popup. It didn't refresh the list of items in Django
   1.8+. Thanks to Vadim Sikora for the patch.
 
 .. _#75: https://github.com/gregmuellegger/django-sortedm2m/pull/75
+
+1.2.1
+-----
+
+* *skipped*
 
 1.2.0
 -----
