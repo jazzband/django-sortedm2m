@@ -105,13 +105,10 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = SortedCheckboxSelectMultiple
 
     def clean(self, value):
-        queryset = super(SortedMultipleChoiceField, self).clean(value)
-        if value is None or not isinstance(queryset, QuerySet):
-            return queryset
-        object_list = dict((
-            (str_(key), value)
-            for key, value in iteritems(queryset.in_bulk(value))))
-        return [object_list[str_(pk)] for pk in value]
+        queryset = super(SortedMultipleChoiceField, self).clean(value)        
+        key = self.to_field_name or 'pk'
+        objects = dict((force_text(getattr(o, key)), o) for o in queryset)
+        return [objects[force_text(val)] for val in value]
 
     if django.VERSION < (1, 8):
         def _has_changed(self, initial, data):

@@ -15,6 +15,12 @@ class SortedForm(forms.Form):
         required=False)
 
 
+class SortedNameForm(forms.Form):
+    values = SortedMultipleChoiceField(
+        queryset=Book.objects.all(),
+        to_field_name='name')
+
+
 class TestSortedFormField(TestCase):
     def setUp(self):
         self.books = [Book.objects.create(name=c) for c in 'abcdefghik']
@@ -36,6 +42,18 @@ class TestSortedFormField(TestCase):
                 self.books[8]])
 
         form = SortedForm({'values': [book.pk for book in self.books[::-1]]})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(list(form.cleaned_data['values']), self.books[::-1])
+
+    def test_sorted_field_input_with_field_name(self):
+        form = SortedNameForm({'values': ['d', 'b', 'i']})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(list(form.cleaned_data['values']), [
+                self.books[3],
+                self.books[1],
+                self.books[8]])
+
+        form = SortedNameForm({'values': [book.name for book in self.books[::-1]]})
         self.assertTrue(form.is_valid())
         self.assertEqual(list(form.cleaned_data['values']), self.books[::-1])
 
