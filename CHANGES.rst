@@ -4,10 +4,19 @@ Changelog
 1.3.0 (in development)
 ----------------------
 
+* `#79`_: Use `.sortedm2m-item` selector in the widget's JavaScript code to
+  target the list items. This was previously `ul.sortedm2m li`. This improves
+  compatibility other markup that does not want to use `ul`/`li` tags. Thanks
+  to Michal Dabski for the patch.
+
+  **Note:** If you use custom markup with the JavaScript code, you need to make
+  sure that the items now have the `sortedm2m-item` class name.
+
 * `#76`_: Add support for to_field_name to SortedMultipleChoiceField. Thanks
   to Conrad Kramer for the patch.
 
 .. _#76: https://github.com/gregmuellegger/django-sortedm2m/pull/76
+.. _#76: https://github.com/gregmuellegger/django-sortedm2m/pull/79
 
 1.2.2
 -----
