@@ -36,7 +36,7 @@ ul.sortedm2m li {
     white-space: pre;
 }
 
-ul.sortedm2m li, ul.sortedm2m label {
+.sortedm2m-item, .sortedm2m label {
     cursor: move;
 }
 
