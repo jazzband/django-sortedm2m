@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.3.0 (in development)
-----------------------
+1.3.0
+-----
 
 * `#79`_: Use `.sortedm2m-item` selector in the widget's JavaScript code to
   target the list items. This was previously `ul.sortedm2m li`. This improves
