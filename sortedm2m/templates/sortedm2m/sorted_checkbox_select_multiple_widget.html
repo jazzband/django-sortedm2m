@@ -6,13 +6,13 @@
         <img src="{% static "sortedm2m/selector-search.gif" %}" alt="" title="{% trans "Type into this box to filter down the list." %}" />
         <input type="text" placeholder="{% trans "Filter" %}" />
     </p>
-    <ul>
+    <ul class="sortedm2m-items">
     {% for row in selected %}
-        <li><label{{ row.label_for|safe }}>{{ row.rendered_cb }} {{ row.option_label }}</label></li>
+        <li class="sortedm2m-item"><label{{ row.label_for|safe }}>{{ row.rendered_cb }} {{ row.option_label }}</label></li>
     {% endfor %}
 
     {% for row in unselected %}
-        <li><label{{ row.label_for|safe }}>{{ row.rendered_cb }} {{ row.option_label }}</label></li>
+        <li class="sortedm2m-item"><label{{ row.label_for|safe }}>{{ row.rendered_cb }} {{ row.option_label }}</label></li>
     {% endfor %}
     </ul>
 
