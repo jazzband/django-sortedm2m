@@ -15,8 +15,8 @@ Changelog
 * `#76`_: Add support for to_field_name to SortedMultipleChoiceField. Thanks
   to Conrad Kramer for the patch.
 
-.. _#79: https://github.com/gregmuellegger/django-sortedm2m/pull/76
-.. _#76: https://github.com/gregmuellegger/django-sortedm2m/pull/79
+.. _#76: https://github.com/gregmuellegger/django-sortedm2m/pull/76
+.. _#79: https://github.com/gregmuellegger/django-sortedm2m/pull/79
 
 1.2.2
 -----
