@@ -8,9 +8,26 @@ if (jQuery === undefined) {
         function prepareUl(ul) {
             ul.addClass('sortedm2m');
             var checkboxes = ul.find('input[type=checkbox]');
-            var id = checkboxes.first().attr('id').match(/^(.*)_\d+$/)[1];
-            var name = checkboxes.first().attr('name');
-            checkboxes.removeAttr('name');
+            var id;
+            var name;
+
+            if (checkboxes.length) {
+                id = checkboxes.first().attr('id').match(/^(.*)_\d+$/)[1];
+                name = checkboxes.first().attr('name');
+                checkboxes.removeAttr('name');
+            } else {
+                var label;
+                var currentElement = ul;
+
+                while (!label || !label.length) {
+                    currentElement = currentElement.parent();
+                    label = currentElement.siblings('label');
+                }
+
+                id = label.attr('for').match(/^(.*)_\d+$/)[1];
+                name = id.replace(/^id_/, '');
+            }
+
             ul.before('<input type="hidden" id="' + id + '" name="' + name + '" />');
             var recalculate_value = function () {
                 var values = [];
@@ -30,9 +47,11 @@ if (jQuery === undefined) {
         }
 
         function iterateUl() {
-            $('.sortedm2m-items:has(.sortedm2m)').each(function () {
-                prepareUl( $(this) );
-                $(this).removeClass('hide');
+            $('.sortedm2m-items').each(function () {
+                var ul = $(this);
+
+                prepareUl(ul);
+                ul.removeClass('hide');
             });
         }
 
