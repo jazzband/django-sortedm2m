@@ -1,5 +1,5 @@
-if (jQuery === undefined) {
-    jQuery = django.jQuery;
+if (typeof jQuery === 'undefined') {
+    var jQuery = django.jQuery;
 }
 
 (function ($) {
