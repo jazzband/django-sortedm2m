@@ -105,7 +105,9 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = SortedCheckboxSelectMultiple
 
     def clean(self, value):
-        queryset = super(SortedMultipleChoiceField, self).clean(value)        
+        queryset = super(SortedMultipleChoiceField, self).clean(value)
+        if value is None or not isinstance(queryset, QuerySet):
+            return queryset
         key = self.to_field_name or 'pk'
         objects = dict((force_text(getattr(o, key)), o) for o in queryset)
         return [objects[force_text(val)] for val in value]
