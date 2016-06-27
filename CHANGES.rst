@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.3.1 (in development)
+----------------------
+
+* `#57`_ & `#81`_: Fix add related object popup error prevents operation when
+  no related objects already exist. Thanks to Vadim Sikora for the fix.
+
+.. _#57: https://github.com/gregmuellegger/django-sortedm2m/issue/57
+.. _#81: https://github.com/gregmuellegger/django-sortedm2m/pull/81
+
 1.3.0
 -----
 
