@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.3.1 (in development)
-----------------------
+1.3.1
+-----
 
 * `#57`_ & `#81`_: Fix add related object popup error prevents operation when
   no related objects already exist. Thanks to Vadim Sikora for the fix.
