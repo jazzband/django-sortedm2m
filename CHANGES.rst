@@ -4,7 +4,11 @@ Changelog
 1.3.2 (in development)
 ----------------------
 
-...
+* `#80`_ & `#83`_: Fix ``SortedMultipleChoiceField.clean`` if the validated
+  value is ``None``. Thanks to Alex Mannhold for the patch.
+
+.. _#80: https://github.com/gregmuellegger/django-sortedm2m/issues/80
+.. _#83: https://github.com/gregmuellegger/django-sortedm2m/pull/83
 
 1.3.1
 -----
