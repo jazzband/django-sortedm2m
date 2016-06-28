@@ -4,7 +4,6 @@ import sys
 from itertools import chain
 from django import forms
 from django.conf import settings
-from django.db.models.query import QuerySet
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape, escape
@@ -106,7 +105,7 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
 
     def clean(self, value):
         queryset = super(SortedMultipleChoiceField, self).clean(value)
-        if value is None or not isinstance(queryset, QuerySet):
+        if value is None or not hasattr(queryset, '__iter__'):
             return queryset
         key = self.to_field_name or 'pk'
         objects = dict((force_text(getattr(o, key)), o) for o in queryset)
