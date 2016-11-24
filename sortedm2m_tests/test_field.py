@@ -227,3 +227,14 @@ class TestSelfReference(TestCase):
         s1.me.add(s4, s2)
 
         self.assertEqual(list(s1.me.all()), [s3,s4,s2])
+
+
+class TestDjangoManyToManyFieldNotAvailableThroughSortedM2M(TestCase):
+    @staticmethod
+    def _import_django_many_to_many_through_sortedm2m():
+        from sortedm2m.fields import ManyToManyField
+
+    def test_many_to_many_field_not_available(self):
+        self.assertRaises(
+            ImportError,
+            self._import_django_many_to_many_through_sortedm2m)

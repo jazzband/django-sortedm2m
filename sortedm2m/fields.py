@@ -6,7 +6,7 @@ from django.db import transaction
 from django.db import models
 from django.db.models import signals
 from django.db.models.fields.related import add_lazy_relation
-from django.db.models.fields.related import ManyToManyField
+from django.db.models.fields.related import ManyToManyField as _ManyToManyField
 from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
 from django.utils import six
 from django.utils.functional import cached_property, curry
@@ -208,7 +208,7 @@ except ImportError:
             )
 
 
-class SortedManyToManyField(ManyToManyField):
+class SortedManyToManyField(_ManyToManyField):
     '''
     Providing a many to many relation that remembers the order of related
     objects.
@@ -250,7 +250,7 @@ class SortedManyToManyField(ManyToManyField):
         if self.rel.symmetrical and (self.rel.to == "self" or self.rel.to == cls._meta.object_name):
             self.rel.related_name = "%s_rel_+" % name
 
-        super(ManyToManyField, self).contribute_to_class(cls, name, **kwargs)
+        super(_ManyToManyField, self).contribute_to_class(cls, name, **kwargs)
 
         # The intermediate m2m model is not auto created if:
         #  1) There is a manually specified intermediate, or
