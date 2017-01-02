@@ -1,10 +1,19 @@
 Changelog
 =========
 
-1.3.3 (in development)
+1.3.4 (in development)
 ----------------------
 
-*No changes yet.*
+*No changes yet*
+
+1.3.3
+-----
+
+* `#91`_ & `#92`_: Fix admin widget, when used with Django 1.10. The add a new
+  item opup was not closing. Thanks to Tipuch for the patch.
+
+.. _#91: https://github.com/gregmuellegger/django-sortedm2m/issues/91
+.. _#92: https://github.com/gregmuellegger/django-sortedm2m/pull/92
 
 1.3.2
 -----
