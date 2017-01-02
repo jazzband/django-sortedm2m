@@ -83,6 +83,16 @@ if (typeof jQuery === 'undefined') {
             dismissPopupFnName = 'dismissAddRelatedObjectPopup';
         }
 
+        function html_unescape(text) {
+            // Unescape a string that was escaped using django.utils.html.escape.
+            text = text.replace(/&lt;/g, '<');
+            text = text.replace(/&gt;/g, '>');
+            text = text.replace(/&quot;/g, '"');
+            text = text.replace(/&#39;/g, "'");
+            text = text.replace(/&amp;/g, '&');
+            return text;
+        }
+
         if (window.showAddAnotherPopup) {
             var django_dismissAddAnotherPopup = window[dismissPopupFnName];
             window[dismissPopupFnName] = function (win, newId, newRepr) {
