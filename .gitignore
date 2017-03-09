@@ -8,3 +8,4 @@ pep8.txt
 /dist/
 /.tox/
 /.vagrant/
+*.swp
