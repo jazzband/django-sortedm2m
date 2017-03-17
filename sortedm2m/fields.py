@@ -262,7 +262,7 @@ class SortedManyToManyField(_ManyToManyField):
         #  1) There is a manually specified intermediate, or
         #  2) The class owning the m2m field is abstract.
         if not self.rel.through and not cls._meta.abstract:
-            self.rel.through = self.create_intermediate_model(cls, self.base_class)
+            self.rel.through = self.create_intermediate_model(cls)
 
         # Add the descriptor for the m2m relation
         setattr(cls, self.name, SortedManyToManyDescriptor(self))
@@ -380,12 +380,14 @@ class SortedManyToManyField(_ManyToManyField):
                                   **get_foreignkey_field_kwargs(self))
         return field_name, field
 
-    def create_intermediate_model_from_attrs(self, klass, attrs, base_class):
+    def create_intermediate_model_from_attrs(self, klass, attrs):
         name = self.get_intermediate_model_name(klass)
-        import ipdb; ipdb.set_trace()
-        return type(str(name), (models.Model, base_class), attrs)    
+        if self.base_class:
+            return type(str(name), (models.Model, self.base_class), attrs)
+        else:
+            return type(str(name), (models.Model,), attrs)
 
-    def create_intermediate_model(self, klass, base_class):
+    def create_intermediate_model(self, klass):
         # Construct and return the new class.
         from_field_name, from_field = self.get_intermediate_model_from_field(klass)
         to_field_name, to_field = self.get_intermediate_model_to_field(klass)
@@ -403,7 +405,7 @@ class SortedManyToManyField(_ManyToManyField):
             '_from_field_name': from_field_name,
             '_to_field_name': to_field_name,
         }
-        return self.create_intermediate_model_from_attrs(klass, attrs, base_class)
+        return self.create_intermediate_model_from_attrs(klass, attrs)
 
 
 # Add introspection rules for South database migrations
