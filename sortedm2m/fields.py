@@ -212,16 +212,22 @@ class SortedManyToManyField(_ManyToManyField):
     '''
     Providing a many to many relation that remembers the order of related
     objects.
-
+    
     Accept a boolean ``sorted`` attribute which specifies if relation is
     ordered or not. Default is set to ``True``. If ``sorted`` is set to
     ``False`` the field will behave exactly like django's ``ManyToManyField``.
+    
+    Accept a class ``base_class`` attribute which specifies the base class of 
+    the intermediate model. It allows to customize the intermediate model.
     '''
-    def __init__(self, to, sorted=True, **kwargs):
+    def __init__(self, to, sorted=True, base_class=None, **kwargs):
         self.sorted = sorted
         self.sort_value_field_name = kwargs.pop(
             'sort_value_field_name',
             SORT_VALUE_FIELD_NAME)
+
+        # Base class of through model  
+        self.base_class = base_class
 
         super(SortedManyToManyField, self).__init__(to, **kwargs)
         if self.sorted:
@@ -256,7 +262,7 @@ class SortedManyToManyField(_ManyToManyField):
         #  1) There is a manually specified intermediate, or
         #  2) The class owning the m2m field is abstract.
         if not self.rel.through and not cls._meta.abstract:
-            self.rel.through = self.create_intermediate_model(cls)
+            self.rel.through = self.create_intermediate_model(cls, self.base_class)
 
         # Add the descriptor for the m2m relation
         setattr(cls, self.name, SortedManyToManyDescriptor(self))
@@ -374,19 +380,19 @@ class SortedManyToManyField(_ManyToManyField):
                                   **get_foreignkey_field_kwargs(self))
         return field_name, field
 
-    def create_intermediate_model_from_attrs(self, klass, attrs):
+    def create_intermediate_model_from_attrs(self, klass, attrs, base_class):
         name = self.get_intermediate_model_name(klass)
-        return type(str(name), (models.Model,), attrs)
+        import ipdb; ipdb.set_trace()
+        return type(str(name), (models.Model, base_class), attrs)    
 
-    def create_intermediate_model(self, klass):
+    def create_intermediate_model(self, klass, base_class):
         # Construct and return the new class.
         from_field_name, from_field = self.get_intermediate_model_from_field(klass)
         to_field_name, to_field = self.get_intermediate_model_to_field(klass)
         sort_value_field_name, sort_value_field = self.get_intermediate_model_sort_value_field(klass)
-
         meta = self.get_intermediate_model_meta_class(
             klass, from_field_name, to_field_name, sort_value_field_name)
-
+        
         attrs = {
             'Meta': meta,
             '__module__': klass.__module__,
@@ -397,7 +403,7 @@ class SortedManyToManyField(_ManyToManyField):
             '_from_field_name': from_field_name,
             '_to_field_name': to_field_name,
         }
-        return self.create_intermediate_model_from_attrs(klass, attrs)
+        return self.create_intermediate_model_from_attrs(klass, attrs, base_class)
 
 
 # Add introspection rules for South database migrations
