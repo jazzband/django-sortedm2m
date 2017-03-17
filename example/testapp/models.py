@@ -11,7 +11,7 @@ class Car(models.Model):
 
 class m2mprint:
     def __unicode__(self):
-        return unicode(self.parkingarea)
+        return unicode(self.car) + " in " + unicode(self.parkingarea)
 
 class ParkingArea(models.Model):
     name = models.CharField(max_length=50)
