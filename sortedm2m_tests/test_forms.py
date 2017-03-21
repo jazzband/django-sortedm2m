@@ -22,6 +22,7 @@ class SortedNameForm(forms.Form):
 
 
 class TestSortedFormField(TestCase):
+
     def setUp(self):
         self.books = [Book.objects.create(name=c) for c in 'abcdefghik']
         (
@@ -37,9 +38,9 @@ class TestSortedFormField(TestCase):
         form = SortedForm({'values': [self.d.pk, self.b.pk, self.i.pk]})
         self.assertTrue(form.is_valid())
         self.assertEqual(list(form.cleaned_data['values']), [
-                self.books[3],
-                self.books[1],
-                self.books[8]])
+            self.books[3],
+            self.books[1],
+            self.books[8]])
 
         form = SortedForm({'values': [book.pk for book in self.books[::-1]]})
         self.assertTrue(form.is_valid())
@@ -49,16 +50,18 @@ class TestSortedFormField(TestCase):
         form = SortedNameForm({'values': ['d', 'b', 'i']})
         self.assertTrue(form.is_valid())
         self.assertEqual(list(form.cleaned_data['values']), [
-                self.books[3],
-                self.books[1],
-                self.books[8]])
+            self.books[3],
+            self.books[1],
+            self.books[8]])
 
-        form = SortedNameForm({'values': [book.name for book in self.books[::-1]]})
+        form = SortedNameForm(
+            {'values': [book.name for book in self.books[::-1]]})
         self.assertTrue(form.is_valid())
         self.assertEqual(list(form.cleaned_data['values']), self.books[::-1])
 
     def test_form_field_on_model_field(self):
         class ShelfForm(forms.ModelForm):
+
             class Meta:
                 model = Shelf
                 fields = (
@@ -70,6 +73,7 @@ class TestSortedFormField(TestCase):
             isinstance(form.fields['books'], SortedMultipleChoiceField))
 
         class MessyStoreForm(forms.ModelForm):
+
             class Meta:
                 model = MessyStore
                 fields = (
@@ -88,7 +92,8 @@ class TestSortedFormField(TestCase):
         self.assertEqual(len(form.errors), 0)
         form = SortedForm({'values': str(self.a.pk)})
         self.assertEqual(len(form.errors), 0)
-        form = SortedForm({'values': '{a.pk},{b.pk}'.format(a=self.a, b=self.b)})
+        form = SortedForm(
+            {'values': '{a.pk},{b.pk}'.format(a=self.a, b=self.b)})
         self.assertEqual(len(form.errors), 0)
 
     def test_for_attribute_in_label(self):
@@ -104,14 +109,17 @@ class TestSortedFormField(TestCase):
 
         form = SortedForm(prefix='hacking"><a href="TRAP">')
         rendered = str_(form['values'])
-        self.assertTrue(' for="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
+        self.assertTrue(
+            ' for="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
 
     def test_input_id_is_escaped(self):
         form = SortedForm(prefix='hacking"><a href="TRAP">')
         rendered = str_(form['values'])
-        self.assertTrue(' id="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
+        self.assertTrue(
+            ' id="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
 
     def test_form_field_detects_reordering(self):
-        form = SortedForm({'values': '{a.pk},{b.pk}'.format(a=self.a, b=self.b)})
+        form = SortedForm(
+            {'values': '{a.pk},{b.pk}'.format(a=self.a, b=self.b)})
         form.fields['values'].initial = [self.b.pk, self.a.pk]
         self.assertTrue('values' in form.changed_data)

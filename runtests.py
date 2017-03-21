@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import os, sys
+import os
+import sys
 
 
 parent = os.path.dirname(os.path.abspath(__file__))
@@ -33,7 +34,8 @@ else:
 
 def runtests(*args):
     test_apps = list(args or default_test_apps)
-    execute_from_command_line([sys.argv[0], 'test', '--verbosity=1'] + test_apps)
+    execute_from_command_line(
+        [sys.argv[0], 'test', '--verbosity=1'] + test_apps)
 
 
 if __name__ == '__main__':

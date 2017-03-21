@@ -4,13 +4,13 @@ from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 
+
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
 
         # Removing M2M table for field photos on 'Gallery'
         db.delete_table('test_south_support_gallery_photos')
-
 
     def backwards(self, orm):
 
@@ -21,8 +21,9 @@ class Migration(SchemaMigration):
             ('photo', models.ForeignKey(orm['test_south_support.photo'], null=False)),
             ('sort_value', models.IntegerField())
         ))
-        db.create_unique('test_south_support_gallery_photos', ['gallery_id', 'photo_id'])
-
+        db.create_unique(
+            'test_south_support_gallery_photos', [
+                'gallery_id', 'photo_id'])
 
     models = {
         'test_south_support.gallery': {

@@ -69,7 +69,11 @@ class TestSortedManyToManyField(TestCase):
         shelf.books.clear()
         self.assertEqual(list(shelf.books.all()), [])
 
-        shelf.books.add(self.books[3].pk, self.books[1], str_(self.books[2].pk))
+        shelf.books.add(
+            self.books[3].pk,
+            self.books[1],
+            str_(
+                self.books[2].pk))
         self.assertEqual(list(shelf.books.all()), [
             self.books[3],
             self.books[1],
@@ -168,7 +172,8 @@ class TestSortedManyToManyField(TestCase):
         shelf = self.model.objects.create()
         shelf.books.add(self.books[0])
 
-        shelf = self.model.objects.filter(pk=shelf.pk).prefetch_related('books')[0]
+        shelf = self.model.objects.filter(
+            pk=shelf.pk).prefetch_related('books')[0]
         queries_num = len(connection.queries)
         name = shelf.books.all()[0].name
         self.assertEqual(queries_num, len(connection.queries))
@@ -178,10 +183,13 @@ class TestSortedManyToManyField(TestCase):
         books = [self.books[0], self.books[2], self.books[1]]
         shelf.books = books
 
-        shelf = self.model.objects.filter(pk=shelf.pk).prefetch_related('books')[0]
+        shelf = self.model.objects.filter(
+            pk=shelf.pk).prefetch_related('books')[0]
+
         def get_ids(queryset):
             return [obj.id for obj in queryset]
         self.assertEqual(get_ids(shelf.books.all()), get_ids(books))
+
 
 class TestStringReference(TestSortedManyToManyField):
     '''
@@ -218,6 +226,7 @@ class TestStringReference(TestSortedManyToManyField):
 
 
 class TestSelfReference(TestCase):
+
     def test_self_adding(self):
         s1 = SelfReference.objects.create()
         s2 = SelfReference.objects.create()
@@ -226,10 +235,11 @@ class TestSelfReference(TestCase):
         s1.me.add(s3)
         s1.me.add(s4, s2)
 
-        self.assertEqual(list(s1.me.all()), [s3,s4,s2])
+        self.assertEqual(list(s1.me.all()), [s3, s4, s2])
 
 
 class TestDjangoManyToManyFieldNotAvailableThroughSortedM2M(TestCase):
+
     @staticmethod
     def _import_django_many_to_many_through_sortedm2m():
         from sortedm2m.fields import ManyToManyField

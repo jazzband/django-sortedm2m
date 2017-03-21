@@ -14,6 +14,7 @@ from .models import Gallery, Photo, UnsortedGallery
 
 
 class SouthMigratedModelTests(TestCase):
+
     def test_sorted_m2m(self):
         pic1 = Photo.objects.create(name='Picture 1')
         pic2 = Photo.objects.create(name='Picture 1')
@@ -32,6 +33,7 @@ class SouthMigratedModelTests(TestCase):
 
 
 class SouthSchemaMigrationTests(TestCase):
+
     def perform_migration(self, *args, **kwargs):
         stdout = StringIO()
         stderr = StringIO()
@@ -65,7 +67,6 @@ class SouthSchemaMigrationTests(TestCase):
                 self.fail(
                     "Following string is content of "
                     "south migration: %s" % unexpected)
-
 
     def test_new_model(self):
         from sortedm2m.fields import SORT_VALUE_FIELD_NAME
