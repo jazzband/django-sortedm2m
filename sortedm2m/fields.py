@@ -25,6 +25,7 @@ if hasattr(transaction, 'atomic'):
 # We mock the atomic context manager.
 else:
     class atomic(object):
+
         def __init__(self, *args, **kwargs):
             pass
 
@@ -40,17 +41,20 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
         superclass, rel, *args, **kwargs)
 
     class SortedRelatedManager(RelatedManager):
+
         def get_queryset(self):
             # We use ``extra`` method here because we have no other access to
             # the extra sorting field of the intermediary model. The fields
             # are hidden for joins because we set ``auto_created`` on the
             # intermediary's meta options.
             try:
-                return self.instance._prefetched_objects_cache[self.prefetch_cache_name]
+                return self.instance._prefetched_objects_cache[
+                    self.prefetch_cache_name]
             except (AttributeError, KeyError):
                 # Django 1.5 support.
                 if not hasattr(RelatedManager, 'get_queryset'):
-                    queryset = super(SortedRelatedManager, self).get_query_set()
+                    queryset = super(
+                        SortedRelatedManager, self).get_query_set()
                 else:
                     queryset = super(SortedRelatedManager, self).get_queryset()
                 return queryset.extra(order_by=['%s.%s' % (
@@ -71,12 +75,20 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
         def get_prefetch_queryset(self, instances, queryset=None):
             # Django 1.5 support. The method name changed since.
             if django.VERSION < (1, 6):
-                result = super(SortedRelatedManager, self).get_prefetch_query_set(instances)
+                result = super(
+                    SortedRelatedManager,
+                    self).get_prefetch_query_set(instances)
             # Django 1.6 support. The queryset parameter was not supported.
             elif django.VERSION < (1, 7):
-                result = super(SortedRelatedManager, self).get_prefetch_queryset(instances)
+                result = super(
+                    SortedRelatedManager,
+                    self).get_prefetch_queryset(instances)
             else:
-                result = super(SortedRelatedManager, self).get_prefetch_queryset(instances, queryset)
+                result = super(
+                    SortedRelatedManager,
+                    self).get_prefetch_queryset(
+                    instances,
+                    queryset)
             queryset = result[0]
             queryset.query.extra_order_by = [
                 '%s.%s' % (
@@ -109,14 +121,16 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                         if not router.allow_relation(obj, self.instance):
                             raise ValueError(
                                 'Cannot add "%r": instance is on database "%s", value is on database "%s"' %
-                                (obj, self.instance._state.db, obj._state.db)
-                            )
+                                (obj, self.instance._state.db, obj._state.db))
                         if hasattr(self, '_get_fk_val'):  # Django>=1.5
                             fk_val = self._get_fk_val(obj, target_field_name)
                             if fk_val is None:
-                                raise ValueError('Cannot add "%r": the value for field "%s" is None' %
-                                                 (obj, target_field_name))
-                            new_ids.append(self._get_fk_val(obj, target_field_name))
+                                raise ValueError(
+                                    'Cannot add "%r": the value for field "%s" is None' %
+                                    (obj, target_field_name))
+                            new_ids.append(
+                                self._get_fk_val(
+                                    obj, target_field_name))
                         else:  # Django<1.5
                             new_ids.append(obj.pk)
                     elif isinstance(obj, Model):
@@ -148,16 +162,23 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                 if self.reverse or source_field_name == self.source_field_name:
                     # Don't send the signal when we are inserting the
                     # duplicate data row for symmetrical reverse entries.
-                    signals.m2m_changed.send(sender=rel.through, action='pre_add',
-                        instance=self.instance, reverse=self.reverse,
-                        model=self.model, pk_set=new_ids_set, using=db)
+                    signals.m2m_changed.send(
+                        sender=rel.through,
+                        action='pre_add',
+                        instance=self.instance,
+                        reverse=self.reverse,
+                        model=self.model,
+                        pk_set=new_ids_set,
+                        using=db)
 
                 # Add the ones that aren't there already
                 with atomic(using=db):
                     fk_val = self._fk_val
-                    source_queryset = manager.filter(**{'%s_id' % source_field_name: fk_val})
+                    source_queryset = manager.filter(
+                        **{'%s_id' % source_field_name: fk_val})
                     sort_field_name = self.through._sort_field_name
-                    sort_value_max = source_queryset.aggregate(max=Max(sort_field_name))['max'] or 0
+                    sort_value_max = source_queryset.aggregate(
+                        max=Max(sort_field_name))['max'] or 0
 
                     manager.bulk_create([
                         self.through(**{
@@ -171,9 +192,14 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                 if self.reverse or source_field_name == self.source_field_name:
                     # Don't send the signal when we are inserting the
                     # duplicate data row for symmetrical reverse entries.
-                    signals.m2m_changed.send(sender=rel.through, action='post_add',
-                        instance=self.instance, reverse=self.reverse,
-                        model=self.model, pk_set=new_ids_set, using=db)
+                    signals.m2m_changed.send(
+                        sender=rel.through,
+                        action='post_add',
+                        instance=self.instance,
+                        reverse=self.reverse,
+                        model=self.model,
+                        pk_set=new_ids_set,
+                        using=db)
 
     return SortedRelatedManager
 
@@ -182,8 +208,12 @@ try:
     from django.db.models.fields.related_descriptors import ManyToManyDescriptor
 
     class SortedManyToManyDescriptor(ManyToManyDescriptor):
+
         def __init__(self, field):
-            super(SortedManyToManyDescriptor, self).__init__(field.remote_field)
+            super(
+                SortedManyToManyDescriptor,
+                self).__init__(
+                field.remote_field)
 
         @cached_property
         def related_manager_cls(self):
@@ -200,6 +230,7 @@ except ImportError:
     from django.db.models.fields.related import ReverseManyRelatedObjectsDescriptor
 
     class SortedManyToManyDescriptor(ReverseManyRelatedObjectsDescriptor):
+
         @cached_property
         def related_manager_cls(self):
             return create_sorted_many_related_manager(
@@ -216,12 +247,19 @@ class SortedManyToManyField(_ManyToManyField):
     Accept a boolean ``sorted`` attribute which specifies if relation is
     ordered or not. Default is set to ``True``. If ``sorted`` is set to
     ``False`` the field will behave exactly like django's ``ManyToManyField``.
+
+    Accept a class ``base_class`` attribute which specifies the base class of
+    the intermediate model. It allows to customize the intermediate model.
     '''
-    def __init__(self, to, sorted=True, **kwargs):
+
+    def __init__(self, to, sorted=True, base_class=None, **kwargs):
         self.sorted = sorted
         self.sort_value_field_name = kwargs.pop(
             'sort_value_field_name',
             SORT_VALUE_FIELD_NAME)
+
+        # Base class of through model
+        self.base_class = base_class
 
         super(SortedManyToManyField, self).__init__(to, **kwargs)
         if self.sorted:
@@ -230,7 +268,8 @@ class SortedManyToManyField(_ManyToManyField):
     def deconstruct(self):
         # We have to persist custom added options in the ``kwargs``
         # dictionary. For readability only non-default values are stored.
-        name, path, args, kwargs = super(SortedManyToManyField, self).deconstruct()
+        name, path, args, kwargs = super(
+            SortedManyToManyField, self).deconstruct()
         if self.sort_value_field_name is not SORT_VALUE_FIELD_NAME:
             kwargs['sort_value_field_name'] = self.sort_value_field_name
         if self.sorted is not True:
@@ -239,7 +278,12 @@ class SortedManyToManyField(_ManyToManyField):
 
     def contribute_to_class(self, cls, name, **kwargs):
         if not self.sorted:
-            return super(SortedManyToManyField, self).contribute_to_class(cls, name, **kwargs)
+            return super(
+                SortedManyToManyField,
+                self).contribute_to_class(
+                cls,
+                name,
+                **kwargs)
 
         # To support multiple relations to self, it's useful to have a non-None
         # related name on symmetrical relations for internal reasons. The
@@ -247,7 +291,8 @@ class SortedManyToManyField(_ManyToManyField):
         # specify *what* on my non-reversible relation?!"), so we set it up
         # automatically. The funky name reduces the chance of an accidental
         # clash.
-        if self.rel.symmetrical and (self.rel.to == "self" or self.rel.to == cls._meta.object_name):
+        if self.rel.symmetrical and (
+                self.rel.to == "self" or self.rel.to == cls._meta.object_name):
             self.rel.related_name = "%s_rel_+" % name
 
         super(_ManyToManyField, self).contribute_to_class(cls, name, **kwargs)
@@ -269,7 +314,11 @@ class SortedManyToManyField(_ManyToManyField):
         if isinstance(self.rel.through, six.string_types):
             def resolve_through_model(field, model, cls):
                 field.rel.through = model
-            add_lazy_relation(cls, self, self.rel.through, resolve_through_model)
+            add_lazy_relation(
+                cls,
+                self,
+                self.rel.through,
+                resolve_through_model)
 
         if hasattr(cls._meta, 'duplicate_targets'):  # Django<1.5
             if isinstance(self.rel.to, six.string_types):
@@ -376,14 +425,18 @@ class SortedManyToManyField(_ManyToManyField):
 
     def create_intermediate_model_from_attrs(self, klass, attrs):
         name = self.get_intermediate_model_name(klass)
-        return type(str(name), (models.Model,), attrs)
+        if self.base_class:
+            return type(str(name), (models.Model, self.base_class), attrs)
+        else:
+            return type(str(name), (models.Model,), attrs)
 
     def create_intermediate_model(self, klass):
         # Construct and return the new class.
-        from_field_name, from_field = self.get_intermediate_model_from_field(klass)
+        from_field_name, from_field = self.get_intermediate_model_from_field(
+            klass)
         to_field_name, to_field = self.get_intermediate_model_to_field(klass)
-        sort_value_field_name, sort_value_field = self.get_intermediate_model_sort_value_field(klass)
-
+        sort_value_field_name, sort_value_field = self.get_intermediate_model_sort_value_field(
+            klass)
         meta = self.get_intermediate_model_meta_class(
             klass, from_field_name, to_field_name, sort_value_field_name)
 
@@ -420,7 +473,8 @@ if south is not None and 'south' in settings.INSTALLED_APPS:
     )
 
     # Monkeypatch South M2M actions to create the sorted through model.
-    # FIXME: This doesn't detect if you changed the sorted argument to the field.
+    # FIXME: This doesn't detect if you changed the sorted argument to the
+    # field.
     import south.creator.actions
     from south.creator.freezer import model_key
 
@@ -436,7 +490,9 @@ if south is not None and 'south' in settings.INSTALLED_APPS:
         db.create_unique(%(table_name)r, [%(left_column)r, %(right_column)r])'''
 
         def console_line(self):
-            if isinstance(self.field, SortedManyToManyField) and self.field.sorted:
+            if isinstance(
+                    self.field,
+                    SortedManyToManyField) and self.field.sorted:
                 return " + Added SortedM2M table for %s on %s.%s" % (
                     self.field.name,
                     self.model._meta.app_label,
@@ -446,15 +502,19 @@ if south is not None and 'south' in settings.INSTALLED_APPS:
                 return super(AddM2M, self).console_line()
 
         def forwards_code(self):
-            if isinstance(self.field, SortedManyToManyField) and self.field.sorted:
+            if isinstance(
+                    self.field,
+                    SortedManyToManyField) and self.field.sorted:
                 return self.SORTED_FORWARDS_TEMPLATE % {
                     "model_name": self.model._meta.object_name,
                     "field_name": self.field.name,
                     "table_name": self.field.m2m_db_table(),
-                    "left_field": self.field.m2m_column_name()[:-3], # Remove the _id part
+                    # Remove the _id part
+                    "left_field": self.field.m2m_column_name()[:-3],
                     "left_column": self.field.m2m_column_name(),
                     "left_model_key": model_key(self.model),
-                    "right_field": self.field.m2m_reverse_name()[:-3], # Remove the _id part
+                    # Remove the _id part
+                    "right_field": self.field.m2m_reverse_name()[:-3],
                     "right_column": self.field.m2m_reverse_name(),
                     "right_model_key": model_key(self.field.rel.to),
                     "sort_field": self.field.sort_value_field_name,
@@ -463,6 +523,7 @@ if south is not None and 'south' in settings.INSTALLED_APPS:
                 return super(AddM2M, self).forwards_code()
 
     class DeleteM2M(AddM2M):
+
         def console_line(self):
             return " - Deleted M2M table for %s on %s.%s" % (
                 self.field.name,

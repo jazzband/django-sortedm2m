@@ -10,9 +10,15 @@ class Car(models.Model):
         return self.plate
 
 
+class m2mprint:
+
+    def __unicode__(self):
+        return unicode(self.car) + " in " + unicode(self.parkingarea)
+
+
 class ParkingArea(models.Model):
     name = models.CharField(max_length=50)
-    cars = SortedManyToManyField(Car)
+    cars = SortedManyToManyField(Car, base_class=m2mprint)
 
     def __unicode__(self):
         return self.name

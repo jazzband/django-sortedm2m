@@ -27,15 +27,25 @@ from .utils import capture_stdout
 str_ = six.text_type
 
 
-@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
+@skipIf(
+    django.VERSION < (
+        1,
+        7),
+    'New migrations framework only available in Django >= 1.7')
 class TestMigrateCommand(TransactionTestCase):
+
     def test_migrate(self):
         with capture_stdout():
             call_command('migrate', interactive=False)
 
 
-@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
+@skipIf(
+    django.VERSION < (
+        1,
+        7),
+    'New migrations framework only available in Django >= 1.7')
 class TestMigrations(TransactionTestCase):
+
     def tearDown(self):
         # Remove created migrations.
         migrations_path = os.path.join(
@@ -57,7 +67,10 @@ class TestMigrations(TransactionTestCase):
         # photos field is already migrated.
         self.assertEqual(gallery.photos.count(), 0)
         # photos2 field is not yet migrated.
-        self.assertRaises((OperationalError, ProgrammingError), gallery.photos2.count)
+        self.assertRaises(
+            (OperationalError,
+             ProgrammingError),
+            gallery.photos2.count)
 
     def test_make_migration(self):
         with capture_stdout():
@@ -83,18 +96,39 @@ class TestMigrations(TransactionTestCase):
 
         gallery = Gallery.objects.get(name='Gallery')
 
-        self.assertEqual(list(gallery.photos.values_list('name', flat=True)), ['A', 'C', 'B'])
-        self.assertEqual(list(gallery.photos2.values_list('name', flat=True)), ['B', 'A', 'C'])
+        self.assertEqual(
+            list(
+                gallery.photos.values_list(
+                    'name', flat=True)), [
+                'A', 'C', 'B'])
+        self.assertEqual(
+            list(
+                gallery.photos2.values_list(
+                    'name', flat=True)), [
+                'B', 'A', 'C'])
 
         gallery.photos = [p3, p2]
-        self.assertEqual(list(gallery.photos.values_list('name', flat=True)), ['B', 'C'])
+        self.assertEqual(
+            list(
+                gallery.photos.values_list(
+                    'name', flat=True)), [
+                'B', 'C'])
 
         gallery = Gallery.objects.get(name='Gallery')
-        self.assertEqual(list(gallery.photos.values_list('name', flat=True)), ['B', 'C'])
+        self.assertEqual(
+            list(
+                gallery.photos.values_list(
+                    'name', flat=True)), [
+                'B', 'C'])
 
 
-@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
+@skipIf(
+    django.VERSION < (
+        1,
+        7),
+    'New migrations framework only available in Django >= 1.7')
 class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
+
     def setUp(self):
         from django.db.migrations.executor import MigrationExecutor
         from django.db.migrations.loader import MigrationLoader
@@ -132,11 +166,10 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
         t2 = Target.objects.create(pk=2)
         t3 = Target.objects.create(pk=3)
 
-        field = get_field(M2MToSortedM2M,'m2m')
+        field = get_field(M2MToSortedM2M, 'm2m')
         through_model = field.rel.through
         # No ordering is in place.
         self.assertTrue(not through_model._meta.ordering)
-
 
         instance = M2MToSortedM2M.objects.create(pk=1)
         instance.m2m.add(t3)
@@ -158,7 +191,7 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
         t2 = Target.objects.get(pk=2)
         t3 = Target.objects.get(pk=3)
 
-        field = get_field(M2MToSortedM2M,'m2m')
+        field = get_field(M2MToSortedM2M, 'm2m')
         through_model = field.rel.through
         # Now, ordering is there.
         self.assertTrue(list(through_model._meta.ordering), ['sort_value'])

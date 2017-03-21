@@ -11,7 +11,12 @@ class AlterSortedManyToManyField(AlterField):
     """A migration operation to transform a ManyToManyField into a
     SortedManyToManyField and vice versa."""
 
-    def database_forwards(self, app_label, schema_editor, from_state, to_state):
+    def database_forwards(
+            self,
+            app_label,
+            schema_editor,
+            from_state,
+            to_state):
         to_apps = get_apps_from_state(to_state)
         to_model = to_apps.get_model(app_label, self.model_name)
         if allow_migrate_model(self, schema_editor.connection.alias, to_model):
@@ -37,7 +42,12 @@ class AlterSortedManyToManyField(AlterField):
                     'ManyToManyField into a SortedManyToManyField.'
                     .format(operation=self.__class__.__name__))
 
-    def database_backwards(self, app_label, schema_editor, from_state, to_state):
+    def database_backwards(
+            self,
+            app_label,
+            schema_editor,
+            from_state,
+            to_state):
         from_apps = get_apps_from_state(from_state)
         from_model = from_apps.get_model(app_label, self.model_name)
         from_field = get_field(from_model, self.name)
