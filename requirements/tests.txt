@@ -1,3 +1,0 @@
-South==0.8.4
-argparse
-mock==1.0.1

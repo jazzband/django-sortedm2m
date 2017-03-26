@@ -5,7 +5,6 @@ from django.db import router
 from django.db import transaction
 from django.db import models
 from django.db.models import signals
-from django.db.models.fields.related import add_lazy_relation
 from django.db.models.fields.related import ManyToManyField as _ManyToManyField
 from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
 from django.utils import six
@@ -13,7 +12,7 @@ from django.utils.functional import cached_property, curry
 
 from .compat import create_forward_many_to_many_manager
 from .compat import get_foreignkey_field_kwargs
-from .compat import get_model_name
+from .compat import get_model_name, get_rel, get_rel_to, add_lazy_relation
 from .forms import SortedMultipleChoiceField
 
 SORT_VALUE_FIELD_NAME = 'sort_value'
@@ -203,9 +202,8 @@ except ImportError:
         @cached_property
         def related_manager_cls(self):
             return create_sorted_many_related_manager(
-                self.field.rel.to._default_manager.__class__,
-                self.field.rel
-            )
+                get_rel_to(self.field)._default_manager.__class__,
+                get_rel(self.field))
 
 
 class SortedManyToManyField(_ManyToManyField):
@@ -247,16 +245,18 @@ class SortedManyToManyField(_ManyToManyField):
         # specify *what* on my non-reversible relation?!"), so we set it up
         # automatically. The funky name reduces the chance of an accidental
         # clash.
-        if self.rel.symmetrical and (self.rel.to == "self" or self.rel.to == cls._meta.object_name):
-            self.rel.related_name = "%s_rel_+" % name
+        rel = get_rel(self)
+        rel_to = get_rel_to(self)
+        if rel.symmetrical and (rel_to == "self" or rel_to == cls._meta.object_name):
+            rel.related_name = "%s_rel_+" % name
 
         super(_ManyToManyField, self).contribute_to_class(cls, name, **kwargs)
 
         # The intermediate m2m model is not auto created if:
         #  1) There is a manually specified intermediate, or
         #  2) The class owning the m2m field is abstract.
-        if not self.rel.through and not cls._meta.abstract:
-            self.rel.through = self.create_intermediate_model(cls)
+        if not rel.through and not cls._meta.abstract:
+            rel.through = self.create_intermediate_model(cls)
 
         # Add the descriptor for the m2m relation
         setattr(cls, self.name, SortedManyToManyDescriptor(self))
@@ -266,16 +266,16 @@ class SortedManyToManyField(_ManyToManyField):
 
         # Populate some necessary rel arguments so that cross-app relations
         # work correctly.
-        if isinstance(self.rel.through, six.string_types):
+        if isinstance(rel.through, six.string_types):
             def resolve_through_model(field, model, cls):
-                field.rel.through = model
-            add_lazy_relation(cls, self, self.rel.through, resolve_through_model)
+                get_rel(field).through = model
+            add_lazy_relation(cls, self, rel.through, resolve_through_model)
 
         if hasattr(cls._meta, 'duplicate_targets'):  # Django<1.5
-            if isinstance(self.rel.to, six.string_types):
-                target = self.rel.to
+            if isinstance(rel_to, six.string_types):
+                target = rel_to
             else:
-                target = self.rel.to._meta.db_table
+                target = rel_to._meta.db_table
             cls._meta.duplicate_targets[self.column] = (target, "m2m")
 
     def get_internal_type(self):
@@ -299,11 +299,11 @@ class SortedManyToManyField(_ManyToManyField):
                                           to_field_name,
                                           sort_value_field_name):
         managed = True
-        to_model = self.rel.to
-        if isinstance(self.rel.to, six.string_types):
-            if self.rel.to != RECURSIVE_RELATIONSHIP_CONSTANT:
+        to_model = get_rel_to(self)
+        if isinstance(to_model, six.string_types):
+            if to_model != RECURSIVE_RELATIONSHIP_CONSTANT:
                 def set_managed(field, model, cls):
-                    field.rel.through._meta.managed = model._meta.managed or cls._meta.managed
+                    get_rel(field).through._meta.managed = model._meta.managed or cls._meta.managed
                 add_lazy_relation(klass, self, to_model, set_managed)
             else:
                 managed = klass._meta.managed
@@ -329,15 +329,16 @@ class SortedManyToManyField(_ManyToManyField):
         return type(str('Meta'), (object,), options)
 
     def get_rel_to_model_and_object_name(self, klass):
-        if isinstance(self.rel.to, six.string_types):
-            if self.rel.to != RECURSIVE_RELATIONSHIP_CONSTANT:
-                to_model = self.rel.to
+        rel_to = get_rel_to(self)
+        if isinstance(rel_to, six.string_types):
+            if rel_to != RECURSIVE_RELATIONSHIP_CONSTANT:
+                to_model = rel_to
                 to_object_name = to_model.split('.')[-1]
             else:
                 to_model = klass
                 to_object_name = to_model._meta.object_name
         else:
-            to_model = self.rel.to
+            to_model = rel_to
             to_object_name = to_model._meta.object_name
         return to_model, to_object_name
 
@@ -351,7 +352,7 @@ class SortedManyToManyField(_ManyToManyField):
 
         to_model, to_object_name = self.get_rel_to_model_and_object_name(klass)
 
-        if self.rel.to == RECURSIVE_RELATIONSHIP_CONSTANT or to_object_name == klass._meta.object_name:
+        if get_rel_to(self) == RECURSIVE_RELATIONSHIP_CONSTANT or to_object_name == klass._meta.object_name:
             field_name = 'from_%s' % to_object_name.lower()
         else:
             field_name = get_model_name(klass)
@@ -365,7 +366,7 @@ class SortedManyToManyField(_ManyToManyField):
 
         to_model, to_object_name = self.get_rel_to_model_and_object_name(klass)
 
-        if self.rel.to == RECURSIVE_RELATIONSHIP_CONSTANT or to_object_name == klass._meta.object_name:
+        if get_rel_to(self) == RECURSIVE_RELATIONSHIP_CONSTANT or to_object_name == klass._meta.object_name:
             field_name = 'to_%s' % to_object_name.lower()
         else:
             field_name = to_object_name.lower()
@@ -456,7 +457,7 @@ if south is not None and 'south' in settings.INSTALLED_APPS:
                     "left_model_key": model_key(self.model),
                     "right_field": self.field.m2m_reverse_name()[:-3], # Remove the _id part
                     "right_column": self.field.m2m_reverse_name(),
-                    "right_model_key": model_key(self.field.rel.to),
+                    "right_model_key": model_key(get_rel_to(self.field)),
                     "sort_field": self.field.sort_value_field_name,
                 }
             else:
