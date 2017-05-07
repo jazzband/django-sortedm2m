@@ -30,9 +30,10 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             'sortedm2m/widget.css',
         )}
 
-    def build_attrs(self, attrs=None, **kwargs):
-        attrs = super(SortedCheckboxSelectMultiple, self).\
-            build_attrs(attrs, **kwargs)
+    def build_attrs(self, attrs=None, extra_attrs=None, **kwargs):
+        attrs = dict(attrs, **kwargs)
+        if extra_attrs:
+            attrs.update(extra_attrs)
         classes = attrs.setdefault('class', '').split()
         classes.append('sortedm2m')
         attrs['class'] = ' '.join(classes)
@@ -41,7 +42,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     def render(self, name, value, attrs=None, choices=()):
         if value is None: value = []
         has_id = attrs and 'id' in attrs
-        final_attrs = self.build_attrs(attrs, name=name)
+        final_attrs = self.build_attrs(self.attrs, attrs, name=name)
 
         # Normalize to strings
         str_values = [force_text(v) for v in value]
