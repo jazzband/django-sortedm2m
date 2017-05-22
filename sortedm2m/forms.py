@@ -31,8 +31,9 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         )}
 
     def build_attrs(self, attrs=None, **kwargs):
+        extra_attrs = kwargs
         attrs = super(SortedCheckboxSelectMultiple, self).\
-            build_attrs(attrs, **kwargs)
+            build_attrs(attrs, extra_attrs=extra_attrs)
         classes = attrs.setdefault('class', '').split()
         classes.append('sortedm2m')
         attrs['class'] = ' '.join(classes)
