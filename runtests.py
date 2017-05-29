@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import os, sys
+import os, sys, warnings
 
 
 parent = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +32,20 @@ else:
 
 
 def runtests(*args):
+    if django.VERSION > (1, 8):
+        warnings.simplefilter("error", Warning)
+        warnings.filterwarnings("ignore", module="distutils")
+        try:
+            warnings.filterwarnings("ignore", category=ResourceWarning)
+        except NameError:
+            pass
+        warnings.filterwarnings("ignore", "invalid escape sequence", DeprecationWarning)
+        # Ignore a python 3.6 DeprecationWarning in ModelBase.__new__ that isn't
+        # fixed in Django 1.x
+        if sys.version_info > (3, 6) and django.VERSION < (2,):
+            warnings.filterwarnings(
+                "ignore", "__class__ not set defining", DeprecationWarning)
+
     test_apps = list(args or default_test_apps)
     execute_from_command_line([sys.argv[0], 'test', '--verbosity=1'] + test_apps)
 
