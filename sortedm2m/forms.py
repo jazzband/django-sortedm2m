@@ -31,14 +31,14 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         )}
 
     def build_attrs(self, attrs=None, **kwargs):
-        attrs = super(SortedCheckboxSelectMultiple, self).\
-            build_attrs(attrs, **kwargs)
+        attrs = dict(attrs or {}, **kwargs)
+        attrs = super(SortedCheckboxSelectMultiple, self).build_attrs(attrs)
         classes = attrs.setdefault('class', '').split()
         classes.append('sortedm2m')
         attrs['class'] = ' '.join(classes)
         return attrs
 
-    def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None, choices=(), renderer=None):
         if value is None: value = []
         has_id = attrs and 'id' in attrs
         final_attrs = self.build_attrs(attrs, name=name)

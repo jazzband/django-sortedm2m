@@ -2,38 +2,43 @@ language: python
 sudo: false
 matrix:
   include:
-    - python: 3.5
-      env:
-      - TOX_ENV=py35-18
-    - python: 3.5
-      env:
-      - TOX_ENV=py35-18-postgres
-    - python: 3.5
-      env:
-      - TOX_ENV=py35-19
-env:
-  - TOX_ENV=py26-15
-  - TOX_ENV=py26-16
-  - TOX_ENV=py27-15
-  - TOX_ENV=py27-16
-  - TOX_ENV=py27-17
-  - TOX_ENV=py27-18
-  - TOX_ENV=py27-18-postgres
-  - TOX_ENV=py27-18-mysql
-  - TOX_ENV=py27-19
-  - TOX_ENV=pypy-15
-  - TOX_ENV=pypy-16
-  - TOX_ENV=pypy-17
-  - TOX_ENV=pypy-18
-  - TOX_ENV=pypy-18-mysql
-  - TOX_ENV=pypy-19
-  - TOX_ENV=py33-16
-  - TOX_ENV=py33-17
-  - TOX_ENV=py33-18
-  - TOX_ENV=py34-16
-  - TOX_ENV=py34-17
-  - TOX_ENV=py34-18
-  - TOX_ENV=py34-19
+    - { python: 2.6, env: TOXENV=py26-15 }
+    - { python: 2.6, env: TOXENV=py26-16 }
+    - { python: 2.7, env: TOXENV=py27-15 }
+    - { python: 2.7, env: TOXENV=py27-16 }
+    - { python: 2.7, env: TOXENV=py27-17 }
+    - { python: 2.7, env: TOXENV=py27-18 }
+    - { python: 2.7, env: TOXENV=py27-18-postgres }
+    - { python: 2.7, env: TOXENV=py27-18-mysql }
+    - { python: 2.7, env: TOXENV=py27-19 }
+    - { python: 2.7, env: TOXENV=py27-110 }
+    - { python: 2.7, env: TOXENV=py27-111 }
+    - { python: pypy, env: TOXENV=pypy-15 }
+    - { python: pypy, env: TOXENV=pypy-16 }
+    - { python: pypy, env: TOXENV=pypy-17 }
+    - { python: pypy, env: TOXENV=pypy-18 }
+    - { python: pypy, env: TOXENV=pypy-18-mysql }
+    - { python: pypy, env: TOXENV=pypy-19 }
+    - { python: pypy, env: TOXENV=pypy-110 }
+    - { python: pypy, env: TOXENV=pypy-111 }
+    - { python: 3.3, env: TOXENV=py33-16 }
+    - { python: 3.3, env: TOXENV=py33-17 }
+    - { python: 3.3, env: TOXENV=py33-18 }
+    - { python: 3.4, env: TOXENV=py34-16 }
+    - { python: 3.4, env: TOXENV=py34-17 }
+    - { python: 3.4, env: TOXENV=py34-18 }
+    - { python: 3.4, env: TOXENV=py34-19 }
+    - { python: 3.4, env: TOXENV=py34-110 }
+    - { python: 3.4, env: TOXENV=py34-111 }
+    - { python: 3.5, env: TOXENV=py35-18 }
+    - { python: 3.5, env: TOXENV=py35-18-postgres }
+    - { python: 3.5, env: TOXENV=py35-19 }
+    - { python: 3.5, env: TOXENV=py35-110 }
+    - { python: 3.5, env: TOXENV=py35-111 }
+    - { python: 3.6, env: TOXENV=py36-111 }
+    - { python: 3.6, env: TOXENV=py36-master-postgres }
+  allow_failures:
+    - env: TOXENV=py36-master-postgres
 before_install:
   - export PIP_USE_MIRRORS=true
   - export DJANGO_SETTINGS_MODULE=test_settings
@@ -47,7 +52,7 @@ before_install:
 install:
   - pip install tox
 script:
-  - tox -e $TOX_ENV -v
+  - tox -v
 deploy:
   provider: pypi
   user: gremu
