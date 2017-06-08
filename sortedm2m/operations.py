@@ -2,9 +2,8 @@ from django.db import models
 from django.db.migrations.operations import AlterField
 
 from sortedm2m.fields import SORT_VALUE_FIELD_NAME
-from .compat import get_field
-from .compat import get_apps_from_state
-from .compat import allow_migrate_model
+from .compat import (
+    get_field, get_apps_from_state, allow_migrate_model, get_rel)
 
 
 class AlterSortedManyToManyField(AlterField):
@@ -21,8 +20,8 @@ class AlterSortedManyToManyField(AlterField):
             from_model = from_apps.get_model(app_label, self.model_name)
             from_field = get_field(from_model, self.name)
 
-            to_m2m_model = to_field.rel.through
-            from_m2m_model = from_field.rel.through
+            to_m2m_model = get_rel(to_field).through
+            from_m2m_model = get_rel(from_field).through
 
             # M2M -> SortedM2M
             if getattr(to_field, 'sorted', False):
@@ -47,8 +46,8 @@ class AlterSortedManyToManyField(AlterField):
 
         if allow_migrate_model(self, schema_editor.connection.alias, to_model):
             to_field = get_field(to_model, self.name)
-            from_m2m_model = from_field.rel.through
-            to_m2m_model = to_field.rel.through
+            from_m2m_model = get_rel(from_field).through
+            to_m2m_model = get_rel(to_field).through
 
             # The `to_state` is the OLDER state.
 

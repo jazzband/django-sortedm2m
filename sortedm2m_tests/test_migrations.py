@@ -18,13 +18,20 @@ from django.test import TestCase
 from django.test import TransactionTestCase
 from django.utils import six
 
-from sortedm2m.compat import get_apps_from_state, get_field
+from sortedm2m.compat import get_apps_from_state, get_field, get_rel
 from sortedm2m_tests.migrations_tests.models import Gallery, Photo
 from .compat import skipIf
 from .utils import capture_stdout
 
 
 str_ = six.text_type
+
+
+def m2m_set(instance, field_name, objs):
+    if django.VERSION > (1, 9):
+        getattr(instance, field_name).set(objs)
+    else:
+        setattr(instance, field_name, objs)
 
 
 @skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
@@ -78,15 +85,15 @@ class TestMigrations(TransactionTestCase):
         p3 = Photo.objects.create(name='B')
 
         gallery = Gallery.objects.create(name='Gallery')
-        gallery.photos = [p1, p2, p3]
-        gallery.photos2 = [p3, p1, p2]
+        m2m_set(gallery, "photos", [p1, p2, p3])
+        m2m_set(gallery, "photos2", [p3, p1, p2])
 
         gallery = Gallery.objects.get(name='Gallery')
 
         self.assertEqual(list(gallery.photos.values_list('name', flat=True)), ['A', 'C', 'B'])
         self.assertEqual(list(gallery.photos2.values_list('name', flat=True)), ['B', 'A', 'C'])
 
-        gallery.photos = [p3, p2]
+        m2m_set(gallery, "photos", [p3, p2])
         self.assertEqual(list(gallery.photos.values_list('name', flat=True)), ['B', 'C'])
 
         gallery = Gallery.objects.get(name='Gallery')
@@ -133,7 +140,7 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
         t3 = Target.objects.create(pk=3)
 
         field = get_field(M2MToSortedM2M,'m2m')
-        through_model = field.rel.through
+        through_model = get_rel(field).through
         # No ordering is in place.
         self.assertTrue(not through_model._meta.ordering)
 
@@ -159,14 +166,14 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
         t3 = Target.objects.get(pk=3)
 
         field = get_field(M2MToSortedM2M,'m2m')
-        through_model = field.rel.through
+        through_model = get_rel(field).through
         # Now, ordering is there.
         self.assertTrue(list(through_model._meta.ordering), ['sort_value'])
 
         instance = M2MToSortedM2M.objects.get(pk=1)
         self.assertEqual(list(instance.m2m.order_by('pk')), [t1, t2, t3])
 
-        instance.m2m = [t3, t1, t2]
+        m2m_set(instance, "m2m", [t3, t1, t2])
 
         self.assertEqual(list(instance.m2m.all()), [t3, t1, t2])
 

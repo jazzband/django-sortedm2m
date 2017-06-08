@@ -1,22 +1,28 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
+from django.utils.encoding import python_2_unicode_compatible
 from sortedm2m.fields import SortedManyToManyField
 
 
+@python_2_unicode_compatible
 class Car(models.Model):
     plate = models.CharField(max_length=50)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.plate
 
 
+@python_2_unicode_compatible
 class ParkingArea(models.Model):
     name = models.CharField(max_length=50)
     cars = SortedManyToManyField(Car)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
-    @models.permalink
     def get_absolute_url(self):
-        return 'parkingarea', (self.pk,), {}
+        return reverse('parkingarea', (self.pk,))

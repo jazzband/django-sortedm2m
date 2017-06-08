@@ -1,8 +1,10 @@
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from sortedm2m.fields import SortedManyToManyField
 
 
+@python_2_unicode_compatible
 class Photo(models.Model):
     name = models.CharField(max_length=50)
 
@@ -10,10 +12,11 @@ class Photo(models.Model):
         verbose_name = _('Photo')
         verbose_name_plural = _('Photos')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
+@python_2_unicode_compatible
 class Gallery(models.Model):
     name = models.CharField(max_length=50)
     photos = SortedManyToManyField(Photo)
@@ -23,5 +26,5 @@ class Gallery(models.Model):
         verbose_name = _('Photo')
         verbose_name_plural = _('Photos')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
