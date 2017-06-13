@@ -77,6 +77,16 @@ Specifies how the field is called in the intermediate database table by which
 the relationship is ordered. You can change its name if you have a legacy
 database that you need to integrate into your application.
 
+``base_class``
+~~~~~~~~~~~~~~
+
+**Default:** ``None``
+
+You can set the ``base_class``, which is the base class of the through model of
+the sortedm2m relationship between models to an abstract base class containing
+a ``__str__`` method to improve the string representations of sortedm2m
+relationships.
+
 Migrating a ``ManyToManyField`` to be a ``SortedManyToManyField``
 =================================================================
 

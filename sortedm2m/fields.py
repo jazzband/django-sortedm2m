@@ -214,12 +214,18 @@ class SortedManyToManyField(_ManyToManyField):
     Accept a boolean ``sorted`` attribute which specifies if relation is
     ordered or not. Default is set to ``True``. If ``sorted`` is set to
     ``False`` the field will behave exactly like django's ``ManyToManyField``.
+
+    Accept a class ``base_class`` attribute which specifies the base class of
+    the intermediate model. It allows to customize the intermediate model.
     '''
-    def __init__(self, to, sorted=True, **kwargs):
+    def __init__(self, to, sorted=True, base_class=None, **kwargs):
         self.sorted = sorted
         self.sort_value_field_name = kwargs.pop(
             'sort_value_field_name',
             SORT_VALUE_FIELD_NAME)
+
+        # Base class of through model
+        self.base_class = base_class
 
         super(SortedManyToManyField, self).__init__(to, **kwargs)
         if self.sorted:
@@ -377,16 +383,19 @@ class SortedManyToManyField(_ManyToManyField):
 
     def create_intermediate_model_from_attrs(self, klass, attrs):
         name = self.get_intermediate_model_name(klass)
-        return type(str(name), (models.Model,), attrs)
+        base_classes = (self.base_class, models.Model) if self.base_class else (models.Model,)
+
+        return type(str(name), base_classes, attrs)
 
     def create_intermediate_model(self, klass):
         # Construct and return the new class.
         from_field_name, from_field = self.get_intermediate_model_from_field(klass)
         to_field_name, to_field = self.get_intermediate_model_to_field(klass)
         sort_value_field_name, sort_value_field = self.get_intermediate_model_sort_value_field(klass)
-
-        meta = self.get_intermediate_model_meta_class(
-            klass, from_field_name, to_field_name, sort_value_field_name)
+        meta = self.get_intermediate_model_meta_class(klass,
+                                                      from_field_name,
+                                                      to_field_name,
+                                                      sort_value_field_name)
 
         attrs = {
             'Meta': meta,

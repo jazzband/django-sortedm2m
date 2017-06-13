@@ -8,8 +8,14 @@ except ImportError:
 from sortedm2m.fields import SortedManyToManyField
 
 
+class BaseBookThrough(object):
+
+    def __str__(self):
+        return "Relationship to {0}".format(self.book.name)
+
+
 class Shelf(models.Model):
-    books = SortedManyToManyField('Book', related_name='shelves')
+    books = SortedManyToManyField('Book', related_name='shelves', base_class=BaseBookThrough)
 
 
 @python_2_unicode_compatible
@@ -23,7 +29,8 @@ class Book(models.Model):
 class DoItYourselfShelf(models.Model):
     books = SortedManyToManyField(Book,
         sort_value_field_name='diy_sort_number',
-        related_name='diy_shelves')
+        related_name='diy_shelves',
+        base_class=BaseBookThrough)
 
 
 class Store(models.Model):

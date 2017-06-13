@@ -9,7 +9,7 @@ from django.utils import six
 from sortedm2m.compat import get_field, get_rel
 
 from .models import (
-    Book, Shelf, DoItYourselfShelf, Store, MessyStore, SelfReference)
+    Book, Shelf, DoItYourselfShelf, Store, MessyStore, SelfReference, BaseBookThrough)
 
 
 str_ = six.text_type
@@ -190,6 +190,14 @@ class TestSortedManyToManyField(TestCase):
         def get_ids(queryset):
             return [obj.id for obj in queryset]
         self.assertEqual(get_ids(shelf.books.all()), get_ids(books))
+
+    def test_base_class_str(self):
+        shelf = self.model.objects.create()
+        shelf.books.add(self.books[0])
+        through_model = shelf.books.through
+        instance = through_model.objects.all()[0]
+        self.assertEqual(str(instance), "Relationship to {0}".format(instance.book.name))
+
 
 class TestStringReference(TestSortedManyToManyField):
     '''
