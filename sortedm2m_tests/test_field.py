@@ -191,7 +191,8 @@ class TestSortedManyToManyField(TestCase):
             return [obj.id for obj in queryset]
         self.assertEqual(get_ids(shelf.books.all()), get_ids(books))
 
-class TestStringReference(TestSortedManyToManyField):
+
+class TestStringReference1(TestSortedManyToManyField):
     '''
     Test the same things as ``TestSortedManyToManyField`` but using a model
     that using a string to reference the relation where the m2m field should
@@ -200,7 +201,7 @@ class TestStringReference(TestSortedManyToManyField):
     model = Store
 
 
-class TestStringReference(TestSortedManyToManyField):
+class TestStringReference2(TestSortedManyToManyField):
     '''
     Test the same things as ``TestSortedManyToManyField`` but using a model
     that using a string to reference the relation where the m2m field should
