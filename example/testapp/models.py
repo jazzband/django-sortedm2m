@@ -17,9 +17,15 @@ class Car(models.Model):
 
 
 @python_2_unicode_compatible
+class BaseCarThrough(object):
+    def __str__(self):
+        return str(self.car) + " in " + str(self.parkingarea)
+
+
+@python_2_unicode_compatible
 class ParkingArea(models.Model):
     name = models.CharField(max_length=50)
-    cars = SortedManyToManyField(Car)
+    cars = SortedManyToManyField(Car, base_class=BaseCarThrough)
 
     def __str__(self):
         return self.name
