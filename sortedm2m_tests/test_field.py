@@ -199,7 +199,7 @@ class TestSortedManyToManyField(TestCase):
         self.assertEqual(str(instance), "Relationship to {0}".format(instance.book.name))
 
 
-class TestStringReference(TestSortedManyToManyField):
+class TestStringReference1(TestSortedManyToManyField):
     '''
     Test the same things as ``TestSortedManyToManyField`` but using a model
     that using a string to reference the relation where the m2m field should
@@ -208,7 +208,7 @@ class TestStringReference(TestSortedManyToManyField):
     model = Store
 
 
-class TestStringReference(TestSortedManyToManyField):
+class TestStringReference2(TestSortedManyToManyField):
     '''
     Test the same things as ``TestSortedManyToManyField`` but using a model
     that using a string to reference the relation where the m2m field should
