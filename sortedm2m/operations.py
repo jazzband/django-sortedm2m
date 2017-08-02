@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.migrations.operations import AlterField
 
-from sortedm2m.fields import SORT_VALUE_FIELD_NAME
 from .compat import (
     get_field, get_apps_from_state, allow_migrate_model, get_rel)
 
@@ -69,10 +68,10 @@ class AlterSortedManyToManyField(AlterField):
         schema_editor.add_field(model, field)
 
     def remove_sort_value_field(self, schema_editor, model):
-        field = get_field(model, SORT_VALUE_FIELD_NAME)
+        field = get_field(model, model._sort_field_name)
         schema_editor.remove_field(model, field)
 
     def make_sort_by_field(self, model):
-        field = models.IntegerField(name=SORT_VALUE_FIELD_NAME, default=0)
-        field.set_attributes_from_name(SORT_VALUE_FIELD_NAME)
+        field = models.IntegerField(name=model._sort_field_name, default=0)
+        field.set_attributes_from_name(model._sort_field_name)
         return field
