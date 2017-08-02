@@ -1,8 +1,16 @@
 Changelog
 =========
 
-1.4.1 (in development)
-----------------------
+1.5.0
+-----
+
+* `#101`_: Add support for a custom base class for the many to many intermediate
+  class. See the README for documentation. Thank you Rohith Asrk for the patch.
+* `#87`_: Fix ``AlterSortedManyToManyField`` operation to support custom set
+  ``_sort_field_name``.
+
+.. _#101: https://github.com/gregmuellegger/django-sortedm2m/pull/101
+.. _#87: https://github.com/gregmuellegger/django-sortedm2m/issues/87
 
 1.4.0
 -----
