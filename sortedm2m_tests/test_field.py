@@ -191,15 +191,8 @@ class TestSortedManyToManyField(TestCase):
             return [obj.id for obj in queryset]
         self.assertEqual(get_ids(shelf.books.all()), get_ids(books))
 
-    def test_base_class_str(self):
-        shelf = self.model.objects.create()
-        shelf.books.add(self.books[0])
-        through_model = shelf.books.through
-        instance = through_model.objects.all()[0]
-        self.assertEqual(str(instance), "Relationship to {0}".format(instance.book.name))
 
-
-class TestStringReference1(TestSortedManyToManyField):
+class TestStringReference(TestSortedManyToManyField):
     '''
     Test the same things as ``TestSortedManyToManyField`` but using a model
     that using a string to reference the relation where the m2m field should
@@ -208,13 +201,15 @@ class TestStringReference1(TestSortedManyToManyField):
     model = Store
 
 
-class TestStringReference2(TestSortedManyToManyField):
-    '''
-    Test the same things as ``TestSortedManyToManyField`` but using a model
-    that using a string to reference the relation where the m2m field should
-    point to.
-    '''
+class TestCustomBaseClass(TestSortedManyToManyField):
     model = DoItYourselfShelf
+
+    def test_base_class_str(self):
+        shelf = self.model.objects.create()
+        shelf.books.add(self.books[0])
+        through_model = shelf.books.through
+        instance = through_model.objects.all()[0]
+        self.assertEqual(str(instance), "Relationship to {0}".format(instance.book.name))
 
     def test_custom_sort_value_field_name(self):
         from sortedm2m.fields import SORT_VALUE_FIELD_NAME
