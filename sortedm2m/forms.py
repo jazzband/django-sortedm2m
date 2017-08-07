@@ -11,11 +11,11 @@ from django.utils.safestring import mark_safe
 
 
 if sys.version_info[0] < 3:
-    iteritems = lambda d: iter(d.iteritems())
+    def iteritems(d): return iter(d.iteritems())
     string_types = basestring,
     str_ = unicode
 else:
-    iteritems = lambda d: iter(d.items())
+    def iteritems(d): return iter(d.items())
     string_types = str,
     str_ = str
 
@@ -39,7 +39,8 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         return attrs
 
     def render(self, name, value, attrs=None, choices=(), renderer=None):
-        if value is None: value = []
+        if value is None:
+            value = []
         has_id = attrs and 'id' in attrs
         final_attrs = self.build_attrs(attrs, name=name)
 
@@ -49,7 +50,8 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         selected = []
         unselected = []
 
-        for i, (option_value, option_label) in enumerate(chain(self.choices, choices)):
+        all_choices = chain(self.choices, choices)
+        for i, (option_value, option_label) in enumerate(all_choices):
             # If an ID attribute was given, add a numeric index as a suffix,
             # so that the checkboxes don't all have the same ID attribute.
             if has_id:
@@ -58,17 +60,20 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             else:
                 label_for = ''
 
-            cb = forms.CheckboxInput(final_attrs, check_test=lambda value: value in str_values)
+            cb = forms.CheckboxInput(
+                final_attrs, check_test=lambda value: value in str_values)
             option_value = force_text(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_text(option_label))
-            item = {'label_for': label_for, 'rendered_cb': rendered_cb, 'option_label': option_label, 'option_value': option_value}
+            item = {'label_for': label_for, 'rendered_cb': rendered_cb,
+                    'option_label': option_label, 'option_value': option_value}
             if option_value in str_values:
                 selected.append(item)
             else:
                 unselected.append(item)
 
-        # re-order `selected` array according str_values which is a set of `option_value`s in the order they should be shown on screen
+        # re-order `selected` array according str_values which is a set of
+        # `option_value`s in the order they should be shown on screen
         ordered = []
         for value in str_values:
             for select in selected:
@@ -122,6 +127,9 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
             data = []
         if len(initial) != len(data):
             return True
-        initial_set = [force_text(value) for value in self.prepare_value(initial)]
+        initial_set = [
+            force_text(value)
+            for value in self.prepare_value(initial)
+        ]
         data_set = [force_text(value) for value in data]
         return data_set != initial_set

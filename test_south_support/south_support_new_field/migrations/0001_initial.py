@@ -15,11 +15,9 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('south_support_new_field', ['PhotoStream'])
 
-
     def backwards(self, orm):
         # Deleting model 'PhotoStream'
         db.delete_table('south_support_new_field_photostream')
-
 
     models = {
         'south_support_new_field.photostream': {

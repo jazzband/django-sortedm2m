@@ -14,7 +14,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='M2MToSortedM2M',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False,
+                                        auto_created=True,
+                                        primary_key=True)),
             ],
             options={
             },
@@ -23,7 +26,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SortedM2MToM2M',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False,
+                                        auto_created=True,
+                                        primary_key=True)),
             ],
             options={
             },
@@ -32,7 +38,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Target',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False,
+                                        auto_created=True,
+                                        primary_key=True)),
             ],
             options={
             },
@@ -41,13 +50,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sortedm2mtom2m',
             name='m2m',
-            field=sortedm2m.fields.SortedManyToManyField(help_text=None, to='altersortedmanytomanyfield_tests.Target'),
+            field=sortedm2m.fields.SortedManyToManyField(
+                help_text=None, to='altersortedmanytomanyfield_tests.Target'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='m2mtosortedm2m',
             name='m2m',
-            field=models.ManyToManyField(to='altersortedmanytomanyfield_tests.Target'),
+            field=models.ManyToManyField(
+                to='altersortedmanytomanyfield_tests.Target'),
             preserve_default=True,
         ),
     ]

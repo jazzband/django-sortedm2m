@@ -32,6 +32,7 @@ class UltraMagicString(object):
     Taken from
     http://stackoverflow.com/questions/1162338/whats-the-right-way-to-use-unicode-metadata-in-setup-py
     '''
+
     def __init__(self, value):
         if not isinstance(value, bytes):
             value = value.encode('utf8')
@@ -62,20 +63,19 @@ long_description = UltraMagicString('\n\n'.join((
 
 
 setup(
-    name = 'django-sortedm2m',
-    version = find_version('sortedm2m', '__init__.py'),
-    url = 'http://github.com/gregmuellegger/django-sortedm2m',
-    license = 'BSD',
-    description =
-        'Drop-in replacement for django\'s many to many field with '
-        'sorted relations.',
-    long_description = long_description,
-    author = UltraMagicString('Gregor Müllegger'),
-    author_email = 'gregor@muellegger.de',
-    packages = ['sortedm2m'],
-    include_package_data = True,
-    zip_safe = False,
-    classifiers = [
+    name='django-sortedm2m',
+    version=find_version('sortedm2m', '__init__.py'),
+    url='http://github.com/gregmuellegger/django-sortedm2m',
+    license='BSD',
+    description='Drop-in replacement for django\'s many to many field with '
+    'sorted relations.',
+    long_description=long_description,
+    author=UltraMagicString('Gregor Müllegger'),
+    author_email='gregor@muellegger.de',
+    packages=['sortedm2m'],
+    include_package_data=True,
+    zip_safe=False,
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
@@ -95,5 +95,5 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
-    install_requires = [],
+    install_requires=[],
 )

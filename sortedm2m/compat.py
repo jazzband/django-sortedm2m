@@ -75,6 +75,7 @@ def get_rel(f):
     else:
         return f.rel
 
+
 def get_rel_to(f):
     rel = get_rel(f)
     if django.VERSION > (1, 9):

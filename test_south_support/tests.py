@@ -66,7 +66,6 @@ class SouthSchemaMigrationTests(TestCase):
                     "Following string is content of "
                     "south migration: %s" % unexpected)
 
-
     def test_new_model(self):
         from sortedm2m.fields import SORT_VALUE_FIELD_NAME
 

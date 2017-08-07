@@ -14,7 +14,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Gallery',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False,
+                                        auto_created=True,
+                                        primary_key=True)),
                 ('name', models.CharField(max_length=50)),
             ],
             options={
@@ -26,7 +29,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Photo',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False,
+                                        auto_created=True,
+                                        primary_key=True)),
                 ('name', models.CharField(max_length=50)),
             ],
             options={
@@ -38,7 +44,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='gallery',
             name='photos',
-            field=sortedm2m.fields.SortedManyToManyField(to='migrations_tests.Photo'),
+            field=sortedm2m.fields.SortedManyToManyField(
+                to='migrations_tests.Photo'),
             preserve_default=True,
         ),
     ]

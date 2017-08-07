@@ -15,7 +15,8 @@ class BaseBookThrough(object):
 
 
 class Shelf(models.Model):
-    books = SortedManyToManyField('Book', related_name='shelves', base_class=BaseBookThrough)
+    books = SortedManyToManyField(
+        'Book', related_name='shelves', base_class=BaseBookThrough)
 
 
 @python_2_unicode_compatible
@@ -28,19 +29,20 @@ class Book(models.Model):
 
 class DoItYourselfShelf(models.Model):
     books = SortedManyToManyField(Book,
-        sort_value_field_name='diy_sort_number',
-        related_name='diy_shelves',
-        base_class=BaseBookThrough)
+                                  sort_value_field_name='diy_sort_number',
+                                  related_name='diy_shelves',
+                                  base_class=BaseBookThrough)
 
 
 class Store(models.Model):
-    books = SortedManyToManyField('sortedm2m_tests.Book', related_name='stores')
+    books = SortedManyToManyField(
+        'sortedm2m_tests.Book', related_name='stores')
 
 
 class MessyStore(models.Model):
     books = SortedManyToManyField('Book',
-        sorted=False,
-        related_name='messy_stores')
+                                  sorted=False,
+                                  related_name='messy_stores')
 
 
 @python_2_unicode_compatible
