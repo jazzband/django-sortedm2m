@@ -87,6 +87,17 @@ the sortedm2m relationship between models to an abstract base class containing
 a ``__str__`` method to improve the string representations of sortedm2m
 relationships.
 
+.. note::
+
+    You also could use it to add additional fields to the through model. But
+    please beware: These fields will not be created or modified by an
+    automatically created migration. You will need to take care of migrations
+    yourself. In most cases when you want to add another field, consider
+    *not* using sortedm2m but use a ordinary Django ManyToManyField and
+    specify `your own through model`_.
+    
+.. _your own through model: https://docs.djangoproject.com/en/1.11/ref/models/fields/#django.db.models.ManyToManyField.through
+
 Migrating a ``ManyToManyField`` to be a ``SortedManyToManyField``
 =================================================================
 
