@@ -18,7 +18,7 @@ Changelog
 1.4.0
 -----
 
-* `#104`_: Add compatiblity for Django 1.10 and 1.11!
+* `#104`_: Add compatibility for Django 1.10 and 1.11!
   Thank you Frankie Dintino for the patch.
 * `#94`_: Add french translation files. Mainly for strings in the admin.
   Thanks to ppython for the patch.
