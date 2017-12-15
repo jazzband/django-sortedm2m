@@ -37,6 +37,7 @@ matrix:
     - { python: 3.5, env: TOXENV=py35-111 }
     - { python: 3.6, env: TOXENV=py36-111 }
     - { python: 3.6, env: TOXENV=py36-master-postgres }
+    - { python: 3.6, env: TOXENV=py36-20 }
   allow_failures:
     - env: TOXENV=py36-master-postgres
 before_install:
