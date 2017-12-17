@@ -36,8 +36,8 @@ matrix:
     - { python: 3.5, env: TOXENV=py35-110 }
     - { python: 3.5, env: TOXENV=py35-111 }
     - { python: 3.6, env: TOXENV=py36-111 }
-    - { python: 3.6, env: TOXENV=py36-master-postgres }
-  allow_failures:
+    - { python: 3.6, env: TOXENV=py36-20 }
+    allow_failures:
     - env: TOXENV=py36-master-postgres
 before_install:
   - export PIP_USE_MIRRORS=true
