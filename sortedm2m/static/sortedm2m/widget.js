@@ -16,7 +16,7 @@ if (typeof jQuery === 'undefined') {
                 name = checkboxes.first().attr('name');
                 checkboxes.removeAttr('name');
             } else {
-                var label;
+                var label, labelFor;
                 var currentElement = ul;
 
                 while (!label || !label.length) {
@@ -24,7 +24,9 @@ if (typeof jQuery === 'undefined') {
                     label = currentElement.siblings('label');
                 }
 
-                id = label.attr('for').match(/^(.*)_\d+$/)[1];
+                labelFor = label.attr('for');
+                if (!labelFor) { return; }
+                id = labelFor.match(/^(.*)_\d+$/)[1];
                 name = id.replace(/^id_/, '');
             }
 
