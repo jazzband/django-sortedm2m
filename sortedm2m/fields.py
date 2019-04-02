@@ -92,10 +92,11 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
             super(SortedRelatedManager, self).set(objs, **kwargs)
         set.alters_data = True
 
-        def _add_items(self, source_field_name, target_field_name, *objs):
+        def _add_items(self, source_field_name, target_field_name, *objs, **kwargs):
             # source_field_name: the PK fieldname in join table for the source object
             # target_field_name: the PK fieldname in join table for the target object
             # *objs - objects to add. Either object instances, or primary keys of object instances.
+            # **kwargs: in Django >= 2 contains `through_defaults` key.
 
             # If there aren't any objects, there is nothing to do.
             from django.db.models import Max, Model
