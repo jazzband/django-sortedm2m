@@ -227,6 +227,19 @@ class TestCustomBaseClass(TestSortedManyToManyField):
         field = get_field(intermediate_model, 'diy_sort_number')
         self.assertTrue(field)
 
+    def test_through_defaults(self):
+        if django.VERSION >= (2, 2):
+            shelf = self.model.objects.create()
+            shelf.books.add(self.books[2], through_defaults={'diy_sort_number': 20})
+            shelf.books.add(self.books[1], through_defaults={'diy_sort_number': 10})
+            through_model = shelf.books.through
+            self.assertEqual(shelf.books.all()[0], self.books[1])
+            self.assertEqual(shelf.books.all()[1], self.books[2])
+            instance1 = through_model.objects.all()[0]
+            instance2 = through_model.objects.all()[1]
+            self.assertEqual(instance1.diy_sort_number, 10)
+            self.assertEqual(instance2.diy_sort_number, 20)
+
 
 class TestSelfReference(TestCase):
     def test_self_adding(self):

@@ -10,10 +10,16 @@ import example.testapp.views
 
 admin.autodiscover()
 
-def handle404(request):
-    return HttpResponse('404')
+if django.VERSION < (2, 2):
+    def handle404(request):
+        return HttpResponse('404')
+else:
+    def handle404(request, exception):
+        return HttpResponse('404')
+
 def handle500(request):
-    return HttpResponse('404')
+    return HttpResponse('500')
+
 
 handler404 = 'example.urls.handle404'
 handler500 = 'example.urls.handle500'
