@@ -92,10 +92,12 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
             super(SortedRelatedManager, self).set(objs, **kwargs)
         set.alters_data = True
 
-        def _add_items(self, source_field_name, target_field_name, *objs):
+        def _add_items(self, source_field_name, target_field_name, *objs, **kwargs):
             # source_field_name: the PK fieldname in join table for the source object
             # target_field_name: the PK fieldname in join table for the target object
             # *objs - objects to add. Either object instances, or primary keys of object instances.
+            # **kwargs: in Django >= 2.2; contains `through_defaults` key.
+            through_defaults = kwargs.get('through_default', {})
 
             # If there aren't any objects, there is nothing to do.
             from django.db.models import Max, Model
@@ -158,14 +160,17 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                     sort_field_name = self.through._sort_field_name
                     sort_value_max = source_queryset.aggregate(max=Max(sort_field_name))['max'] or 0
 
-                    manager.bulk_create([
-                        self.through(**{
+                    bulk_data = []
+                    for i, pk in enumerate(new_ids):
+                        defaults = {
                             '%s_id' % source_field_name: fk_val,
                             '%s_id' % target_field_name: pk,
                             sort_field_name: sort_value_max + i + 1,
-                        })
-                        for i, pk in enumerate(new_ids)
-                    ])
+                        }
+                        defaults.update(through_defaults)
+                        bulk_data.append(self.through(**defaults))
+
+                    manager.bulk_create(bulk_data)
 
                 if self.reverse or source_field_name == self.source_field_name:
                     # Don't send the signal when we are inserting the
