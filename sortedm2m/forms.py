@@ -23,6 +23,7 @@ else:
 class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     class Media:
         js = (
+            'admin/js/jquery.init.js',
             'sortedm2m/widget.js',
             'sortedm2m/jquery-ui.js',
         )
