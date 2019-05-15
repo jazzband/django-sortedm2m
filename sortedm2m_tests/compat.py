@@ -1,5 +1,12 @@
-try:
-    from unittest import skipIf
-except ImportError:
-    # Will raise deprecation warning in Django >= 1.8
-    from django.utils.unittest import skipIf
+import django
+import six
+
+
+StringIO = six.StringIO
+
+
+def m2m_set(instance, field_name, objs):
+    if django.VERSION > (1, 9):
+        getattr(instance, field_name).set(objs)
+    else:
+        setattr(instance, field_name, objs)

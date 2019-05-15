@@ -2,7 +2,7 @@
 django-sortedm2m
 ================
 
-|pypi-badge| |build-status|
+|build-status|
 
 ``sortedm2m`` is a drop-in replacement for django's own ``ManyToManyField``.
 The provided ``SortedManyToManyField`` behaves like the original one but
@@ -27,8 +27,8 @@ provided by this package as drop in replacement for django's
 Requirements
 ============
 
-**django-sortedm2m** runs on Python 2.6, 2.7, 3.2 and up. PyPy is supported as
-well. Django 1.6 and up is required.
+**django-sortedm2m** runs on Python 2.7, 3.6, 3.7 and up. Django 1.11 and up
+is required
 
 Usage
 =====

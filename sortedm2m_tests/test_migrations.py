@@ -3,45 +3,25 @@ import os
 import sys
 import shutil
 
-# Python 2 support.
-if sys.version_info < (3,):
-    from StringIO import StringIO
-else:
-    from io import StringIO
-
 import django
-# Django 1.5 support.
-if django.VERSION >= (1, 6):
-    from django.db.utils import OperationalError, ProgrammingError
+
+from django.db.utils import OperationalError, ProgrammingError
 from django.core.management import call_command
 from django.test import TestCase
 from django.test import TransactionTestCase
-from django.utils import six
 
 from sortedm2m.compat import get_apps_from_state, get_field, get_rel
 from sortedm2m_tests.migrations_tests.models import Gallery, Photo
-from .compat import skipIf
 from .utils import capture_stdout
+from .compat import m2m_set, StringIO
 
 
-str_ = six.text_type
-
-
-def m2m_set(instance, field_name, objs):
-    if django.VERSION > (1, 9):
-        getattr(instance, field_name).set(objs)
-    else:
-        setattr(instance, field_name, objs)
-
-
-@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
 class TestMigrateCommand(TransactionTestCase):
     def test_migrate(self):
         with capture_stdout():
             call_command('migrate', interactive=False)
 
 
-@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
 class TestMigrations(TransactionTestCase):
     def tearDown(self):
         # Remove created migrations.
@@ -100,7 +80,6 @@ class TestMigrations(TransactionTestCase):
         self.assertEqual(list(gallery.photos.values_list('name', flat=True)), ['B', 'C'])
 
 
-@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
 class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
     def setUp(self):
         from django.db.migrations.executor import MigrationExecutor

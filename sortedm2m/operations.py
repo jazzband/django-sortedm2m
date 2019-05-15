@@ -72,6 +72,7 @@ class AlterSortedManyToManyField(AlterField):
         schema_editor.remove_field(model, field)
 
     def make_sort_by_field(self, model):
-        field = models.IntegerField(name=model._sort_field_name, default=0)
-        field.set_attributes_from_name(model._sort_field_name)
+        field_name = model._sort_field_name
+        field = models.IntegerField(name=field_name, default=0)
+        field.set_attributes_from_name(field_name)
         return field
