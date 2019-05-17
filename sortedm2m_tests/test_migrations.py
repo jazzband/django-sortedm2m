@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 import shutil
 
-import django
-
-from django.db.utils import OperationalError, ProgrammingError
 from django.core.management import call_command
-from django.test import TestCase
+from django.db.utils import OperationalError, ProgrammingError
 from django.test import TransactionTestCase
-
 from sortedm2m.compat import get_apps_from_state, get_field, get_rel
 from sortedm2m_tests.migrations_tests.models import Gallery, Photo
+
+from .compat import m2m_set
 from .utils import capture_stdout
-from .compat import m2m_set, StringIO
 
 
 class TestMigrateCommand(TransactionTestCase):

@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-import django
+from unittest.case import skipIf
 
+import django
 from django.db import connection
 from django.db.models.fields import FieldDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.encoding import force_text
-
-from unittest.case import skipIf
 from sortedm2m.compat import get_field, get_rel
 
 from .compat import m2m_set
-from .models import (Book,
-                     Shelf, DoItYourselfShelf, TaggedDoItYourselfShelf,
-                     Store, SelfReference,)
+from .models import (Book, DoItYourselfShelf, SelfReference, Shelf, Store,
+                     TaggedDoItYourselfShelf)
 
 
 class TestSortedManyToManyField(TestCase):
@@ -243,8 +241,6 @@ class TestCustomThroughClass(TestSortedManyToManyField):
                          self.books[3:5] + [self.books[2]] + self.books[:2])
 
         through_model = shelf.books.through
-        print(through_model)
-        print(through_model.objects.all())
         rels = [(o.book_id, o.tags_diy_sort_number, o.tags) for o in through_model.objects.all()]
 
         self.assertEqual(rels, [

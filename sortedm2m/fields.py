@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from functools import partial
 
-from django.db import models
-from django.db import router
-from django.db import transaction
+from django.db import models, router, transaction
 from django.db.models import signals
-from django.db.models.fields.related import ManyToManyField as _ManyToManyField, \
-    resolve_relation, lazy_related_operation
-from django.db.models.fields.related_descriptors import ManyToManyDescriptor, \
-    create_forward_many_to_many_manager
+from django.db.models.fields.related import ManyToManyField as _ManyToManyField
+from django.db.models.fields.related import (lazy_related_operation,
+                                             resolve_relation)
+from django.db.models.fields.related_descriptors import (
+    ManyToManyDescriptor, create_forward_many_to_many_manager)
 from django.db.models.utils import make_model_tuple
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
@@ -16,7 +15,6 @@ from django.utils.translation import gettext_lazy as _
 
 from .compat import get_rel
 from .forms import SortedMultipleChoiceField
-
 
 SORT_VALUE_FIELD_NAME = 'sort_value'
 

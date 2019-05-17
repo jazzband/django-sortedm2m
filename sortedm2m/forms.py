@@ -1,22 +1,13 @@
 # -*- coding: utf-8 -*-
-import django
-import sys
+
 from itertools import chain
+
 from django import forms
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-
-
-if sys.version_info[0] < 3:
-    iteritems = lambda d: iter(d.iteritems())
-    string_types = basestring,
-    str_ = unicode
-else:
-    iteritems = lambda d: iter(d.items())
-    string_types = str,
-    str_ = str
+from django.utils.six import string_types
 
 
 class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
