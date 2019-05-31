@@ -66,6 +66,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
     'django.contrib.staticfiles',
+    'django.contrib.messages',
 
     'sortedm2m',
     'sortedm2m_tests',

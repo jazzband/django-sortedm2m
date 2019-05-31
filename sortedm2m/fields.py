@@ -47,14 +47,6 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
 
         get_query_set = get_queryset
 
-        if not hasattr(RelatedManager, '_get_fk_val'):
-            @property
-            def _fk_val(self):
-                # Django 1.5 support.
-                if not hasattr(self, 'related_val'):
-                    return self._pk_val
-                return self.related_val[0]
-
         def get_prefetch_queryset(self, instances, queryset=None):
             result = super(SortedRelatedManager, self).get_prefetch_queryset(instances, queryset)
             queryset = result[0]
@@ -71,10 +63,11 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
 
         set.alters_data = True
 
-        def _add_items(self, source_field_name, target_field_name, *objs):
+        def _add_items(self, source_field_name, target_field_name, *objs, **kwargs):
             # source_field_name: the PK fieldname in join table for the source object
             # target_field_name: the PK fieldname in join table for the target object
             # *objs - objects to add. Either object instances, or primary keys of object instances.
+            through_defaults = kwargs.get('through_defaults') or {}
 
             if objs:
                 # Django uses a set here, we need to use a list to keep the
@@ -87,14 +80,11 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                                 'Cannot add "%r": instance is on database "%s", value is on database "%s"' %
                                 (obj, self.instance._state.db, obj._state.db)
                             )
-                        if hasattr(self, '_get_fk_val'):  # Django>=1.5
-                            fk_val = self._get_fk_val(obj, target_field_name)
-                            if fk_val is None:
-                                raise ValueError('Cannot add "%r": the value for field "%s" is None' %
-                                                 (obj, target_field_name))
-                            new_ids.append(self._get_fk_val(obj, target_field_name))
-                        else:  # Django<1.5
-                            new_ids.append(obj.pk)
+                        fk_val = self.through._meta.get_field(target_field_name).get_foreign_related_value(obj)[0]
+                        if fk_val is None:
+                            raise ValueError('Cannot add "%r": the value for field "%s" is None' %
+                                             (obj, target_field_name))
+                        new_ids.append(fk_val)
                     elif isinstance(obj, Model):
                         raise TypeError(
                             "'%s' instance expected, got %r" % (self.model._meta.object_name, obj)
@@ -104,21 +94,13 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
 
                 db = router.db_for_write(self.through, instance=self.instance)
                 manager = self.through._default_manager.using(db)
-                vals = (manager
-                        .values_list(target_field_name, flat=True)
-                        .filter(**{
-                    source_field_name: self._fk_val,
-                    '%s__in' % target_field_name: new_ids,
-                }))
-                for val in vals:
-                    if val in new_ids:
-                        new_ids.remove(val)
-                _new_ids = []
-                for pk in new_ids:
-                    if pk not in _new_ids:
-                        _new_ids.append(pk)
-                new_ids = _new_ids
+                params = {source_field_name: self.related_val[0], '%s__in' % target_field_name: new_ids}
+                vals = set(self.through._default_manager.using(db).filter(**params)
+                           .values_list(target_field_name, flat=True))
+
                 new_ids_set = set(new_ids)
+                new_ids_set.difference_update(vals)
+                new_ids = [_id for _id in new_ids if _id in new_ids_set]
 
                 if self.reverse or source_field_name == self.source_field_name:
                     # Don't send the signal when we are inserting the
@@ -129,26 +111,34 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
 
                 # Add the ones that aren't there already
                 with transaction.atomic(using=db):
-                    fk_val = self._fk_val
-                    source_queryset = manager.filter(**{'%s_id' % source_field_name: fk_val})
+                    if self.reverse or source_field_name == self.source_field_name:
+                        signals.m2m_changed.send(
+                            sender=rel.through, action='pre_add', instance=self.instance,
+                            reverse=self.reverse, model=self.model, pk_set=new_ids_set, using=db
+                        )
+
+                    rel_source_fk = self.related_val[0]
                     sort_field_name = self.through._sort_field_name
+                    source_queryset = manager.filter(**{'%s_id' % source_field_name: rel_source_fk})
                     sort_value_max = source_queryset.aggregate(max=Max(sort_field_name))['max'] or 0
 
-                    manager.bulk_create([
-                        self.through(**{
-                            '%s_id' % source_field_name: fk_val,
-                            '%s_id' % target_field_name: pk,
-                            sort_field_name: sort_value_max + i + 1,
-                        })
-                        for i, pk in enumerate(new_ids)
-                    ])
+                    bulk_data = [
+                        {**through_defaults, **{
+                            '%s_id' % source_field_name: rel_source_fk,
+                            '%s_id' % target_field_name: obj_id,
+                            sort_field_name: i,
+                        }} for i, obj_id in enumerate(new_ids, sort_value_max + 1)
+                    ]
 
-                if self.reverse or source_field_name == self.source_field_name:
-                    # Don't send the signal when we are inserting the
-                    # duplicate data row for symmetrical reverse entries.
-                    signals.m2m_changed.send(sender=rel.through, action='post_add',
-                                             instance=self.instance, reverse=self.reverse,
-                                             model=self.model, pk_set=new_ids_set, using=db)
+                    manager.bulk_create([self.through(**data) for data in bulk_data])
+
+                    if self.reverse or source_field_name == self.source_field_name:
+                        # Don't send the signal when we are inserting the
+                        # duplicate data row for symmetrical reverse entries.
+                        signals.m2m_changed.send(
+                            sender=rel.through, action='post_add', instance=self.instance,
+                            reverse=self.reverse, model=self.model, pk_set=new_ids_set, using=db
+                        )
 
     return SortedRelatedManager
 
@@ -160,13 +150,7 @@ class SortedManyToManyDescriptor(ManyToManyDescriptor):
     @cached_property
     def related_manager_cls(self):
         model = self.rel.model
-        return create_sorted_many_related_manager(
-            model._default_manager.__class__,
-            self.rel,
-            # This is the new `reverse` argument (which ironically should
-            # be False)
-            reverse=False,
-        )
+        return create_sorted_many_related_manager(model._default_manager.__class__, self.rel, reverse=False)
 
 
 class SortedManyToManyField(_ManyToManyField):
@@ -239,13 +223,6 @@ class SortedManyToManyField(_ManyToManyField):
                 field.remote_field.through = model
 
             add_lazy_relation(cls, self, rel.through, resolve_through_model)
-
-        if hasattr(cls._meta, 'duplicate_targets'):  # Django<1.5
-            if isinstance(rel_to, str):
-                target = rel_to
-            else:
-                target = rel_to._meta.db_table
-            cls._meta.duplicate_targets[self.column] = (target, "m2m")
 
     def get_internal_type(self):
         return 'ManyToManyField'
@@ -345,10 +322,7 @@ class SortedManyToManyField(_ManyToManyField):
         from_field_name, from_field = self.get_intermediate_model_from_field(klass)
         to_field_name, to_field = self.get_intermediate_model_to_field(klass)
         sort_value_field_name, sort_value_field = self.get_intermediate_model_sort_value_field(klass)
-        meta = self.get_intermediate_model_meta_class(klass,
-                                                      from_field_name,
-                                                      to_field_name,
-                                                      sort_value_field_name)
+        meta = self.get_intermediate_model_meta_class(klass, from_field_name, to_field_name, sort_value_field_name)
 
         attrs = {
             'Meta': meta,
