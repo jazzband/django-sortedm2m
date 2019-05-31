@@ -22,10 +22,8 @@ class Book(models.Model):
 
 
 class DoItYourselfShelf(models.Model):
-    books = SortedManyToManyField(Book,
-        sort_value_field_name='diy_sort_number',
-        related_name='diy_shelves',
-        base_class=BaseBookThrough)
+    books = SortedManyToManyField(Book, sort_value_field_name='diy_sort_number',
+                                  related_name='diy_shelves', base_class=BaseBookThrough)
 
 
 class Store(models.Model):
@@ -33,9 +31,7 @@ class Store(models.Model):
 
 
 class MessyStore(models.Model):
-    books = SortedManyToManyField('Book',
-        sorted=False,
-        related_name='messy_stores')
+    books = SortedManyToManyField('Book', sorted=False, related_name='messy_stores')
 
 
 class SelfReference(models.Model):

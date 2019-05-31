@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import models, migrations
 import sortedm2m.fields
 
 
 class Migration(migrations.Migration):
+    initial = True
 
     dependencies = [
     ]
@@ -21,7 +19,6 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Photo',
                 'verbose_name_plural': 'Photos',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Photo',
@@ -33,7 +30,6 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Photo',
                 'verbose_name_plural': 'Photos',
             },
-            bases=(models.Model,),
         ),
         migrations.AddField(
             model_name='gallery',

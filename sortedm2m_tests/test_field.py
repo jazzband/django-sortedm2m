@@ -4,8 +4,6 @@ from django.db.models.fields import FieldDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from sortedm2m.compat import get_field, get_rel
-
 from .models import Book, Shelf, DoItYourselfShelf, Store, SelfReference
 
 
@@ -207,15 +205,11 @@ class TestCustomBaseClass(TestSortedManyToManyField):
 
         self.assertEqual(len(self.model._meta.many_to_many), 1)
         sortedm2m = self.model._meta.many_to_many[0]
-        intermediate_model = get_rel(sortedm2m).through
+        intermediate_model = sortedm2m.remote_field.through
 
         # make sure that standard sort field is not used
-        self.assertRaises(
-            FieldDoesNotExist,
-            get_field,
-            intermediate_model, SORT_VALUE_FIELD_NAME)
-
-        field = get_field(intermediate_model, 'diy_sort_number')
+        self.assertRaises(FieldDoesNotExist, intermediate_model._meta.get_field, SORT_VALUE_FIELD_NAME)
+        field = intermediate_model._meta.get_field('diy_sort_number')
         self.assertTrue(field)
 
 

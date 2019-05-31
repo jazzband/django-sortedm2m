@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os, sys
-import pytest
 from django.core.management import execute_from_command_line
 
 

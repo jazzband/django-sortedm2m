@@ -2,14 +2,11 @@
 import os
 import shutil
 
-import django
 from django.db.utils import OperationalError, ProgrammingError
 from django.core.management import call_command
 from django.test import TransactionTestCase
 
-from sortedm2m.compat import get_apps_from_state, get_field, get_rel
-from sortedm2m_tests.migrations_tests.models import Gallery, Photo
-from .compat import skipIf
+from .migrations_tests.models import Gallery, Photo
 from .utils import capture_stdout
 
 
@@ -17,14 +14,12 @@ def m2m_set(instance, field_name, objs):
     getattr(instance, field_name).set(objs)
 
 
-@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
 class TestMigrateCommand(TransactionTestCase):
     def test_migrate(self):
         with capture_stdout():
             call_command('migrate', interactive=False)
 
 
-@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
 class TestMigrations(TransactionTestCase):
     def tearDown(self):
         # Remove created migrations.
@@ -83,7 +78,6 @@ class TestMigrations(TransactionTestCase):
         self.assertEqual(list(gallery.photos.values_list('name', flat=True)), ['B', 'C'])
 
 
-@skipIf(django.VERSION < (1, 7), 'New migrations framework only available in Django >= 1.7')
 class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
     def setUp(self):
         from django.db.migrations.executor import MigrationExecutor
@@ -96,8 +90,8 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
             ('altersortedmanytomanyfield_tests', '0001_initial'))
         self.state_0002 = self.migration_loader.project_state(
             ('altersortedmanytomanyfield_tests', '0002_alter_m2m_fields'))
-        self.state_0001_apps = get_apps_from_state(self.state_0001)
-        self.state_0002_apps = get_apps_from_state(self.state_0002)
+        self.state_0001_apps = self.state_0001.apps
+        self.state_0002_apps = self.state_0002.apps
 
         # Make sure we are at the latest migration when starting the test.
         with capture_stdout():
@@ -122,8 +116,8 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
         t2 = Target.objects.create(pk=2)
         t3 = Target.objects.create(pk=3)
 
-        field = get_field(M2MToSortedM2M,'m2m')
-        through_model = get_rel(field).through
+        field = M2MToSortedM2M._meta.get_field('m2m')
+        through_model = field.remote_field.through
         # No ordering is in place.
         self.assertTrue(not through_model._meta.ordering)
 
@@ -148,8 +142,8 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
         t2 = Target.objects.get(pk=2)
         t3 = Target.objects.get(pk=3)
 
-        field = get_field(M2MToSortedM2M,'m2m')
-        through_model = get_rel(field).through
+        field = M2MToSortedM2M._meta.get_field('m2m')
+        through_model = field.remote_field.through
         # Now, ordering is there.
         self.assertTrue(list(through_model._meta.ordering), ['sort_value'])
 
