@@ -68,6 +68,7 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
             # Choosing to clear first will ensure the order is maintained.
             kwargs['clear'] = True
             super(SortedRelatedManager, self).set(objs, **kwargs)
+
         set.alters_data = True
 
         def _add_items(self, source_field_name, target_field_name, *objs):
@@ -106,9 +107,9 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                 vals = (manager
                         .values_list(target_field_name, flat=True)
                         .filter(**{
-                            source_field_name: self._fk_val,
-                            '%s__in' % target_field_name: new_ids,
-                        }))
+                    source_field_name: self._fk_val,
+                    '%s__in' % target_field_name: new_ids,
+                }))
                 for val in vals:
                     if val in new_ids:
                         new_ids.remove(val)
@@ -123,8 +124,8 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                     # Don't send the signal when we are inserting the
                     # duplicate data row for symmetrical reverse entries.
                     signals.m2m_changed.send(sender=rel.through, action='pre_add',
-                        instance=self.instance, reverse=self.reverse,
-                        model=self.model, pk_set=new_ids_set, using=db)
+                                             instance=self.instance, reverse=self.reverse,
+                                             model=self.model, pk_set=new_ids_set, using=db)
 
                 # Add the ones that aren't there already
                 with transaction.atomic(using=db):
@@ -146,8 +147,8 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                     # Don't send the signal when we are inserting the
                     # duplicate data row for symmetrical reverse entries.
                     signals.m2m_changed.send(sender=rel.through, action='post_add',
-                        instance=self.instance, reverse=self.reverse,
-                        model=self.model, pk_set=new_ids_set, using=db)
+                                             instance=self.instance, reverse=self.reverse,
+                                             model=self.model, pk_set=new_ids_set, using=db)
 
     return SortedRelatedManager
 
@@ -180,6 +181,7 @@ class SortedManyToManyField(_ManyToManyField):
     Accept a class ``base_class`` attribute which specifies the base class of
     the intermediate model. It allows to customize the intermediate model.
     """
+
     def __init__(self, to, sorted=True, base_class=None, **kwargs):
         self.sorted = sorted
         self.sort_value_field_name = kwargs.pop('sort_value_field_name', SORT_VALUE_FIELD_NAME)
@@ -235,6 +237,7 @@ class SortedManyToManyField(_ManyToManyField):
         if isinstance(rel.through, str):
             def resolve_through_model(field, model, cls):
                 field.remote_field.through = model
+
             add_lazy_relation(cls, self, rel.through, resolve_through_model)
 
         if hasattr(cls._meta, 'duplicate_targets'):  # Django<1.5
@@ -268,6 +271,7 @@ class SortedManyToManyField(_ManyToManyField):
             if to_model != RECURSIVE_RELATIONSHIP_CONSTANT:
                 def set_managed(field, model, cls):
                     field.remote_field.through._meta.managed = model._meta.managed or cls._meta.managed
+
                 add_lazy_relation(klass, self, to_model, set_managed)
             else:
                 managed = klass._meta.managed
@@ -284,6 +288,7 @@ class SortedManyToManyField(_ManyToManyField):
             'ordering': (sort_value_field_name,),
             'verbose_name': '%(from)s-%(to)s relationship' % {'from': from_field_name, 'to': to_field_name},
             'verbose_name_plural': '%(from)s-%(to)s relationships' % {'from': from_field_name, 'to': to_field_name},
+            'apps': self.model._meta.apps,
         }
         return type(str('Meta'), (object,), options)
 
@@ -327,7 +332,7 @@ class SortedManyToManyField(_ManyToManyField):
         else:
             field_name = to_object_name.lower()
 
-        field = models.ForeignKey(to_model, related_name='%s+' % name,**get_foreignkey_field_kwargs(self))
+        field = models.ForeignKey(to_model, related_name='%s+' % name, **get_foreignkey_field_kwargs(self))
         return field_name, field
 
     def create_intermediate_model_from_attrs(self, klass, attrs):

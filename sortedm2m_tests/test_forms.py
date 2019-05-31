@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.test import TestCase
+
 from sortedm2m.forms import SortedMultipleChoiceField
 from .models import Book, Shelf, MessyStore
 
@@ -33,9 +34,9 @@ class TestSortedFormField(TestCase):
         form = SortedForm({'values': [self.d.pk, self.b.pk, self.i.pk]})
         self.assertTrue(form.is_valid())
         self.assertEqual(list(form.cleaned_data['values']), [
-                self.books[3],
-                self.books[1],
-                self.books[8]])
+            self.books[3],
+            self.books[1],
+            self.books[8]])
 
         form = SortedForm({'values': [book.pk for book in self.books[::-1]]})
         self.assertTrue(form.is_valid())
@@ -45,9 +46,9 @@ class TestSortedFormField(TestCase):
         form = SortedNameForm({'values': ['d', 'b', 'i']})
         self.assertTrue(form.is_valid())
         self.assertEqual(list(form.cleaned_data['values']), [
-                self.books[3],
-                self.books[1],
-                self.books[8]])
+            self.books[3],
+            self.books[1],
+            self.books[8]])
 
         form = SortedNameForm({'values': [book.name for book in self.books[::-1]]})
         self.assertTrue(form.is_valid())

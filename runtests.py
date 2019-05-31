@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, sys
-from django.core.management import execute_from_command_line
+import os
+import sys
 
+from django.core.management import execute_from_command_line
 
 parent = os.path.dirname(os.path.abspath(__file__))
 
@@ -11,7 +12,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "test_project.settings")
 
 
 def runtests(*args):
-
     test_apps = list(args or ['sortedm2m_tests'])
     execute_from_command_line([sys.argv[0], 'test', '--verbosity=1'] + test_apps)
 

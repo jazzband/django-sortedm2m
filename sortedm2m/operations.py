@@ -29,7 +29,7 @@ class AlterSortedManyToManyField(AlterField):
                     '{operation} should only be used when changing a '
                     'SortedManyToManyField into a ManyToManyField or a '
                     'ManyToManyField into a SortedManyToManyField.'
-                    .format(operation=self.__class__.__name__))
+                        .format(operation=self.__class__.__name__))
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         from_apps = from_state.apps
@@ -56,7 +56,7 @@ class AlterSortedManyToManyField(AlterField):
                     '{operation} should only be used when changing a '
                     'SortedManyToManyField into a ManyToManyField or a '
                     'ManyToManyField into a SortedManyToManyField.'
-                    .format(operation=self.__class__.__name__))
+                        .format(operation=self.__class__.__name__))
 
     def add_sort_value_field(self, schema_editor, model):
         field = self.make_sort_by_field(model)

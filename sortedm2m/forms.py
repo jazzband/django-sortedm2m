@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from itertools import chain
+
 from django import forms
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -51,7 +52,8 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             option_value = force_text(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_text(option_label))
-            item = {'label_for': label_for, 'rendered_cb': rendered_cb, 'option_label': option_label, 'option_value': option_value}
+            item = {'label_for': label_for, 'rendered_cb': rendered_cb, 'option_label': option_label,
+                    'option_value': option_value}
             if option_value in str_values:
                 selected.append(item)
             else:

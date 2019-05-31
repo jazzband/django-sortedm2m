@@ -145,19 +145,19 @@ class TestSortedManyToManyField(TestCase):
         shelf.books.remove(self.books[2], str(self.books[4].pk))
         self.assertEqual(list(shelf.books.all()), [])
 
-#    def test_add_relation_by_hand(self):
-#        shelf = self.model.objects.create()
-#        shelf.books = self.books[2:5]
-#        self.assertEqual(list(shelf.books.all()), [
-#            self.books[2],
-#            self.books[3],
-#            self.books[4]])
-#
-#        shelf.books.create()
-#        self.assertEqual(list(shelf.books.all()), [
-#            self.books[2],
-#            self.books[3],
-#            self.books[4]])
+    #    def test_add_relation_by_hand(self):
+    #        shelf = self.model.objects.create()
+    #        shelf.books = self.books[2:5]
+    #        self.assertEqual(list(shelf.books.all()), [
+    #            self.books[2],
+    #            self.books[3],
+    #            self.books[4]])
+    #
+    #        shelf.books.create()
+    #        self.assertEqual(list(shelf.books.all()), [
+    #            self.books[2],
+    #            self.books[3],
+    #            self.books[4]])
 
     # to enable population of connection.queries
     @override_settings(DEBUG=True)
@@ -176,8 +176,10 @@ class TestSortedManyToManyField(TestCase):
         m2m_set(shelf, "books", books)
 
         shelf = self.model.objects.filter(pk=shelf.pk).prefetch_related('books')[0]
+
         def get_ids(queryset):
             return [obj.id for obj in queryset]
+
         self.assertEqual(get_ids(shelf.books.all()), get_ids(books))
 
 
@@ -222,13 +224,13 @@ class TestSelfReference(TestCase):
         s1.me.add(s3)
         s1.me.add(s4, s2)
 
-        self.assertEqual(list(s1.me.all()), [s3,s4,s2])
+        self.assertEqual(list(s1.me.all()), [s3, s4, s2])
 
 
 class TestDjangoManyToManyFieldNotAvailableThroughSortedM2M(TestCase):
     @staticmethod
     def _import_django_many_to_many_through_sortedm2m():
-        from sortedm2m.fields import ManyToManyField
+        pass
 
     def test_many_to_many_field_not_available(self):
         self.assertRaises(

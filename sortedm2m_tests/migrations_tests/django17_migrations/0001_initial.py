@@ -1,4 +1,5 @@
 from django.db import models, migrations
+
 import sortedm2m.fields
 
 

@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'sortedm2m',
     'sortedm2m_tests',
     'sortedm2m_tests.migrations_tests',
+    'sortedm2m_tests.altersortedmanytomanyfield_tests',
 
     'example.testapp',
 )

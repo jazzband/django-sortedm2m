@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import django.views.static
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.conf import settings
 from django.http import HttpResponse
 
 import example.testapp.views

@@ -2,8 +2,8 @@
 import os
 import shutil
 
-from django.db.utils import OperationalError, ProgrammingError
 from django.core.management import call_command
+from django.db.utils import OperationalError, ProgrammingError
 from django.test import TransactionTestCase
 
 from .migrations_tests.models import Gallery, Photo
@@ -102,7 +102,6 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
             call_command('migrate', 'altersortedmanytomanyfield_tests', '0001')
 
     def test_operation_m2m_to_sorted_m2m(self):
-
         # Let's start with state after 0001
         with capture_stdout():
             call_command('migrate', 'altersortedmanytomanyfield_tests', '0001')
@@ -120,7 +119,6 @@ class TestAlterSortedManyToManyFieldOperation(TransactionTestCase):
         through_model = field.remote_field.through
         # No ordering is in place.
         self.assertTrue(not through_model._meta.ordering)
-
 
         instance = M2MToSortedM2M.objects.create(pk=1)
         instance.m2m.add(t3)
