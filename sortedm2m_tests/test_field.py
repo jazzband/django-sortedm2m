@@ -230,7 +230,7 @@ class TestSelfReference(TestCase):
 class TestDjangoManyToManyFieldNotAvailableThroughSortedM2M(TestCase):
     @staticmethod
     def _import_django_many_to_many_through_sortedm2m():
-        pass
+        from sortedm2m.fields import ManyToManyField
 
     def test_many_to_many_field_not_available(self):
         self.assertRaises(
