@@ -1,45 +1,25 @@
 language: python
+cache: pip
+dist: xenial
 sudo: false
+services:
+  - postgresql
+  - mysql
+
+python:
+  - 3.6
+  - 3.7
+
 matrix:
+  fast_finish: true
   include:
-    - { python: 2.6, env: TOXENV=py26-15 }
-    - { python: 2.6, env: TOXENV=py26-16 }
-    - { python: 2.7, env: TOXENV=py27-15 }
-    - { python: 2.7, env: TOXENV=py27-16 }
-    - { python: 2.7, env: TOXENV=py27-17 }
-    - { python: 2.7, env: TOXENV=py27-18 }
-    - { python: 2.7, env: TOXENV=py27-18-postgres }
-    - { python: 2.7, env: TOXENV=py27-18-mysql }
-    - { python: 2.7, env: TOXENV=py27-19 }
-    - { python: 2.7, env: TOXENV=py27-110 }
-    - { python: 2.7, env: TOXENV=py27-111 }
-    - { python: pypy, env: TOXENV=pypy-15 }
-    - { python: pypy, env: TOXENV=pypy-16 }
-    - { python: pypy, env: TOXENV=pypy-17 }
-    - { python: pypy, env: TOXENV=pypy-18 }
-    - { python: pypy, env: TOXENV=pypy-18-mysql }
-    - { python: pypy, env: TOXENV=pypy-19 }
-    - { python: pypy, env: TOXENV=pypy-110 }
-    - { python: pypy, env: TOXENV=pypy-111 }
-    - { python: 3.3, env: TOXENV=py33-16 }
-    - { python: 3.3, env: TOXENV=py33-17 }
-    - { python: 3.3, env: TOXENV=py33-18 }
-    - { python: 3.4, env: TOXENV=py34-16 }
-    - { python: 3.4, env: TOXENV=py34-17 }
-    - { python: 3.4, env: TOXENV=py34-18 }
-    - { python: 3.4, env: TOXENV=py34-19 }
-    - { python: 3.4, env: TOXENV=py34-110 }
-    - { python: 3.4, env: TOXENV=py34-111 }
-    - { python: 3.5, env: TOXENV=py35-18 }
-    - { python: 3.5, env: TOXENV=py35-18-postgres }
-    - { python: 3.5, env: TOXENV=py35-19 }
-    - { python: 3.5, env: TOXENV=py35-110 }
-    - { python: 3.5, env: TOXENV=py35-111 }
-    - { python: 3.6, env: TOXENV=py36-111 }
-    - { python: 3.6, env: TOXENV=py36-master-postgres }
-  allow_failures:
-    - env: TOXENV=py36-master-postgres
-before_install:
+    - python: "3.6"
+      env: TOXENV=coverage
+
+install:
+  - pip install tox tox-travis
+
+before_script:
   - export PIP_USE_MIRRORS=true
   - export DJANGO_SETTINGS_MODULE=test_settings
   # Postgres setup.
@@ -49,10 +29,10 @@ before_install:
   # MySQL setup.
   - echo "CREATE USER 'sortedm2m'@'localhost' IDENTIFIED BY 'sortedm2m';" | mysql -u root
   - echo "GRANT ALL PRIVILEGES ON *.* TO 'sortedm2m'@'localhost' WITH GRANT OPTION;" | mysql -u root
-install:
-  - pip install tox
+
 script:
-  - tox -v
+  - tox
+
 deploy:
   provider: pypi
   user: gremu
@@ -61,4 +41,4 @@ deploy:
   on:
     tags: true
     repo: gregmuellegger/django-sortedm2m
-    condition: "$TOX_ENV = py35-18"
+    condition: "$TOXENV = py36-dj22"

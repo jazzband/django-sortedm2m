@@ -1,10 +1,7 @@
 # Django settings for testsite project.
 import os
-import django
-
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
-
 DEBUG = True
 
 ADMINS = (
@@ -51,23 +48,15 @@ STATIC_URL = '/static/'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'define in local settings file'
 
-if django.VERSION >= (1, 10):
-    MIDDLEWARE = [
-        'django.middleware.security.SecurityMiddleware',
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    ]
-else:
-    MIDDLEWARE_CLASSES = (
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    )
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
 ROOT_URLCONF = 'example.urls'
 
@@ -77,6 +66,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
     'django.contrib.staticfiles',
+    'django.contrib.messages',
 
     'sortedm2m',
     'sortedm2m_tests',
@@ -91,48 +81,28 @@ MIGRATION_MODULES = {
     'altersortedmanytomanyfield_tests': 'sortedm2m_tests.altersortedmanytomanyfield_tests.django17_migrations',
 }
 
-import django
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-if django.VERSION >= (1, 6):
-    TEST_RUNNER = 'django.test.runner.DiscoverRunner'
-
-# Only test south for django versions lower as 1.7
-# 1.7 introduced it's own migrations framework
-if django.VERSION < (1, 7):
-    INSTALLED_APPS = INSTALLED_APPS + (
-        'south',
-        'test_south_support',
-        'test_south_support.south_support_new_model',
-        'test_south_support.south_support_new_field',
-        'test_south_support.south_support_custom_sort_field_name',
-    )
-
-if django.VERSION >= (1, 8):
-    TEMPLATES = [
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [
-                os.path.join(PROJECT_ROOT, 'templates'),
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(PROJECT_ROOT, 'templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
             ],
-            'APP_DIRS': True,
-            'OPTIONS': {
-                'context_processors': [
-                    'django.contrib.auth.context_processors.auth',
-                    'django.template.context_processors.debug',
-                    'django.template.context_processors.i18n',
-                    'django.template.context_processors.media',
-                    'django.template.context_processors.static',
-                    'django.template.context_processors.tz',
-                    'django.contrib.messages.context_processors.messages',
-                ],
-            },
         },
-    ]
-else:
-    TEMPLATE_DIRS = (
-        os.path.join(PROJECT_ROOT, 'templates'),
-    )
-    TEMPLATE_DEBUG = DEBUG
+    },
+]
 
 try:
     from local_settings import *

@@ -2,12 +2,12 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+
 import sortedm2m.fields
 import sortedm2m.operations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('altersortedmanytomanyfield_tests', '0001_initial'),
     ]

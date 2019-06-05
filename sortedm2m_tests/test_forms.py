@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.test import TestCase
-from django.utils import six
+
 from sortedm2m.forms import SortedMultipleChoiceField
-from .models import Book, Shelf, Store, MessyStore
-
-
-str_ = six.text_type
+from .models import Book, Shelf, MessyStore
 
 
 class SortedForm(forms.Form):
@@ -37,9 +34,9 @@ class TestSortedFormField(TestCase):
         form = SortedForm({'values': [self.d.pk, self.b.pk, self.i.pk]})
         self.assertTrue(form.is_valid())
         self.assertEqual(list(form.cleaned_data['values']), [
-                self.books[3],
-                self.books[1],
-                self.books[8]])
+            self.books[3],
+            self.books[1],
+            self.books[8]])
 
         form = SortedForm({'values': [book.pk for book in self.books[::-1]]})
         self.assertTrue(form.is_valid())
@@ -49,9 +46,9 @@ class TestSortedFormField(TestCase):
         form = SortedNameForm({'values': ['d', 'b', 'i']})
         self.assertTrue(form.is_valid())
         self.assertEqual(list(form.cleaned_data['values']), [
-                self.books[3],
-                self.books[1],
-                self.books[8]])
+            self.books[3],
+            self.books[1],
+            self.books[8]])
 
         form = SortedNameForm({'values': [book.name for book in self.books[::-1]]})
         self.assertTrue(form.is_valid())
@@ -93,22 +90,22 @@ class TestSortedFormField(TestCase):
 
     def test_for_attribute_in_label(self):
         form = SortedForm()
-        rendered = str_(form['values'])
+        rendered = str(form['values'])
         self.assertTrue(' for="id_values_0"' in rendered)
 
         form = SortedForm(prefix='prefix')
-        rendered = str_(form['values'])
+        rendered = str(form['values'])
         self.assertTrue(' for="id_prefix-values_0"' in rendered)
 
         # check that it will be escaped properly
 
         form = SortedForm(prefix='hacking"><a href="TRAP">')
-        rendered = str_(form['values'])
+        rendered = str(form['values'])
         self.assertTrue(' for="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
 
     def test_input_id_is_escaped(self):
         form = SortedForm(prefix='hacking"><a href="TRAP">')
-        rendered = str_(form['values'])
+        rendered = str(form['values'])
         self.assertTrue(' id="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
 
     def test_form_field_detects_reordering(self):

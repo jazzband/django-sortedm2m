@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
-try:
-    from django.utils.encoding import force_text
-except ImportError:
-    from django.utils.encoding import force_unicode as force_text
+from django.utils.encoding import force_text
+
 from sortedm2m.fields import SortedManyToManyField
 
 
@@ -18,7 +15,6 @@ class Shelf(models.Model):
     books = SortedManyToManyField('Book', related_name='shelves', base_class=BaseBookThrough)
 
 
-@python_2_unicode_compatible
 class Book(models.Model):
     name = models.CharField(max_length=50)
 
@@ -27,10 +23,8 @@ class Book(models.Model):
 
 
 class DoItYourselfShelf(models.Model):
-    books = SortedManyToManyField(Book,
-        sort_value_field_name='diy_sort_number',
-        related_name='diy_shelves',
-        base_class=BaseBookThrough)
+    books = SortedManyToManyField(Book, sort_value_field_name='diy_sort_number',
+                                  related_name='diy_shelves', base_class=BaseBookThrough)
 
 
 class Store(models.Model):
@@ -38,12 +32,9 @@ class Store(models.Model):
 
 
 class MessyStore(models.Model):
-    books = SortedManyToManyField('Book',
-        sorted=False,
-        related_name='messy_stores')
+    books = SortedManyToManyField('Book', sorted=False, related_name='messy_stores')
 
 
-@python_2_unicode_compatible
 class SelfReference(models.Model):
     me = SortedManyToManyField('self', related_name='hide+')
 
