@@ -2,14 +2,25 @@
 django-sortedm2m
 ================
 
-|pypi-badge| |build-status|
+.. image:: https://jazzband.co/static/img/badge.svg
+   :target: https://jazzband.co/
+   :alt: Jazzband
+
+.. image:: https://img.shields.io/pypi/v/django-sortedm2m.svg
+   :target: https://pypi.python.org/pypi/django-sortedm2m
+   :alt: PyPI Release
+
+.. image:: https://travis-ci.org/jazzband/django-sortedm2m.svg?branch=master
+   :target: https://travis-ci.org/jazzband/django-sortedm2m
+   :alt: Build Status
+
 
 ``sortedm2m`` is a drop-in replacement for django's own ``ManyToManyField``.
 The provided ``SortedManyToManyField`` behaves like the original one but
 remembers the order of added relations.
 
-Usecases
-========
+Use Cases
+=========
 
 Imagine that you have a gallery model and a photo model. Usually you want a
 relation between these models so you can add multiple photos to one gallery
@@ -188,20 +199,3 @@ against a PostgreSQL database.
 
 .. _vagrant: http://www.vagrantup.com/
 .. _install vagrant: http://www.vagrantup.com/downloads
-
-Get in touch
-------------
-
-Feel free to drop me a message about critique or feature requests. You can get
-in touch with me by mail_ or twitter_.
-
-.. _mail: mailto:gregor@muellegger.de
-.. _twitter: http://twitter.com/gregmuellegger
-
-.. |pypi-badge| image:: https://img.shields.io/pypi/v/django-sortedm2m.svg
-   :alt: PyPI Release
-   :target: https://pypi.python.org/pypi/django-sortedm2m
-
-.. |build-status| image:: https://travis-ci.org/gregmuellegger/django-sortedm2m.png
-   :alt: Build Status
-   :target: https://travis-ci.org/gregmuellegger/django-sortedm2m
