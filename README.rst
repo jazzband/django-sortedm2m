@@ -27,8 +27,7 @@ provided by this package as drop in replacement for django's
 Requirements
 ============
 
-**django-sortedm2m** runs on Python 2.6, 2.7, 3.2 and up. PyPy is supported as
-well. Django 1.6 and up is required.
+**django-sortedm2m** runs on Python 2.7, 3.4 and up. PyPy is supported as well. Django 1.11 is required.
 
 Usage
 =====

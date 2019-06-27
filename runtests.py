@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import os, sys, warnings
 
+import os
+import sys
+import warnings
 
 parent = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,21 +16,9 @@ import django
 from django.core.management import execute_from_command_line
 
 
-if django.VERSION < (1, 6):
-    default_test_apps = [
-        'sortedm2m_tests',
-        'test_south_support',
-    ]
-else:
-    default_test_apps = [
-        'sortedm2m_tests',
-    ]
-
-    # Only test south support for Django 1.6 and lower.
-    if django.VERSION < (1, 7):
-        default_test_apps += [
-            'test_south_support',
-        ]
+default_test_apps = [
+    'sortedm2m_tests',
+]
 
 
 def runtests(*args):
