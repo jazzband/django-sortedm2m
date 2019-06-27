@@ -172,11 +172,13 @@ Example::
 
 Contribute
 ==========
+This is a `Jazzband <https://jazzband.co>`_ project. By contributing you agree to abide by the
+`Contributor Code of Conduct <https://jazzband.co/about/conduct>`_ and follow the
+`guidelines <https://jazzband.co/about/guidelines>`_.
 
-You can find the latest development version on github_. Get there and fork it,
-file bugs or send me nice wishes.
+You can find the latest development version on Github_. Get there and fork it, file bugs or send well wishes.
 
-.. _github: http://github.com/gregmuellegger/django-sortedm2m
+.. _github: http://github.com/jazzband/django-sortedm2m
 
 Running the tests
 -----------------
