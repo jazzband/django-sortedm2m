@@ -96,17 +96,6 @@ import django
 if django.VERSION >= (1, 6):
     TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-# Only test south for django versions lower as 1.7
-# 1.7 introduced it's own migrations framework
-if django.VERSION < (1, 7):
-    INSTALLED_APPS = INSTALLED_APPS + (
-        'south',
-        'test_south_support',
-        'test_south_support.south_support_new_model',
-        'test_south_support.south_support_new_field',
-        'test_south_support.south_support_custom_sort_field_name',
-    )
-
 if django.VERSION >= (1, 8):
     TEMPLATES = [
         {

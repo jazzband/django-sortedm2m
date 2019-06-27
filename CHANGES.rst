@@ -3,6 +3,9 @@ Changelog
 
 1.5.1 (in development)
 ----------------------
+* `#136`_ Dropped support for Python 2.6 and 3.3, and Django < 1.11
+
+.. _#136: https://github.com/gregmuellegger/django-sortedm2m/pull/136
 
 1.5.0
 -----
