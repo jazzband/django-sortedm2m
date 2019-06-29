@@ -1,17 +1,9 @@
 # Django settings for testsite project.
 import os
-import django
-
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = True
-
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-
-MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
@@ -101,8 +93,3 @@ TEMPLATES = [
         },
     },
 ]
-
-try:
-    from local_settings import *
-except ImportError:
-    pass

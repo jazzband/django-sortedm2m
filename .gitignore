@@ -6,7 +6,8 @@
 coverage.xml
 db.sqlite
 pep8.txt
-/dist/
-/.tox/
-/.vagrant/
+dist/
 .idea/
+.mypy_cache/
+.tox/
+.vagrant/

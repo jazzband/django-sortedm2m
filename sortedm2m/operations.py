@@ -66,12 +66,14 @@ class AlterSortedManyToManyField(AlterField):
         field = self.make_sort_by_field(model)
         schema_editor.add_field(model, field)
 
-    def remove_sort_value_field(self, schema_editor, model):
-        field = get_field(model, model._sort_field_name)
+    @staticmethod
+    def remove_sort_value_field(schema_editor, model):
+        field = get_field(model, model._sort_field_name)  # pylint: disable=protected-access
         schema_editor.remove_field(model, field)
 
-    def make_sort_by_field(self, model):
-        field_name = model._sort_field_name
+    @staticmethod
+    def make_sort_by_field(model):
+        field_name = model._sort_field_name  # pylint: disable=protected-access
         field = models.IntegerField(name=field_name, default=0)
         field.set_attributes_from_name(field_name)
         return field

@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.utils.encoding import force_text, python_2_unicode_compatible
+
 from sortedm2m.fields import SortedManyToManyField
 
 
-class BaseBookThrough(object):
+class BaseBookThrough(object):  # pylint: disable=useless-object-inheritance
 
     def __str__(self):
-        return "Relationship to {0}".format(self.book.name)
+        return "Relationship to {0}".format(self.book.name)  # pylint: disable=no-member
 
 
 class Shelf(models.Model):
@@ -23,18 +24,22 @@ class Book(models.Model):
 
 
 class DoItYourselfShelf(models.Model):
-    books = SortedManyToManyField(Book,
+    books = SortedManyToManyField(
+        Book,
         sort_value_field_name='diy_sort_number',
         related_name='diy_shelves',
-        base_class=BaseBookThrough)
+        base_class=BaseBookThrough
+    )
 
 
 class TaggedDoItYourselfShelf(models.Model):
-    books = SortedManyToManyField(Book,
-                                  sort_value_field_name='diy_sort_number',
-                                  related_name='tagged_diy_shelves',
-                                  through='TagThrough',
-                                  through_fields=('shelf', 'book'))
+    books = SortedManyToManyField(
+        Book,
+        sort_value_field_name='diy_sort_number',
+        related_name='tagged_diy_shelves',
+        through='TagThrough',
+        through_fields=('shelf', 'book')
+    )
 
 
 class TagThrough(models.Model):
@@ -46,17 +51,19 @@ class TagThrough(models.Model):
     tags_diy_sort_number = models.IntegerField(default=0)
 
     def __str__(self):
-        return "Relationship to {0} tagged as <{1}>".format(self.book.name,
-                                                            self.tags)
+        return "Relationship to {0} tagged as <{1}>".format(self.book.name, self.tags)
+
 
 class Store(models.Model):
     books = SortedManyToManyField('sortedm2m_tests.Book', related_name='stores')
 
 
 class MessyStore(models.Model):
-    books = SortedManyToManyField('Book',
+    books = SortedManyToManyField(
+        'Book',
         sorted=False,
-        related_name='messy_stores')
+        related_name='messy_stores'
+    )
 
 
 @python_2_unicode_compatible

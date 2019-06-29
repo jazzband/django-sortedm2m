@@ -25,7 +25,7 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
         def _apply_rel_ordering(self, queryset):
             return queryset.extra(order_by=['%s.%s' % (
                 self.through._meta.db_table,
-                self.through._sort_field_name,
+                self.through._sort_field_name,  # pylint: disable=protected-access
             )])
 
         def get_queryset(self):
@@ -34,6 +34,7 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
             # are hidden for joins because we set ``auto_created`` on the
             # intermediary's meta options.
             try:
+                # pylint: disable=protected-access
                 return self.instance._prefetched_objects_cache[self.prefetch_cache_name]
             except (AttributeError, KeyError):
                 queryset = super(SortedRelatedManager, self).get_queryset()
@@ -44,12 +45,13 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
             result = super(SortedRelatedManager, self).get_prefetch_queryset(instances, queryset)
             return (self._apply_rel_ordering(result[0]),) + result[1:]
 
-        def set(self, objs, **kwargs):
+        def set(self, objs, **kwargs):  # pylint: disable=arguments-differ
             # Choosing to clear first will ensure the order is maintained.
             kwargs['clear'] = True
             super(SortedRelatedManager, self).set(objs, **kwargs)
         set.alters_data = True
 
+        # pylint: disable=arguments-differ
         def _add_items(self, source_field_name, target_field_name, *objs, **kwargs):
             # source_field_name: the PK fieldname in join table for the source object
             # target_field_name: the PK fieldname in join table for the target object
@@ -68,7 +70,7 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                         if not router.allow_relation(obj, self.instance):
                             raise ValueError(
                                 'Cannot add "%r": instance is on database "%s", value is on database "%s"' %
-                                (obj, self.instance._state.db, obj._state.db)
+                                (obj, self.instance._state.db, obj._state.db)  # pylint: disable=protected-access
                             )
 
                         fk_val = self.through._meta.get_field(target_field_name).get_foreign_related_value(obj)[0]
@@ -89,8 +91,8 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                         new_ids.append(obj)
 
                 db = router.db_for_write(self.through, instance=self.instance)
-                manager = self.through._default_manager.using(db)
-                vals = (self.through._default_manager.using(db)
+                manager = self.through._default_manager.using(db)  # pylint: disable=protected-access
+                vals = (self.through._default_manager.using(db)  # pylint: disable=protected-access
                         .values_list(target_field_name, flat=True)
                         .filter(**{
                             source_field_name: self.related_val[0],
@@ -116,7 +118,7 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
 
                     rel_source_fk = self.related_val[0]
                     rel_through = self.through
-                    sort_field_name = rel_through._sort_field_name
+                    sort_field_name = rel_through._sort_field_name  # pylint: disable=protected-access
 
                     # Use the max of all indices as start index...
                     # maybe an autoincrement field should do the job more efficiently ?
@@ -154,7 +156,7 @@ class SortedManyToManyDescriptor(ManyToManyDescriptor):
     def related_manager_cls(self):
         model = self.rel.model
         return create_sorted_many_related_manager(
-            model._default_manager.__class__,
+            model._default_manager.__class__,  # pylint: disable=protected-access
             self.rel,
             # This is the new `reverse` argument (which ironically should
             # be False)
@@ -163,7 +165,7 @@ class SortedManyToManyDescriptor(ManyToManyDescriptor):
 
 
 class SortedManyToManyField(_ManyToManyField):
-    '''
+    """
     Providing a many to many relation that remembers the order of related
     objects.
 
@@ -173,8 +175,9 @@ class SortedManyToManyField(_ManyToManyField):
 
     Accept a class ``base_class`` attribute which specifies the base class of
     the intermediate model. It allows to customize the intermediate model.
-    '''
-    def __init__(self, to, sorted=True, base_class=None, **kwargs):
+    """
+
+    def __init__(self, to, sorted=True, base_class=None, **kwargs):  # pylint: disable=redefined-builtin
         self.sorted = sorted
         self.sort_value_field_name = kwargs.pop(
             'sort_value_field_name',
@@ -200,10 +203,10 @@ class SortedManyToManyField(_ManyToManyField):
     def check(self, **kwargs):
         return (
             super(SortedManyToManyField, self).check(**kwargs) +
-            self._check_through_sortedm2m(**kwargs)
+            self._check_through_sortedm2m()
         )
 
-    def _check_through_sortedm2m(self, **kwargs):
+    def _check_through_sortedm2m(self):
         rel = get_rel(self)
 
         # Check if the custom through model of a SortedManyToManyField as a
@@ -216,6 +219,7 @@ class SortedManyToManyField(_ManyToManyField):
 
         return []
 
+    # pylint: disable=inconsistent-return-statements
     def contribute_to_class(self, cls, name, **kwargs):
         if not self.sorted:
             return super(SortedManyToManyField, self).contribute_to_class(cls, name, **kwargs)
@@ -237,6 +241,7 @@ class SortedManyToManyField(_ManyToManyField):
             # clashes between multiple m2m fields with related_name == '+'.
             rel.related_name = "_%s_%s_+" % (cls.__name__.lower(), name)
 
+        # pylint: disable=bad-super-call
         super(_ManyToManyField, self).contribute_to_class(cls, name, **kwargs)
 
         # The intermediate m2m model is not auto created if:
@@ -245,9 +250,9 @@ class SortedManyToManyField(_ManyToManyField):
         #  3) The class owning the m2m field has been swapped out.
         if not cls._meta.abstract:
             if rel.through:
-                def resolve_through_model(_, model, field):
+                def resolve_through_model(_, model):
                     rel.through = model
-                lazy_related_operation(resolve_through_model, cls, rel.through, field=self)
+                lazy_related_operation(resolve_through_model, cls, rel.through)
             elif not cls._meta.swapped:
                 rel.through = self.create_intermediate_model(cls)
 
@@ -255,12 +260,12 @@ class SortedManyToManyField(_ManyToManyField):
         setattr(cls, self.name, SortedManyToManyDescriptor(self))
 
         # Set up the accessor for the m2m table name for the relation
-        self.m2m_db_table = partial(self._get_m2m_db_table, cls._meta)
+        self.m2m_db_table = partial(self._get_m2m_db_table, cls._meta)  # pylint: disable=attribute-defined-outside-init
 
     def get_internal_type(self):
         return 'ManyToManyField'
 
-    def formfield(self, **kwargs):
+    def formfield(self, **kwargs):  # pylint: disable=arguments-differ
         defaults = {}
         if self.sorted:
             defaults['form_class'] = SortedMultipleChoiceField
@@ -294,7 +299,7 @@ def create_sortable_many_to_many_intermediary_model(field, klass, sort_field_nam
         from_ = 'from_%s' % from_
 
     meta = type('Meta', (), {
-        'db_table': field._get_m2m_db_table(klass._meta),
+        'db_table': field._get_m2m_db_table(klass._meta),  # pylint: disable=protected-access
         'auto_created': klass,
         'app_label': klass._meta.app_label,
         'db_tablespace': klass._meta.db_tablespace,

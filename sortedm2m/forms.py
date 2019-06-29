@@ -21,7 +21,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             'sortedm2m/widget.css',
         )}
 
-    def build_attrs(self, attrs=None, **kwargs):
+    def build_attrs(self, attrs=None, **kwargs):  # pylint: disable=arguments-differ
         attrs = dict(attrs or {}, **kwargs)
         attrs = super(SortedCheckboxSelectMultiple, self).build_attrs(attrs)
         classes = attrs.setdefault('class', '').split()
@@ -29,7 +29,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         attrs['class'] = ' '.join(classes)
         return attrs
 
-    def render(self, name, value, attrs=None, choices=(), renderer=None):
+    def render(self, name, value, attrs=None, choices=(), renderer=None):  # pylint: disable=arguments-differ
         if value is None:
             value = []
         has_id = attrs and 'id' in attrs
@@ -68,9 +68,9 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         # Reorder `selected` array according str_values which is a set of `option_value`s in the
         # order they should be shown on screen
         ordered = []
-        for value in str_values:
+        for s in str_values:
             for select in selected:
-                if value == select['option_value']:
+                if s == select['option_value']:
                     ordered.append(select)
         selected = ordered
 

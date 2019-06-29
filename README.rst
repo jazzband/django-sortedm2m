@@ -196,3 +196,10 @@ The tests are run against SQLite, then against PostgreSQL, then against mySQL -
 so you need to install PostgreSQL and mySQL on your dev environment, and should
 have a role/user ``sortedm2m`` set up for both PostgreSQL and mySQL.
 
+Code Quality
+------------
+This project uses `isort <https://github.com/timothycrosley/isort>`_, `pycodestyle <https://github.com/PyCQA/pycodestyle>`_,
+and `pylint <https://www.pylint.org>`_ to manage validate code quality. These validations can be run with the
+following command::
+
+   tox -e quality

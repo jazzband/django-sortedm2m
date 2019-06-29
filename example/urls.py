@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import django
 import django.views.static
 from django.conf import settings
 from django.conf.urls import include, url
@@ -10,8 +9,10 @@ import example.testapp.views
 
 admin.autodiscover()
 
+
 def handle404(request, exception):
     return HttpResponse('404')
+
 
 def handle500(request):
     return HttpResponse('500')

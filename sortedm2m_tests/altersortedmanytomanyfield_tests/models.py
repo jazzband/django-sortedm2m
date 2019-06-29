@@ -18,6 +18,7 @@ State after 0002_alter_m2m_fields.py
 """
 
 from django.db import models
+
 from sortedm2m.fields import SortedManyToManyField
 
 
