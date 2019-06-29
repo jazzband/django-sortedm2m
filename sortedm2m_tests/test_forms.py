@@ -3,8 +3,8 @@ from django import forms
 from django.test import TestCase
 from django.utils import six
 from sortedm2m.forms import SortedMultipleChoiceField
-from .models import Book, Shelf, Store, MessyStore
 
+from .models import Book, MessyStore, Shelf, Store
 
 str_ = six.text_type
 

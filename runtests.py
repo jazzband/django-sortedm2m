@@ -6,15 +6,13 @@ import os
 import sys
 import warnings
 
+import django
+from django.core.management import execute_from_command_line
+
 parent = os.path.dirname(os.path.abspath(__file__))
 
 sys.path.insert(0, parent)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "test_project.settings")
-
-
-import django
-from django.core.management import execute_from_command_line
-
 
 default_test_apps = [
     'sortedm2m_tests',

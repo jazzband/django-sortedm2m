@@ -11,11 +11,13 @@ matrix:
     - { python: 3.6, env: TOXENV=py36-111 }
     - { python: 3.6, env: TOXENV=py36-111-mysql }
     - { python: 3.6, env: TOXENV=py36-111-postgres }
+    - { python: 3.6, env: TOXENV=quality }
+
 before_install:
   - export PIP_USE_MIRRORS=true
   - export DJANGO_SETTINGS_MODULE=test_settings
   # Postgres setup.
-  - # Password is 'sortedm2m'
+  # Password is 'sortedm2m'
   - psql -c "CREATE ROLE sortedm2m PASSWORD 'md5ba287bde612ca41b14776ec8f8dfdaa9' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;" -U postgres
   - psql -c "CREATE DATABASE sortedm2m OWNER sortedm2m;" -U postgres
   # MySQL setup.

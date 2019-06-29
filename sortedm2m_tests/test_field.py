@@ -5,12 +5,9 @@ from django.db.models.fields import FieldDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import six
-
 from sortedm2m.compat import get_field, get_rel
 
-from .models import (
-    Book, Shelf, DoItYourselfShelf, Store, MessyStore, SelfReference, BaseBookThrough)
-
+from .models import BaseBookThrough, Book, DoItYourselfShelf, MessyStore, SelfReference, Shelf, Store
 
 str_ = six.text_type
 

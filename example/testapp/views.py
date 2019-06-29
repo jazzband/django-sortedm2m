@@ -1,4 +1,5 @@
 from django.views.generic import UpdateView
+
 from .models import ParkingArea
 
 

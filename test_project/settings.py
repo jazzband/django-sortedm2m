@@ -1,17 +1,9 @@
 # Django settings for testsite project.
 import os
-import django
-
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = True
-
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-
-MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
@@ -51,23 +43,15 @@ STATIC_URL = '/static/'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'define in local settings file'
 
-if django.VERSION >= (1, 10):
-    MIDDLEWARE = [
-        'django.middleware.security.SecurityMiddleware',
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    ]
-else:
-    MIDDLEWARE_CLASSES = (
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    )
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
 ROOT_URLCONF = 'example.urls'
 
@@ -86,42 +70,28 @@ INSTALLED_APPS = (
     'example.testapp',
 )
 
-MIGRATION_MODULES = {
-    'migrations_tests': 'sortedm2m_tests.migrations_tests.django17_migrations',
-    'altersortedmanytomanyfield_tests': 'sortedm2m_tests.altersortedmanytomanyfield_tests.django17_migrations',
-}
 
-import django
-
-if django.VERSION >= (1, 6):
-    TEST_RUNNER = 'django.test.runner.DiscoverRunner'
-
-if django.VERSION >= (1, 8):
-    TEMPLATES = [
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [
-                os.path.join(PROJECT_ROOT, 'templates'),
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(PROJECT_ROOT, 'templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
             ],
-            'APP_DIRS': True,
-            'OPTIONS': {
-                'context_processors': [
-                    'django.contrib.auth.context_processors.auth',
-                    'django.template.context_processors.debug',
-                    'django.template.context_processors.i18n',
-                    'django.template.context_processors.media',
-                    'django.template.context_processors.static',
-                    'django.template.context_processors.tz',
-                    'django.contrib.messages.context_processors.messages',
-                ],
-            },
         },
-    ]
-else:
-    TEMPLATE_DIRS = (
-        os.path.join(PROJECT_ROOT, 'templates'),
-    )
-    TEMPLATE_DEBUG = DEBUG
+    },
+]
 
 try:
     from local_settings import *

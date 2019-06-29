@@ -1,8 +1,7 @@
 from django.db import models
 from django.db.migrations.operations import AlterField
 
-from .compat import (
-    get_field, get_apps_from_state, allow_migrate_model, get_rel)
+from .compat import allow_migrate_model, get_apps_from_state, get_field, get_rel
 
 
 class AlterSortedManyToManyField(AlterField):
