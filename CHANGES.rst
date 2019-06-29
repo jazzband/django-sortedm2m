@@ -5,9 +5,11 @@ Changelog
 ----------------------
 * `#135`_ Updated README with Jazzband details, and added CONTRIBUTING.md
 * `#136`_ Dropped support for Python 2.6 and 3.3, and Django < 1.11
+* `#138`_ Added coverage reporting
 
 .. _#135: https://github.com/jazzband/django-sortedm2m/pull/135
 .. _#136: https://github.com/jazzband/django-sortedm2m/pull/136
+.. _#138: https://github.com/jazzband/django-sortedm2m/pull/138
 
 1.5.0
 -----

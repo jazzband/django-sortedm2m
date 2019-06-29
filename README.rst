@@ -14,6 +14,9 @@ django-sortedm2m
    :target: https://travis-ci.org/jazzband/django-sortedm2m
    :alt: Build Status
 
+.. image:: https://codecov.io/gh/jazzband/django-sortedm2m/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/jazzband/django-sortedm2m
+   :alt: Code coverage
 
 ``sortedm2m`` is a drop-in replacement for django's own ``ManyToManyField``.
 The provided ``SortedManyToManyField`` behaves like the original one but

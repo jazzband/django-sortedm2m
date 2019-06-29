@@ -2,9 +2,11 @@
 *.pyo
 *.egg
 *.egg-info
+.coverage
 coverage.xml
 db.sqlite
 pep8.txt
 /dist/
 /.tox/
 /.vagrant/
+.idea/
