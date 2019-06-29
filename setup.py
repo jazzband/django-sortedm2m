@@ -3,27 +3,19 @@
 import codecs
 import os
 import re
-import sys
 
 from setuptools import setup
-
-
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
 
 
 def get_version(package):
     """
     Return package version as listed in `__version__` in `init.py`.
     """
-    matches = re.search(r"__version__[\s]+=[\s]+['\"](?P<version>[^'\"]+)['\"]",
-                        open(os.path.join(package, '__init__.py')).read(),
-                        re.M)
+    matches = re.search(
+        r"__version__[\s]+=[\s]+['\"](?P<version>[^'\"]+)['\"]",
+        open(os.path.join(package, '__init__.py')).read(),
+        re.M
+    )
 
     return matches.group(1) if matches else None
 

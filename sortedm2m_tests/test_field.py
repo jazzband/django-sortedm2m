@@ -7,11 +7,11 @@ from django.db.models.fields import FieldDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.encoding import force_text
+
 from sortedm2m.compat import get_field, get_rel
 
 from .compat import m2m_set
-from .models import (Book, DoItYourselfShelf, SelfReference, Shelf, Store,
-                     TaggedDoItYourselfShelf)
+from .models import Book, DoItYourselfShelf, SelfReference, Shelf, Store, TaggedDoItYourselfShelf
 
 
 class TestSortedManyToManyField(TestCase):
@@ -170,7 +170,6 @@ class TestSortedManyToManyField(TestCase):
 
         shelf = self.model.objects.filter(pk=shelf.pk).prefetch_related('books')[0]
         queries_num = len(connection.queries)
-        name = shelf.books.all()[0].name
         self.assertEqual(queries_num, len(connection.queries))
 
     def test_prefetch_related_sorting(self):
@@ -179,17 +178,19 @@ class TestSortedManyToManyField(TestCase):
         m2m_set(shelf, "books", books)
 
         shelf = self.model.objects.filter(pk=shelf.pk).prefetch_related('books')[0]
+
         def get_ids(queryset):
             return [obj.id for obj in queryset]
+
         self.assertEqual(get_ids(shelf.books.all()), get_ids(books))
 
 
 class TestStringReference(TestSortedManyToManyField):
-    '''
+    """
     Test the same things as ``TestSortedManyToManyField`` but using a model
     that using a string to reference the relation where the m2m field should
     point to.
-    '''
+    """
     model = Store
 
 
@@ -218,6 +219,7 @@ class TestCustomBaseClass(TestSortedManyToManyField):
 
         field = get_field(intermediate_model, 'diy_sort_number')
         self.assertTrue(field)
+
 
 @skipIf(django.VERSION < (2, 2), 'RelatedManager._add_items() has new through_defaults argument in Django >= 2.2')
 class TestCustomThroughClass(TestSortedManyToManyField):
@@ -261,15 +263,4 @@ class TestSelfReference(TestCase):
         s1.me.add(s3)
         s1.me.add(s4, s2)
 
-        self.assertEqual(list(s1.me.all()), [s3,s4,s2])
-
-
-class TestDjangoManyToManyFieldNotAvailableThroughSortedM2M(TestCase):
-    @staticmethod
-    def _import_django_many_to_many_through_sortedm2m():
-        from sortedm2m.fields import ManyToManyField
-
-    def test_many_to_many_field_not_available(self):
-        self.assertRaises(
-            ImportError,
-            self._import_django_many_to_many_through_sortedm2m)
+        self.assertEqual(list(s1.me.all()), [s3, s4, s2])
