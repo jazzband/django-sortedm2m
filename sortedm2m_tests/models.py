@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from sortedm2m.fields import SortedManyToManyField
+
 try:
     from django.utils.encoding import force_text
 except ImportError:
     from django.utils.encoding import force_unicode as force_text
-from sortedm2m.fields import SortedManyToManyField
 
 
 class BaseBookThrough(object):

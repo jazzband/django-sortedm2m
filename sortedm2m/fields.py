@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 import django
-from django.conf import settings
-from django.db import router
-from django.db import transaction
-from django.db import models
+from django.db import models, router, transaction
 from django.db.models import signals
-from django.db.models.fields.related import ManyToManyField as _ManyToManyField
 from django.db.models.fields.related import RECURSIVE_RELATIONSHIP_CONSTANT
+from django.db.models.fields.related import ManyToManyField as _ManyToManyField
 from django.utils import six
 from django.utils.functional import cached_property, curry
 
-from .compat import create_forward_many_to_many_manager
-from .compat import get_foreignkey_field_kwargs
-from .compat import get_model_name, get_rel, get_rel_to, add_lazy_relation
+from .compat import (
+    add_lazy_relation, create_forward_many_to_many_manager, get_foreignkey_field_kwargs, get_model_name, get_rel,
+    get_rel_to
+)
 from .forms import SortedMultipleChoiceField
 
 SORT_VALUE_FIELD_NAME = 'sort_value'
@@ -147,9 +145,15 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                 if self.reverse or source_field_name == self.source_field_name:
                     # Don't send the signal when we are inserting the
                     # duplicate data row for symmetrical reverse entries.
-                    signals.m2m_changed.send(sender=rel.through, action='pre_add',
-                        instance=self.instance, reverse=self.reverse,
-                        model=self.model, pk_set=new_ids_set, using=db)
+                    signals.m2m_changed.send(
+                        sender=rel.through,
+                        action='pre_add',
+                        instance=self.instance,
+                        reverse=self.reverse,
+                        model=self.model,
+                        pk_set=new_ids_set,
+                        using=db
+                    )
 
                 # Add the ones that aren't there already
                 with atomic(using=db):
@@ -170,9 +174,15 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                 if self.reverse or source_field_name == self.source_field_name:
                     # Don't send the signal when we are inserting the
                     # duplicate data row for symmetrical reverse entries.
-                    signals.m2m_changed.send(sender=rel.through, action='post_add',
-                        instance=self.instance, reverse=self.reverse,
-                        model=self.model, pk_set=new_ids_set, using=db)
+                    signals.m2m_changed.send(
+                        sender=rel.through,
+                        action='post_add',
+                        instance=self.instance,
+                        reverse=self.reverse,
+                        model=self.model,
+                        pk_set=new_ids_set,
+                        using=db
+                    )
 
     return SortedRelatedManager
 

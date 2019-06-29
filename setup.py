@@ -66,9 +66,7 @@ setup(
     version=find_version('sortedm2m', '__init__.py'),
     url='http://github.com/jazzband/django-sortedm2m',
     license='BSD',
-    description=
-    'Drop-in replacement for django\'s many to many field with '
-    'sorted relations.',
+    description="Drop-in replacement for django's many to many field with sorted relations.",
     long_description=long_description,
     author=UltraMagicString('Gregor Müllegger'),
     author_email='gregor@muellegger.de',
@@ -90,5 +88,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    install_requires=[],
+    install_requires=[
+        'six',
+    ],
 )

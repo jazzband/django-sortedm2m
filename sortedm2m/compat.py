@@ -1,4 +1,5 @@
 import django
+from django.db import models
 
 try:
     from django.apps import apps
@@ -11,7 +12,6 @@ if apps is not None:
 else:
     from django.db.models import get_model
 
-from django.db import models
 
 try:
     from django.db.models.fields.related_descriptors import create_forward_many_to_many_manager
@@ -74,6 +74,7 @@ def get_rel(f):
         return f.remote_field
     else:
         return f.rel
+
 
 def get_rel_to(f):
     rel = get_rel(f)

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import django
+import django.views.static
+import example.testapp.views
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.conf import settings
 from django.http import HttpResponse
-import django.views.static
-
-import example.testapp.views
 
 admin.autodiscover()
 
