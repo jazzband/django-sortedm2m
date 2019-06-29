@@ -21,10 +21,16 @@ before_install:
   # MySQL setup.
   - echo "CREATE USER 'sortedm2m'@'localhost' IDENTIFIED BY 'sortedm2m';" | mysql -u root
   - echo "GRANT ALL PRIVILEGES ON *.* TO 'sortedm2m'@'localhost' WITH GRANT OPTION;" | mysql -u root
+
 install:
-  - pip install tox
+  - pip install -U codecov tox
+
 script:
   - tox -v
+
+after_success:
+  codecov
+
 deploy:
   provider: pypi
   user: gremu
