@@ -15,16 +15,20 @@ def get_version(package):
     """
     Return package version as listed in `__version__` in `init.py`.
     """
-    matches = re.search("__version__[\s]+=[\s]+['\"](?P<version>[^'\"]+)['\"]",
-                        open(os.path.join(package, '__init__.py')).read(),
-                        re.M)
+    matches = re.search(
+        "__version__[\s]+=[\s]+['\"](?P<version>[^'\"]+)['\"]",
+        open(os.path.join(package, "__init__.py")).read(),
+        re.M,
+    )
 
     return matches.group(1) if matches else None
 
 
 def read(filename):
-    return codecs.open(os.path.join(os.path.dirname(__file__), filename),
-                       encoding='utf8').read()
+    return codecs.open(
+        os.path.join(os.path.dirname(__file__), filename), encoding="utf8"
+    ).read()
+
 
 # class UltraMagicString(object):
 #     '''
@@ -54,37 +58,34 @@ def read(filename):
 #         return str(self).split(*args, **kw)
 
 
-long_description = '\n\n'.join((
-    read('README.rst'),
-    read('CHANGES.rst'),
-)))
+long_description = "\n\n".join((read("README.rst"), read("CHANGES.rst")))
 
 setup(
-    name='django-sortedm2m',
-    version=find_version('sortedm2m', '__init__.py'),
-    url='http://github.com/jazzband/django-sortedm2m',
-    license='BSD',
+    name="django-sortedm2m",
+    version=get_version("sortedm2m"),
+    url="http://github.com/jazzband/django-sortedm2m",
+    license="BSD",
     description="Drop-in replacement for django's many to many field with sorted relations.",
     long_description=long_description,
-    author=UltraMagicString('Gregor Müllegger'),
-    author_email='gregor@muellegger.de',
-    packages=['sortedm2m'],
+    author=u"Gregor Müllegger",
+    author_email="gregor@muellegger.de",
+    packages=["sortedm2m"],
     include_package_data=True,
     zip_safe=False,
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Web Environment',
-        'Framework :: Django',
-        'Framework :: Django :: 1.11',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        "Development Status :: 4 - Beta",
+        "Environment :: Web Environment",
+        "Framework :: Django",
+        "Framework :: Django :: 1.11",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
 )
