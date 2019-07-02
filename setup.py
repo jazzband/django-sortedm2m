@@ -8,55 +8,53 @@ import sys
 from setuptools import setup
 
 
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+PY2 = sys.version_info[0] == 2
 
 
-def read(*parts):
-    return codecs.open(os.path.join(os.path.dirname(__file__), *parts),
+def get_version(package):
+    """
+    Return package version as listed in `__version__` in `init.py`.
+    """
+    matches = re.search("__version__[\s]+=[\s]+['\"](?P<version>[^'\"]+)['\"]",
+                        open(os.path.join(package, '__init__.py')).read(),
+                        re.M)
+
+    return matches.group(1) if matches else None
+
+
+def read(filename):
+    return codecs.open(os.path.join(os.path.dirname(__file__), filename),
                        encoding='utf8').read()
 
-
-try:
-    bytes
-except NameError:
-    bytes = str
-
-
-class UltraMagicString(object):
-    '''
-    Taken from
-    http://stackoverflow.com/questions/1162338/whats-the-right-way-to-use-unicode-metadata-in-setup-py
-    '''
-    def __init__(self, value):
-        if not isinstance(value, bytes):
-            value = value.encode('utf8')
-        self.value = value
-
-    def __bytes__(self):
-        return self.value
-
-    def __unicode__(self):
-        return self.value.decode('UTF-8')
-
-    if sys.version_info[0] < 3:
-        __str__ = __bytes__
-    else:
-        __str__ = __unicode__
-
-    def __add__(self, other):
-        return UltraMagicString(self.value + bytes(other))
-
-    def split(self, *args, **kw):
-        return str(self).split(*args, **kw)
+# class UltraMagicString(object):
+#     '''
+#     Taken from
+#     http://stackoverflow.com/questions/1162338/whats-the-right-way-to-use-unicode-metadata-in-setup-py
+#     '''
+#     def __init__(self, value):
+#         if not isinstance(value, bytes):
+#             value = value.encode('utf8')
+#         self.value = value
+#
+#     def __bytes__(self):
+#         return self.value
+#
+#     def __unicode__(self):
+#         return self.value.decode('UTF-8')
+#
+#     if sys.version_info[0] < 3:
+#         __str__ = __bytes__
+#     else:
+#         __str__ = __unicode__
+#
+#     def __add__(self, other):
+#         return UltraMagicString(self.value + bytes(other))
+#
+#     def split(self, *args, **kw):
+#         return str(self).split(*args, **kw)
 
 
-long_description = UltraMagicString('\n\n'.join((
+long_description = '\n\n'.join((
     read('README.rst'),
     read('CHANGES.rst'),
 )))
@@ -87,8 +85,6 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-    ],
-    install_requires=[
-        'six',
+        'Programming Language :: Python :: 3.7',
     ],
 )

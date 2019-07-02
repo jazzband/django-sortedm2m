@@ -11,6 +11,13 @@ Changelog
 .. _#136: https://github.com/jazzband/django-sortedm2m/pull/136
 .. _#138: https://github.com/jazzband/django-sortedm2m/pull/138
 
+- Drop support until Django 1.5 to 1.10
+- Drop support of python 2.6, 3.3, 3.4 & pypy
+- Add support of Django 2.0, 2.1 & 2.2
+- Add support or python 3.7
+- Huge code cleanup to remove old compatibility code
+- Add support of custom through models (only for Django >= 2.2)
+
 1.5.0
 -----
 
