@@ -2,6 +2,7 @@ language: python
 cache: pip
 dist: xenial
 sudo: false
+
 services:
   - postgresql
   - mysql
@@ -10,14 +11,12 @@ python:
   - pypy
   - 2.7
   - 3.4
+  - 3.5
   - 3.6
   - 3.7
 
 matrix:
   fast_finish: true
-  include:
-    - python: "3.6"
-      env: TOXENV=quality
 
 install:
   - pip install -U codecov tox tox-travis
@@ -48,4 +47,4 @@ deploy:
   on:
     tags: true
     repo: jazzband/django-sortedm2m
-    condition: "$TOXENV = py36-dj22"
+    condition: "$TOXENV = py36-22"
