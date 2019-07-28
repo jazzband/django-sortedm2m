@@ -196,12 +196,12 @@ class SortedManyToManyField(_ManyToManyField):
         if self.sorted is not True:
             kwargs['sorted'] = self.sorted
         return name, path, args, kwargs
-    
+
     def check(self, **kwargs):
         return (
             super(SortedManyToManyField, self).check(**kwargs) +
             self._check_through_sortedm2m(**kwargs)
-        ) 
+        )
 
     def _check_through_sortedm2m(self, **kwargs):
         rel = get_rel(self)
@@ -211,7 +211,7 @@ class SortedManyToManyField(_ManyToManyField):
         if self.sorted and rel.through:
             assert hasattr(rel.through, '_sort_field_name'), (
                 "The model is used as an intermediate model by "
-                 "'%s' but has no defined '_sort_field_name' attribute" % rel.through
+                "'%s' but has no defined '_sort_field_name' attribute" % rel.through
             )
 
         return []

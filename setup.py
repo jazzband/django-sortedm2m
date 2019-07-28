@@ -21,7 +21,7 @@ def get_version(package):
     """
     Return package version as listed in `__version__` in `init.py`.
     """
-    matches = re.search("__version__[\s]+=[\s]+['\"](?P<version>[^'\"]+)['\"]",
+    matches = re.search("__version__[ ]+=[ ]+['\"](?P<version>[^'\"]+)['\"]",
                         open(os.path.join(package, '__init__.py')).read(),
                         re.M)
 
@@ -31,7 +31,6 @@ def get_version(package):
 def read(filename):
     return codecs.open(os.path.join(os.path.dirname(__file__), filename),
                        encoding='utf8').read()
-
 
 
 long_description = '\n\n'.join((
