@@ -17,6 +17,8 @@ python:
 
 matrix:
   fast_finish: true
+  include:
+    - { python: 3.6, env: TOXENV=quality }
 
 install:
   - pip install -U codecov tox tox-travis
