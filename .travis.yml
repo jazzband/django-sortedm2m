@@ -1,21 +1,31 @@
 language: python
+cache: pip
+dist: xenial
 sudo: false
-matrix:
-  include:
-    - { python: 2.7, env: TOXENV=py27-111 }
-    - { python: 2.7, env: TOXENV=py27-111-mysql }
-    - { python: 2.7, env: TOXENV=py27-111-postgres }
-    - { python: pypy, env: TOXENV=pypy-111 }
-    - { python: 3.4, env: TOXENV=py34-111 }
-    - { python: 3.5, env: TOXENV=py35-111 }
-    - { python: 3.6, env: TOXENV=py36-111 }
-    - { python: 3.6, env: TOXENV=py36-111-mysql }
-    - { python: 3.6, env: TOXENV=py36-111-postgres }
-    - { python: 3.6, env: TOXENV=quality }
+services:
+  - postgresql
+  - mysql
 
-before_install:
+python:
+  - pypy
+  - 2.7
+  - 3.4
+  - 3.6
+  - 3.7
+
+matrix:
+  fast_finish: true
+  include:
+    - python: "3.6"
+      env: TOXENV=quality
+
+install:
+  - pip install -U codecov tox tox-travis
+
+before_script:
   - export PIP_USE_MIRRORS=true
   - export DJANGO_SETTINGS_MODULE=test_settings
+  - pg_lsclusters
   # Postgres setup.
   # Password is 'sortedm2m'
   - psql -c "CREATE ROLE sortedm2m PASSWORD 'md5ba287bde612ca41b14776ec8f8dfdaa9' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;" -U postgres
@@ -23,9 +33,6 @@ before_install:
   # MySQL setup.
   - echo "CREATE USER 'sortedm2m'@'localhost' IDENTIFIED BY 'sortedm2m';" | mysql -u root
   - echo "GRANT ALL PRIVILEGES ON *.* TO 'sortedm2m'@'localhost' WITH GRANT OPTION;" | mysql -u root
-
-install:
-  - pip install -U codecov tox
 
 script:
   - tox -v
@@ -41,4 +48,4 @@ deploy:
   on:
     tags: true
     repo: jazzband/django-sortedm2m
-    condition: "$TOX_ENV = py36-111"
+    condition: "$TOXENV = py36-dj22"

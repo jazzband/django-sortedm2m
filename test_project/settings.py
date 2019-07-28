@@ -1,9 +1,17 @@
 # Django settings for testsite project.
 import os
+import django
+
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = True
+
+ADMINS = (
+    # ('Your Name', 'your_email@domain.com'),
+)
+
+MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
@@ -59,6 +67,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.messages',
     'django.contrib.admin',
     'django.contrib.staticfiles',
 
@@ -70,8 +79,8 @@ INSTALLED_APPS = (
     'example.testapp',
 )
 
-
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

@@ -3,10 +3,13 @@ Changelog
 
 1.5.1 (in development)
 ----------------------
-* `#135`_ Updated README with Jazzband details, and added CONTRIBUTING.md
-* `#136`_ Dropped support for Python 2.6 and 3.3, and Django < 1.11
-* `#138`_ Added coverage reporting
+* `#135`_: Updated README with Jazzband details, and added CONTRIBUTING.md
+* `#136`_: Dropped support for Python 2.6 and 3.3, and Django < 1.11
+* `#130`_: Added support for Python 3.7 and Django 2.0 to 2.2
+* `#130`_: Add support of custom through models (only for Django >= 2.2)
+* `#138`_: Added coverage reporting
 
+.. -#130: https://github.com/jazzband/django-sortedm2m/issues/130
 .. _#135: https://github.com/jazzband/django-sortedm2m/pull/135
 .. _#136: https://github.com/jazzband/django-sortedm2m/pull/136
 .. _#138: https://github.com/jazzband/django-sortedm2m/pull/138
