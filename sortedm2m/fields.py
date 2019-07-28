@@ -5,8 +5,7 @@ from django.db import models, router, transaction
 from django.db.models import signals
 from django.db.models.fields.related import ManyToManyField as _ManyToManyField
 from django.db.models.fields.related import lazy_related_operation, resolve_relation
-from django.db.models.fields.related_descriptors import (
-    ManyToManyDescriptor, create_forward_many_to_many_manager)
+from django.db.models.fields.related_descriptors import ManyToManyDescriptor, create_forward_many_to_many_manager
 from django.db.models.utils import make_model_tuple
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
