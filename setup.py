@@ -21,7 +21,7 @@ def get_version(package):
     """
     Return package version as listed in `__version__` in `init.py`.
     """
-    matches = re.search("__version__[ ]+=[ ]+['\"](?P<version>[^'\"]+)['\"]",
+    matches = re.search(r"__version__[\s]+=[\s]+['\"](?P<version>[^'\"]+)['\"]",
                         open(os.path.join(package, '__init__.py')).read(),
                         re.M)
 
