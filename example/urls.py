@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
 import django
 import django.views.static
-import example.testapp.views
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.http import HttpResponse
 
+import example.testapp.views
+
 admin.autodiscover()
 
-def handle404(request):
+def handle404(request, exception):
     return HttpResponse('404')
+
 def handle500(request):
-    return HttpResponse('404')
+    return HttpResponse('500')
+
 
 handler404 = 'example.urls.handle404'
 handler500 = 'example.urls.handle500'

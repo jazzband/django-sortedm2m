@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-import sys
+
 from itertools import chain
 
-from six import string_types
-
-import django
 from django import forms
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
-from django.utils.html import conditional_escape, escape
+from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
+from django.utils.six import string_types
 
 
 class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     class Media:
         js = (
+            'admin/js/jquery.init.js',
             'sortedm2m/widget.js',
             'sortedm2m/jquery-ui.js',
         )
@@ -86,18 +85,6 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             return [v for v in value.split(',') if v]
         return value
 
-    if django.VERSION < (1, 7):
-        def _has_changed(self, initial, data):
-            if initial is None:
-                initial = []
-            if data is None:
-                data = []
-            if len(initial) != len(data):
-                return True
-            initial_set = [force_text(value) for value in initial]
-            data_set = [force_text(value) for value in data]
-            return data_set != initial_set
-
 
 class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = SortedCheckboxSelectMultiple
@@ -109,10 +96,6 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
         key = self.to_field_name or 'pk'
         objects = dict((force_text(getattr(o, key)), o) for o in queryset)
         return [objects[force_text(val)] for val in value]
-
-    if django.VERSION < (1, 8):
-        def _has_changed(self, initial, data):
-            return self.has_changed(initial, data)
 
     def has_changed(self, initial, data):
         if initial is None:

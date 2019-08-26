@@ -41,7 +41,7 @@ provided by this package as drop in replacement for django's
 Requirements
 ============
 
-**django-sortedm2m** runs on Python 2.7, 3.4 and up. PyPy is supported as well. Django 1.11 is required.
+**django-sortedm2m** runs on Python 2.7, 3.5+ and Django 1.11 to 2.2.
 
 Usage
 =====
@@ -108,7 +108,7 @@ relationships.
     yourself. In most cases when you want to add another field, consider
     *not* using sortedm2m but use a ordinary Django ManyToManyField and
     specify `your own through model`_.
-    
+
 .. _your own through model: https://docs.djangoproject.com/en/1.11/ref/models/fields/#django.db.models.ManyToManyField.through
 
 Migrating a ``ManyToManyField`` to be a ``SortedManyToManyField``
@@ -145,7 +145,7 @@ INSTALLED_APPS settings, like::
        'django.contrib.messages',
        'django.contrib.staticfiles',
        'django.contrib.admin',
-   
+
        'sortedm2m',
 
        '...',

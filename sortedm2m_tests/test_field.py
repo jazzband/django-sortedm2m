@@ -1,22 +1,17 @@
 # -*- coding: utf-8 -*-
+from unittest.case import skipIf
+
 import django
 from django.db import connection
 from django.db.models.fields import FieldDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils import six
+from django.utils.encoding import force_text
 from sortedm2m.compat import get_field, get_rel
 
-from .models import BaseBookThrough, Book, DoItYourselfShelf, MessyStore, SelfReference, Shelf, Store
-
-str_ = six.text_type
-
-
-def m2m_set(instance, field_name, objs):
-    if django.VERSION > (1, 9):
-        getattr(instance, field_name).set(objs)
-    else:
-        setattr(instance, field_name, objs)
+from .compat import m2m_set
+from .models import (Book, DoItYourselfShelf, SelfReference, Shelf, Store,
+                     TaggedDoItYourselfShelf)
 
 
 class TestSortedManyToManyField(TestCase):
@@ -65,7 +60,7 @@ class TestSortedManyToManyField(TestCase):
         shelf.books.add(self.books[2].pk)
         self.assertEqual(list(shelf.books.all()), [self.books[2]])
 
-        shelf.books.add(self.books[5].pk, str_(self.books[1].pk))
+        shelf.books.add(self.books[5].pk, force_text(self.books[1].pk))
         self.assertEqual(list(shelf.books.all()), [
             self.books[2],
             self.books[5],
@@ -74,7 +69,7 @@ class TestSortedManyToManyField(TestCase):
         shelf.books.clear()
         self.assertEqual(list(shelf.books.all()), [])
 
-        shelf.books.add(self.books[3].pk, self.books[1], str_(self.books[2].pk))
+        shelf.books.add(self.books[3].pk, self.books[1], force_text(self.books[2].pk))
         self.assertEqual(list(shelf.books.all()), [
             self.books[3],
             self.books[1],
@@ -118,7 +113,7 @@ class TestSortedManyToManyField(TestCase):
             self.books[5],
             self.books[2]])
 
-        m2m_set(shelf, "books", [str_(self.books[8].pk)])
+        m2m_set(shelf, "books", [force_text(self.books[8].pk)])
         self.assertEqual(list(shelf.books.all()), [self.books[8]])
 
     def test_remove_items(self):
@@ -150,7 +145,7 @@ class TestSortedManyToManyField(TestCase):
             self.books[2],
             self.books[4]])
 
-        shelf.books.remove(self.books[2], str_(self.books[4].pk))
+        shelf.books.remove(self.books[2], force_text(self.books[4].pk))
         self.assertEqual(list(shelf.books.all()), [])
 
 #    def test_add_relation_by_hand(self):
@@ -223,6 +218,38 @@ class TestCustomBaseClass(TestSortedManyToManyField):
 
         field = get_field(intermediate_model, 'diy_sort_number')
         self.assertTrue(field)
+
+@skipIf(django.VERSION < (2, 2), 'RelatedManager._add_items() has new through_defaults argument in Django >= 2.2')
+class TestCustomThroughClass(TestSortedManyToManyField):
+    model = TaggedDoItYourselfShelf
+
+    def test_base_class_str(self):
+        shelf = self.model.objects.create()
+        shelf.books.add(self.books[0])
+        through_model = shelf.books.through
+        instance = through_model.objects.all()[0]
+        self.assertEqual(str(instance), "Relationship to {0} tagged as <>".format(instance.book.name))
+
+    def test_through_defaults(self):
+        shelf = self.model.objects.create()
+        shelf.books.add(*self.books[3:5], through_defaults={'tags': 'A'})
+        shelf.books.add(self.books[2])
+        shelf.books.add(*self.books[:2], through_defaults={'tags': 'B'})
+
+        # ordering is kept
+        self.assertEqual(list(shelf.books.all()),
+                         self.books[3:5] + [self.books[2]] + self.books[:2])
+
+        through_model = shelf.books.through
+        rels = [(o.book_id, o.tags_diy_sort_number, o.tags) for o in through_model.objects.all()]
+
+        self.assertEqual(rels, [
+            (self.books[3].pk, 1, 'A'),
+            (self.books[4].pk, 2, 'A'),
+            (self.books[2].pk, 3, ''),
+            (self.books[0].pk, 4, 'B'),
+            (self.books[1].pk, 5, 'B'),
+        ])
 
 
 class TestSelfReference(TestCase):

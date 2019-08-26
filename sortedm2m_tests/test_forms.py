@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.test import TestCase
-from django.utils import six
+from django.utils.encoding import force_text
 from sortedm2m.forms import SortedMultipleChoiceField
 
-from .models import Book, MessyStore, Shelf, Store
-
-str_ = six.text_type
+from .models import Book, MessyStore, Shelf
 
 
 class SortedForm(forms.Form):
@@ -93,22 +91,22 @@ class TestSortedFormField(TestCase):
 
     def test_for_attribute_in_label(self):
         form = SortedForm()
-        rendered = str_(form['values'])
+        rendered = force_text(form['values'])
         self.assertTrue(' for="id_values_0"' in rendered)
 
         form = SortedForm(prefix='prefix')
-        rendered = str_(form['values'])
+        rendered = force_text(form['values'])
         self.assertTrue(' for="id_prefix-values_0"' in rendered)
 
         # check that it will be escaped properly
 
         form = SortedForm(prefix='hacking"><a href="TRAP">')
-        rendered = str_(form['values'])
+        rendered = force_text(form['values'])
         self.assertTrue(' for="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
 
     def test_input_id_is_escaped(self):
         form = SortedForm(prefix='hacking"><a href="TRAP">')
-        rendered = str_(form['values'])
+        rendered = force_text(form['values'])
         self.assertTrue(' id="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
 
     def test_form_field_detects_reordering(self):

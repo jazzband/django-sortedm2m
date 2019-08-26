@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.migrations.operations import AlterField
 
-from .compat import allow_migrate_model, get_apps_from_state, get_field, get_rel
+from .compat import get_apps_from_state, get_field, get_rel
 
 
 class AlterSortedManyToManyField(AlterField):
@@ -11,7 +11,7 @@ class AlterSortedManyToManyField(AlterField):
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         to_apps = get_apps_from_state(to_state)
         to_model = to_apps.get_model(app_label, self.model_name)
-        if allow_migrate_model(self, schema_editor.connection.alias, to_model):
+        if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             to_field = get_field(to_model, self.name)
 
             from_apps = get_apps_from_state(from_state)
@@ -42,7 +42,7 @@ class AlterSortedManyToManyField(AlterField):
         to_apps = get_apps_from_state(to_state)
         to_model = to_apps.get_model(app_label, self.model_name)
 
-        if allow_migrate_model(self, schema_editor.connection.alias, to_model):
+        if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             to_field = get_field(to_model, self.name)
             from_m2m_model = get_rel(from_field).through
             to_m2m_model = get_rel(to_field).through
@@ -71,6 +71,7 @@ class AlterSortedManyToManyField(AlterField):
         schema_editor.remove_field(model, field)
 
     def make_sort_by_field(self, model):
-        field = models.IntegerField(name=model._sort_field_name, default=0)
-        field.set_attributes_from_name(model._sort_field_name)
+        field_name = model._sort_field_name
+        field = models.IntegerField(name=field_name, default=0)
+        field.set_attributes_from_name(field_name)
         return field
