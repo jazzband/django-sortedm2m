@@ -1,4 +1,4 @@
-.PHONY: quality requirements test-postgres
+.PHONY: quality requirements
 
 quality: ## Run isort, pycodestyle, and Pylint
 	isort --check-only --recursive sortedm2m/
@@ -7,8 +7,3 @@ quality: ## Run isort, pycodestyle, and Pylint
 
 requirements: ## Install requirements for development
 	pip install -r requirements/test.txt
-
-test-postgres:
-	vagrant up
-	vagrant ssh -c "cd /vagrant ; DJANGO_SETTINGS_MODULE=test_project.postgres_settings python runtests.py"
-
