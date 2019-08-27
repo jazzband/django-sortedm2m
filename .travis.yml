@@ -47,4 +47,4 @@ deploy:
   on:
     tags: true
     repo: jazzband/django-sortedm2m
-    condition: "$TOXENV = py36-22"
+    python: 3.7
