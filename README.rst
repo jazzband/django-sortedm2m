@@ -192,15 +192,7 @@ the root directory of the ``django-sortedm2m`` checkout::
 
    tox
 
-However using tox will not include the tests that run against a PostgreSQL
-database. The project therefore contains a ``Vagrantfile`` that uses vagrant_
-to setup a virtual machine including a working PostgreSQL installation. To
-run the postgres tests, please `install vagrant`_ and then run::
+The tests are run against SQLite, then against PostgreSQL, then against mySQL -
+so you need to install PostgreSQL and mySQL on your dev environment, and should
+have a role/user ``sortedm2m`` set up for both PostgreSQL and mySQL.
 
-   make test-postgres
-
-This will bring up and provision the virtual machine and runs the testsuite
-against a PostgreSQL database.
-
-.. _vagrant: http://www.vagrantup.com/
-.. _install vagrant: http://www.vagrantup.com/downloads

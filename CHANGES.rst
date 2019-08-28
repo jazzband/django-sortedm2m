@@ -2,7 +2,8 @@ Changelog
 =========
 2.0.1 (in development)
 ----------------------
-TBD
+* Cleaned Tox test environment.
+* Removed Django 2.0 from test matrix as no longer supported.
 
 2.0.0
 -----
@@ -244,7 +245,7 @@ TBD
 * Correct escaping of *for* attribute in label for the sortedm2m widget. Thanks
   to Mystic-Mirage for the report and fix.
 
-0.6.0 
+0.6.0
 -----
 
 * Python 3 support!
