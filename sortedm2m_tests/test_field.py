@@ -1,8 +1,8 @@
 from unittest.case import skipIf
 
 import django
+from django.core.exceptions import FieldDoesNotExist
 from django.db import connection
-from django.db.models.fields import FieldDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.encoding import force_text
