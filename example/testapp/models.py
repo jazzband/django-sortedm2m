@@ -1,11 +1,7 @@
 from django.db import models
+from django.urls import reverse  # pylint: disable=ungrouped-imports
 
 from sortedm2m.fields import SortedManyToManyField
-
-try:
-    from django.urls import reverse  # pylint: disable=ungrouped-imports
-except ImportError:
-    from django.core.urlresolvers import reverse    # pylint: disable=ungrouped-imports
 
 
 class Car(models.Model):
@@ -15,7 +11,7 @@ class Car(models.Model):
         return self.plate
 
 
-class BaseCarThrough(object):
+class BaseCarThrough:
     def __str__(self):
         return str(self.car) + " in " + str(self.parkingarea)  # pylint: disable=no-member
 

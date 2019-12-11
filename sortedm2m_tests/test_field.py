@@ -8,6 +8,7 @@ from django.test.utils import override_settings
 from django.utils.encoding import force_text
 
 from sortedm2m.compat import get_field, get_rel
+from sortedm2m.fields import SORT_VALUE_FIELD_NAME
 
 from .compat import m2m_set
 from .models import Book, DoItYourselfShelf, SelfReference, Shelf, Store, TaggedDoItYourselfShelf
@@ -204,8 +205,6 @@ class TestCustomBaseClass(TestSortedManyToManyField):
         self.assertEqual(str(instance), "Relationship to {0}".format(instance.book.name))
 
     def test_custom_sort_value_field_name(self):
-        from sortedm2m.fields import SORT_VALUE_FIELD_NAME
-
         self.assertEqual(len(self.model._meta.many_to_many), 1)
         sortedm2m = self.model._meta.many_to_many[0]
         intermediate_model = get_rel(sortedm2m).through
