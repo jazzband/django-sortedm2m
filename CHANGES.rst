@@ -3,10 +3,11 @@ Changelog
 
 3.0.0 (in development)
 ----------------------
-* Cleaned Tox test environment.
-* Removed Django 2.0 from test matrix as no longer supported.
-* Removed Django 1.10 from test matrix as no longer supported.
-* Add support for Python 3.8
+* `#147`_: Cleaned Tox test environment.
+* `#147`_: Removed Django 2.0 from test matrix as no longer supported.
+* `#152`_: Removed Django 1.10 from test matrix as no longer supported.
+* `#152`_: Add support for Python 3.8
+* `#152`_: Add support for Django 3.0
 
 2.0.0
 -----
