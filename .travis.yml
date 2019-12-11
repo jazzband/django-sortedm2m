@@ -16,7 +16,7 @@ addons:
 matrix:
   fast_finish: true
   include:
-  - python: 3.6
+  - python: 3.8
     env: TOXENV=quality
 before_script:
 - export PIP_USE_MIRRORS=true
