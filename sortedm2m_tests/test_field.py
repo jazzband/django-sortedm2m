@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
 from unittest.case import skipIf
 
 import django
+from django.core.exceptions import FieldDoesNotExist
 from django.db import connection
-from django.db.models.fields import FieldDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from sortedm2m.compat import get_field, get_rel
+from sortedm2m.fields import SORT_VALUE_FIELD_NAME
 
 from .compat import m2m_set
 from .models import Book, DoItYourselfShelf, SelfReference, Shelf, Store, TaggedDoItYourselfShelf
@@ -60,7 +60,7 @@ class TestSortedManyToManyField(TestCase):
         shelf.books.add(self.books[2].pk)
         self.assertEqual(list(shelf.books.all()), [self.books[2]])
 
-        shelf.books.add(self.books[5].pk, force_text(self.books[1].pk))
+        shelf.books.add(self.books[5].pk, force_str(self.books[1].pk))
         self.assertEqual(list(shelf.books.all()), [
             self.books[2],
             self.books[5],
@@ -69,7 +69,7 @@ class TestSortedManyToManyField(TestCase):
         shelf.books.clear()
         self.assertEqual(list(shelf.books.all()), [])
 
-        shelf.books.add(self.books[3].pk, self.books[1], force_text(self.books[2].pk))
+        shelf.books.add(self.books[3].pk, self.books[1], force_str(self.books[2].pk))
         self.assertEqual(list(shelf.books.all()), [
             self.books[3],
             self.books[1],
@@ -113,7 +113,7 @@ class TestSortedManyToManyField(TestCase):
             self.books[5],
             self.books[2]])
 
-        m2m_set(shelf, "books", [force_text(self.books[8].pk)])
+        m2m_set(shelf, "books", [force_str(self.books[8].pk)])
         self.assertEqual(list(shelf.books.all()), [self.books[8]])
 
     def test_remove_items(self):
@@ -145,7 +145,7 @@ class TestSortedManyToManyField(TestCase):
             self.books[2],
             self.books[4]])
 
-        shelf.books.remove(self.books[2], force_text(self.books[4].pk))
+        shelf.books.remove(self.books[2], force_str(self.books[4].pk))
         self.assertEqual(list(shelf.books.all()), [])
 
 #    def test_add_relation_by_hand(self):
@@ -205,8 +205,6 @@ class TestCustomBaseClass(TestSortedManyToManyField):
         self.assertEqual(str(instance), "Relationship to {0}".format(instance.book.name))
 
     def test_custom_sort_value_field_name(self):
-        from sortedm2m.fields import SORT_VALUE_FIELD_NAME
-
         self.assertEqual(len(self.model._meta.many_to_many), 1)
         sortedm2m = self.model._meta.many_to_many[0]
         intermediate_model = get_rel(sortedm2m).through

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import django.views.static
 from django.conf import settings
 from django.conf.urls import include, url

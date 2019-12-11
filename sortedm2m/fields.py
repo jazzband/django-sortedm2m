@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 from functools import partial
 
 from django.db import models, router, transaction
-from django.db.models import signals
+from django.db.models import Max, Model, signals
 from django.db.models.fields.related import ManyToManyField as _ManyToManyField
 from django.db.models.fields.related import lazy_related_operation, resolve_relation
 from django.db.models.fields.related_descriptors import ManyToManyDescriptor, create_forward_many_to_many_manager
@@ -60,7 +59,6 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
             through_defaults = kwargs.get('through_defaults') or {}
 
             # If there aren't any objects, there is nothing to do.
-            from django.db.models import Max, Model
             if objs:
                 # Django uses a set here, we need to use a list to keep the
                 # correct ordering.

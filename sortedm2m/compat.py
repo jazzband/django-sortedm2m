@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 def get_field(model, field_name):
     return model._meta.get_field(field_name)
 

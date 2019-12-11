@@ -1,22 +1,21 @@
+dist: bionic
 language: python
 cache: pip
-dist: xenial
-sudo: false
 services:
 - postgresql
 - mysql
 python:
-- 2.7
-- 3.5
 - 3.6
 - 3.7
+- 3.8
+install: pip install -U codecov tox tox-travis
+addons:
+  postgresql: '10'
 matrix:
   fast_finish: true
   include:
-  - python: 3.6
+  - python: 3.8
     env: TOXENV=quality
-install:
-- pip install -U codecov tox tox-travis
 before_script:
 - export PIP_USE_MIRRORS=true
 - export DJANGO_SETTINGS_MODULE=test_settings
