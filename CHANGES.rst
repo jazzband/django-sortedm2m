@@ -1,13 +1,15 @@
 Changelog
 =========
 
-3.0.0 (in development)
-----------------------
-* `#147`_: Cleaned Tox test environment.
-* `#147`_: Removed Django 2.0 from test matrix as no longer supported.
-* `#152`_: Removed Django 1.10 from test matrix as no longer supported.
+3.0.0
+-----
+* `#147`_: Dropped support for Django 2.0
+* `#152`_: Dropped support for Django 1.10
 * `#152`_: Add support for Python 3.8
 * `#152`_: Add support for Django 3.0
+
+.. _#147: https://github.com/jazzband/django-sortedm2m/issues/147
+.. _#152: https://github.com/jazzband/django-sortedm2m/issues/152
 
 2.0.0
 -----
