@@ -1,6 +1,6 @@
 from django import forms
 from django.test import TestCase
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from sortedm2m.forms import SortedMultipleChoiceField
 
@@ -90,22 +90,22 @@ class TestSortedFormField(TestCase):  # pylint: disable=too-many-instance-attrib
 
     def test_for_attribute_in_label(self):
         form = SortedForm()
-        rendered = force_text(form['values'])
+        rendered = force_str(form['values'])
         self.assertTrue(' for="id_values_0"' in rendered)
 
         form = SortedForm(prefix='prefix')
-        rendered = force_text(form['values'])
+        rendered = force_str(form['values'])
         self.assertTrue(' for="id_prefix-values_0"' in rendered)
 
         # check that it will be escaped properly
 
         form = SortedForm(prefix='hacking"><a href="TRAP">')
-        rendered = force_text(form['values'])
+        rendered = force_str(form['values'])
         self.assertTrue(' for="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
 
     def test_input_id_is_escaped(self):
         form = SortedForm(prefix='hacking"><a href="TRAP">')
-        rendered = force_text(form['values'])
+        rendered = force_str(form['values'])
         self.assertTrue(' id="id_hacking&quot;&gt;&lt;a href=&quot;TRAP&quot;&gt;-values_0"' in rendered)
 
     def test_form_field_detects_reordering(self):
