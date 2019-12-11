@@ -1,6 +1,4 @@
-version: ~> 1.0
 dist: bionic
-os: linux
 language: python
 cache: pip
 services:
