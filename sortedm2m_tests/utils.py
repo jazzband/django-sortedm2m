@@ -1,7 +1,6 @@
 import contextlib
+from io import StringIO
 import sys
-
-from django.utils.six import StringIO
 
 
 @contextlib.contextmanager

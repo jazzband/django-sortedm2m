@@ -192,11 +192,6 @@ ignored-argument-names=_.*|^ignored_|^unused_
 # Tells whether we should check for unused import in __init__ files.
 init-import=no
 
-# List of qualified module names which can have objects that can redefine
-# builtins.
-redefining-builtins-modules=six.moves,future.builtins
-
-
 [FORMAT]
 
 # Expected format of line ending, e.g. empty (any line ending), LF or CRLF.

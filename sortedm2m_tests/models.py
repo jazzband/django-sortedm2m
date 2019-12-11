@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 from django.db import models
-from django.utils.encoding import force_text, python_2_unicode_compatible
 
 from sortedm2m.fields import SortedManyToManyField
 
@@ -15,7 +13,6 @@ class Shelf(models.Model):
     books = SortedManyToManyField('Book', related_name='shelves', base_class=BaseBookThrough)
 
 
-@python_2_unicode_compatible
 class Book(models.Model):
     name = models.CharField(max_length=50)
 
@@ -66,9 +63,8 @@ class MessyStore(models.Model):
     )
 
 
-@python_2_unicode_compatible
 class SelfReference(models.Model):
     me = SortedManyToManyField('self', related_name='hide+')
 
     def __str__(self):
-        return force_text(self.pk)
+        return str(self.pk)

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from itertools import chain
 
 from django import forms
@@ -7,7 +5,6 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-from django.utils.six import string_types
 
 
 class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
@@ -81,7 +78,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
-        if isinstance(value, string_types):
+        if isinstance(value, (str,)):
             return [v for v in value.split(',') if v]
         return value
 

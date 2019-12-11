@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from unittest.case import skipIf
 
 import django

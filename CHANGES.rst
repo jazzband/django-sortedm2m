@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.1 (in development)
+3.0.0 (in development)
 ----------------------
 * Cleaned Tox test environment.
 * Removed Django 2.0 from test matrix as no longer supported.

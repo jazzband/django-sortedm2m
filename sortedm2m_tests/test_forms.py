@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django import forms
 from django.test import TestCase
 from django.utils.encoding import force_text
