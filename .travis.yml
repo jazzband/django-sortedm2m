@@ -16,6 +16,8 @@ matrix:
   include:
   - python: 3.8
     env: TOXENV=quality
+  - python: 3.8
+    env: TOXENV=dist-validation
 before_script:
 - export PIP_USE_MIRRORS=true
 - export DJANGO_SETTINGS_MODULE=test_settings
