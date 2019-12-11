@@ -1,6 +1,7 @@
 import contextlib
-from io import StringIO
 import sys
+
+from io import StringIO
 
 
 @contextlib.contextmanager
