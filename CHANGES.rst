@@ -1,12 +1,8 @@
 Changelog
 =========
 
-3.0.1 (in development)
+3.0.0 (in development)
 ----------------------
-* No changes yet.
-
-3.0.0 (2019-12-11)
-------------------
 * `#147`_: Cleaned Tox test environment.
 * `#147`_: Removed Django 2.0 from test matrix as no longer supported.
 * `#152`_: Removed Django 1.10 from test matrix as no longer supported.
