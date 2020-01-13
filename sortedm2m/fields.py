@@ -287,7 +287,6 @@ def create_sortable_many_to_many_intermediary_model(field, klass, sort_field_nam
     lazy_related_operation(set_managed, klass, to_model, name)
     base_classes = base_classes if base_classes else (models.Model,)
 
-    # TODO : use autoincrement here ?
     sort_field = models.IntegerField(default=0)
 
     to = make_model_tuple(to_model)[1]
@@ -309,7 +308,7 @@ def create_sortable_many_to_many_intermediary_model(field, klass, sort_field_nam
     })
 
     # Construct and return the new class.
-    return type(force_str(name), base_classes, {
+    through_model = type(force_str(name), base_classes, {
         'Meta': meta,
         '__module__': klass.__module__,
         from_: models.ForeignKey(
@@ -330,3 +329,19 @@ def create_sortable_many_to_many_intermediary_model(field, klass, sort_field_nam
         sort_field_name: sort_field,
         '_sort_field_name': sort_field_name,
     })
+
+    # Override the save() method to add autoincrementing
+    def save_method(model, *args, **kwargs):
+        if getattr(model, sort_field_name, 0) == 0:
+            filters = {
+                from_: getattr(model, from_)
+            }
+            last_obj = through_model.objects.filter(
+                **filters
+            ).only(sort_field_name).last()
+            last_sort = getattr(last_obj, sort_field_name, -1)
+            setattr(model, sort_field_name, last_sort + 1)
+        models.Model.save(model, *args, **kwargs)
+
+    through_model.save = save_method
+    return through_model
