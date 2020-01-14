@@ -342,7 +342,7 @@ def create_sortable_many_to_many_intermediary_model(field, klass, sort_field_nam
 
 
 def get_sortedm2m_autoincrement(sort_field_name):
-    def sortedm2m_autoincrement(sender, instance, action, reverse, model, pk_set, using, **kwargs):
+    def sortedm2m_autoincrement(sender, instance, action, reverse, model, pk_set, using, *args, **kwargs):
         """
         Autoincrement the sort field when a reverse relationship is modified
         """
