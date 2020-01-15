@@ -367,7 +367,7 @@ def get_sortedm2m_autoincrement(sort_field_name):
                     setattr(
                         relation_obj,
                         sort_field_name,
-                        getattr(last_obj, sort_field_name, -1) +1
+                        getattr(last_obj, sort_field_name, -1) + 1
                     )
                     relation_obj.save()
 
