@@ -5,8 +5,8 @@ from django.db.models import Max, Model, signals
 from django.db.models.fields.related import ManyToManyField as _ManyToManyField
 from django.db.models.fields.related import lazy_related_operation, resolve_relation
 from django.db.models.fields.related_descriptors import ManyToManyDescriptor, create_forward_many_to_many_manager
-from django.db.models.utils import make_model_tuple
 from django.db.models.signals import m2m_changed
+from django.db.models.utils import make_model_tuple
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -359,7 +359,7 @@ def get_sortedm2m_autoincrement(sort_field_name):
                 except (sender.DoesNotExist, ValueError):
                     continue
 
-                if relation_obj.sort_value == 0:
+                if getattr(relation_obj, sort_field_name, 0) == 0:
                     existing_filters = {from_: pk}
                     last_obj = sender.objects.filter(
                         **existing_filters
