@@ -201,8 +201,8 @@ class SortedManyToManyField(_ManyToManyField):
 
     def check(self, **kwargs):
         return (
-            super(SortedManyToManyField, self).check(**kwargs) +
-            self._check_through_sortedm2m()
+            super(SortedManyToManyField, self).check(**kwargs)
+            + self._check_through_sortedm2m()
         )
 
     def _check_through_sortedm2m(self):
