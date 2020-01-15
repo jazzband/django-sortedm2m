@@ -342,12 +342,12 @@ def create_sortable_many_to_many_intermediary_model(field, klass, sort_field_nam
 
 
 def get_sortedm2m_autoincrement(sort_field_name):
-    def sortedm2m_autoincrement(sender, instance, action, reverse, model, pk_set, using, *args, **kwargs):
+    def sortedm2m_autoincrement(sender, instance, action, reverse, model, pk_set, *args, **kwargs):
         """
         Autoincrement the sort field when a reverse relationship is modified
         """
         if action == 'post_add' and pk_set is not None:
-            from_ = f'{model._meta.model_name}_id'
+            from_ = model._meta.model_name
             to = instance._meta.model_name
             if to == from_:
                 to = 'to_%s' % to
@@ -355,7 +355,7 @@ def get_sortedm2m_autoincrement(sort_field_name):
             for pk in pk_set:
                 try:
                     get_filters = {
-                        from_: pk,
+                        f'{from_}_id': pk,
                         to: instance
                     }
                     relation_obj = sender.objects.get(**get_filters)
