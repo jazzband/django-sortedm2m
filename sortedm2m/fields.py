@@ -349,6 +349,9 @@ def get_sortedm2m_autoincrement(sort_field_name):
         if action == 'post_add' and pk_set is not None:
             from_ = f'{model._meta.model_name}_id'
             to = instance._meta.model_name
+            if to == from_:
+                to = 'to_%s' % to
+                from_ = 'from_%s' % from_
             for pk in pk_set:
                 try:
                     get_filters = {
