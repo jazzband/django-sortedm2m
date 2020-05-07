@@ -6,3 +6,10 @@ include AUTHORS.rst
 recursive-include sortedm2m/static *
 recursive-include sortedm2m/templates *
 recursive-include sortedm2m/locale *
+include runtests.py
+include tox.ini
+recursive-include example *.html
+recursive-include example *.py
+recursive-include requirements *.txt
+recursive-include sortedm2m_tests *.py
+recursive-include test_project *.py
