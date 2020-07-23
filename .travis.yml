@@ -36,6 +36,9 @@ script: tox -v
 after_success: codecov
 deploy:
   provider: pypi
+  edge: true
+  skip_existing: true
+  cleanup: true
   user: jazzband
   distributions: sdist bdist_wheel
   server: https://jazzband.co/projects/django-sortedm2m/upload
@@ -44,4 +47,4 @@ deploy:
   on:
     tags: true
     repo: jazzband/django-sortedm2m
-    python: 3.7
+    python: 3.8

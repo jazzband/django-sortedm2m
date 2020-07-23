@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.1
+-----
+* `#164`_: Added all locales to distributable
+
+.. _#164: https://github.com/jazzband/django-sortedm2m/issues/164
+
 3.0.0
 -----
 * `#147`_: Dropped support for Django 2.0
