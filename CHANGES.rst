@@ -4,8 +4,14 @@ Changelog
 3.0.1
 -----
 * `#164`_: Added all locales to distributable
+* `#162`_: Added missing files to MANIFEST.in, and removed .DS_Store files
+* `#150`_: Added German and Spanish translations
+* `#149`_: Removed `admin/js/jquery.init.js` from `SortedCheckboxSelectMultiple`
 
-.. _#164: https://github.com/jazzband/django-sortedm2m/issues/164
+.. _#164: https://github.com/jazzband/django-sortedm2m/pull/164
+.. _#162: https://github.com/jazzband/django-sortedm2m/pull/162
+.. _#150: https://github.com/jazzband/django-sortedm2m/pull/150
+.. _#149: https://github.com/jazzband/django-sortedm2m/pull/149
 
 3.0.0
 -----
