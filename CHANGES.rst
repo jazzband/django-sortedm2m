@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.2
+-----
+* `#168`_: Restored `admin/js/jquery.init.js`
+
+.. _#168: https://github.com/jazzband/django-sortedm2m/pull/168
+
 3.0.1
 -----
 * `#164`_: Added all locales to distributable
