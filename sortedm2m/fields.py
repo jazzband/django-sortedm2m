@@ -5,6 +5,7 @@ from django.db.models import Max, Model, signals
 from django.db.models.fields.related import ManyToManyField as _ManyToManyField
 from django.db.models.fields.related import lazy_related_operation, resolve_relation
 from django.db.models.fields.related_descriptors import ManyToManyDescriptor, create_forward_many_to_many_manager
+from django.db.models.signals import m2m_changed
 from django.db.models.utils import make_model_tuple
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
@@ -200,8 +201,8 @@ class SortedManyToManyField(_ManyToManyField):
 
     def check(self, **kwargs):
         return (
-            super(SortedManyToManyField, self).check(**kwargs) +
-            self._check_through_sortedm2m()
+            super(SortedManyToManyField, self).check(**kwargs)
+            + self._check_through_sortedm2m()
         )
 
     def _check_through_sortedm2m(self):
@@ -287,7 +288,6 @@ def create_sortable_many_to_many_intermediary_model(field, klass, sort_field_nam
     lazy_related_operation(set_managed, klass, to_model, name)
     base_classes = base_classes if base_classes else (models.Model,)
 
-    # TODO : use autoincrement here ?
     sort_field = models.IntegerField(default=0)
 
     to = make_model_tuple(to_model)[1]
@@ -309,7 +309,7 @@ def create_sortable_many_to_many_intermediary_model(field, klass, sort_field_nam
     })
 
     # Construct and return the new class.
-    return type(force_str(name), base_classes, {
+    through_model = type(force_str(name), base_classes, {
         'Meta': meta,
         '__module__': klass.__module__,
         from_: models.ForeignKey(
@@ -330,3 +330,48 @@ def create_sortable_many_to_many_intermediary_model(field, klass, sort_field_nam
         sort_field_name: sort_field,
         '_sort_field_name': sort_field_name,
     })
+
+    # Connect the autoincrement signal listener
+    m2m_changed.connect(
+        get_sortedm2m_autoincrement(sort_field_name),
+        sender=through_model,
+        weak=False
+    )
+
+    return through_model
+
+
+def get_sortedm2m_autoincrement(sort_field_name):
+    def sortedm2m_autoincrement(sender, instance, action, reverse, model, pk_set, *args, **kwargs):
+        """
+        Autoincrement the sort field when a reverse relationship is modified
+        """
+        if action == 'post_add' and pk_set is not None:
+            from_ = model._meta.model_name
+            to = instance._meta.model_name
+            if to == from_:
+                to = 'to_%s' % to
+                from_ = 'from_%s' % from_
+            for pk in pk_set:
+                try:
+                    get_filters = {
+                        f'{from_}_id': pk,
+                        to: instance
+                    }
+                    relation_obj = sender.objects.get(**get_filters)
+                except (sender.DoesNotExist, ValueError):
+                    continue
+
+                if getattr(relation_obj, sort_field_name, 0) == 0:
+                    existing_filters = {from_: pk}
+                    last_obj = sender.objects.filter(
+                        **existing_filters
+                    ).only(sort_field_name).last()
+                    setattr(
+                        relation_obj,
+                        sort_field_name,
+                        getattr(last_obj, sort_field_name, -1) + 1
+                    )
+                    relation_obj.save()
+
+    return sortedm2m_autoincrement
