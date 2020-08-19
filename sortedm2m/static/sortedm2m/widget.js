@@ -1,7 +1,3 @@
-if (typeof jQuery === 'undefined') {
-    var jQuery = django.jQuery;
-}
-
 (function ($) {
     $(function () {
         $('.sortedm2m-container').find('.sortedm2m-items').addClass('hide');
@@ -137,4 +133,4 @@ if (typeof jQuery === 'undefined') {
             };
         }
     });
-})(jQuery);
+})(typeof jQuery === 'undefined' ? django.jQuery : jQuery);
