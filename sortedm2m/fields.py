@@ -36,18 +36,18 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                 # pylint: disable=protected-access
                 return self.instance._prefetched_objects_cache[self.prefetch_cache_name]
             except (AttributeError, KeyError):
-                queryset = super(SortedRelatedManager, self).get_queryset()
+                queryset = super().get_queryset()
                 return self._apply_rel_ordering(queryset)
 
         def get_prefetch_queryset(self, instances, queryset=None):
             # Apply the same ordering for prefetch ones
-            result = super(SortedRelatedManager, self).get_prefetch_queryset(instances, queryset)
+            result = super().get_prefetch_queryset(instances, queryset)
             return (self._apply_rel_ordering(result[0]),) + result[1:]
 
         def set(self, objs, **kwargs):  # pylint: disable=arguments-differ
             # Choosing to clear first will ensure the order is maintained.
             kwargs['clear'] = True
-            super(SortedRelatedManager, self).set(objs, **kwargs)
+            super().set(objs, **kwargs)
         set.alters_data = True
 
         # pylint: disable=arguments-differ
@@ -148,7 +148,7 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
 
 class SortedManyToManyDescriptor(ManyToManyDescriptor):
     def __init__(self, field):
-        super(SortedManyToManyDescriptor, self).__init__(field.remote_field)
+        super().__init__(field.remote_field)
 
     @cached_property
     def related_manager_cls(self):
@@ -184,14 +184,14 @@ class SortedManyToManyField(_ManyToManyField):
         # Base class of through model
         self.base_class = base_class
 
-        super(SortedManyToManyField, self).__init__(to, **kwargs)
+        super().__init__(to, **kwargs)
         if self.sorted:
             self.help_text = kwargs.get('help_text', None)
 
     def deconstruct(self):
         # We have to persist custom added options in the ``kwargs``
         # dictionary. For readability only non-default values are stored.
-        name, path, args, kwargs = super(SortedManyToManyField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         if self.sort_value_field_name is not SORT_VALUE_FIELD_NAME:
             kwargs['sort_value_field_name'] = self.sort_value_field_name
         if self.sorted is not True:
@@ -200,7 +200,7 @@ class SortedManyToManyField(_ManyToManyField):
 
     def check(self, **kwargs):
         return (
-            super(SortedManyToManyField, self).check(**kwargs) +
+            super().check(**kwargs) +
             self._check_through_sortedm2m()
         )
 
@@ -220,7 +220,7 @@ class SortedManyToManyField(_ManyToManyField):
     # pylint: disable=inconsistent-return-statements
     def contribute_to_class(self, cls, name, **kwargs):
         if not self.sorted:
-            return super(SortedManyToManyField, self).contribute_to_class(cls, name, **kwargs)
+            return super().contribute_to_class(cls, name, **kwargs)
 
         # To support multiple relations to self, it's useful to have a non-None
         # related name on symmetrical relations for internal reasons. The
@@ -268,7 +268,7 @@ class SortedManyToManyField(_ManyToManyField):
         if self.sorted:
             defaults['form_class'] = SortedMultipleChoiceField
         defaults.update(kwargs)
-        return super(SortedManyToManyField, self).formfield(**defaults)
+        return super().formfield(**defaults)
 
     def create_intermediate_model(self, klass):
         base_classes = (self.base_class, models.Model) if self.base_class else (models.Model,)
