@@ -20,7 +20,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
     def build_attrs(self, attrs=None, **kwargs):  # pylint: disable=arguments-differ
         attrs = dict(attrs or {}, **kwargs)
-        attrs = super(SortedCheckboxSelectMultiple, self).build_attrs(attrs)
+        attrs = super().build_attrs(attrs)
         classes = attrs.setdefault('class', '').split()
         classes.append('sortedm2m')
         attrs['class'] = ' '.join(classes)
@@ -87,7 +87,7 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = SortedCheckboxSelectMultiple
 
     def clean(self, value):
-        queryset = super(SortedMultipleChoiceField, self).clean(value)
+        queryset = super().clean(value)
         if value is None or not hasattr(queryset, '__iter__'):
             return queryset
         key = self.to_field_name or 'pk'
