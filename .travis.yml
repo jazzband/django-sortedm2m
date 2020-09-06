@@ -8,7 +8,10 @@ python:
 - 3.6
 - 3.7
 - 3.8
-install: pip install -U codecov tox tox-travis
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y firefox-geckodriver xvfb
+install: pip install -U codecov tox tox-travis selenium
 addons:
   postgresql: '10'
 matrix:
@@ -32,7 +35,9 @@ before_script:
   root
 - echo "GRANT ALL PRIVILEGES ON *.* TO 'sortedm2m'@'localhost' WITH GRANT OPTION;"
   | mysql -u root
-script: tox -v
+script:
+  - tox -v
+  - make qunit
 after_success: codecov
 deploy:
   provider: pypi

@@ -7,3 +7,6 @@ quality: ## Run isort, pycodestyle, and Pylint
 
 requirements: ## Install requirements for development
 	pip install -r requirements/test.txt
+
+qunit:
+	timeout 20 xvfb-run python3 test_project/qunit-runner.py
