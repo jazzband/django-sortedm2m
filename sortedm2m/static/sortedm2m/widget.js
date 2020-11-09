@@ -103,6 +103,12 @@
             text = text.replace(/&amp;/g, '&');
             return text;
         }
+        
+        function windowname_to_id(text) {
+            text = text.replace(/__dot__/g, '.');
+            text = text.replace(/__dash__/g, '-');
+            return text;
+        }
 
         if (window.showAddAnotherPopup) {
             var django_dismissAddAnotherPopup = window[dismissPopupFnName];
@@ -111,7 +117,7 @@
                 // django.utils.html.escape.
                 newId = html_unescape(newId);
                 newRepr = html_unescape(newRepr);
-                var name = win.name;
+                var name = windowname_to_id(win.name);
                 var elem = $('#' + name);
                 var sortedm2m = elem.siblings('.sortedm2m-items.sortedm2m');
                 if (sortedm2m.length == 0) {
