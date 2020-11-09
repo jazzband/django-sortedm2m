@@ -111,7 +111,7 @@
                 // django.utils.html.escape.
                 newId = html_unescape(newId);
                 newRepr = html_unescape(newRepr);
-                var name = windowname_to_id(win.name);
+                var name = win.name;
                 var elem = $('#' + name);
                 var sortedm2m = elem.siblings('.sortedm2m-items.sortedm2m');
                 if (sortedm2m.length == 0) {
