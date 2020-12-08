@@ -1,3 +1,7 @@
+if (typeof jQuery === 'undefined') {
+    var jQuery = django.jQuery;
+}
+
 (function ($) {
     $(function () {
         $('.sortedm2m-container').find('.sortedm2m-items').addClass('hide');
@@ -146,4 +150,4 @@
             };
         }
     });
-})(typeof jQuery === 'undefined' ? django.jQuery : jQuery);
+})(jQuery);
