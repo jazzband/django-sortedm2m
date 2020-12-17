@@ -1,7 +1,7 @@
 import os
 import time
 
-from selenium import webdriver
+from selenium import webdriver  # pylint:disable=no-name-in-module
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
 URL = "file://" + ROOT + "/qunit.html"
