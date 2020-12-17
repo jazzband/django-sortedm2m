@@ -11,7 +11,7 @@ python:
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y firefox-geckodriver xvfb
-install: pip install -U codecov tox tox-travis selenium
+install: pip install -U codecov tox tox-travis
 addons:
   postgresql: '10'
 matrix:
