@@ -1,22 +1,8 @@
 #!/usr/bin/env python
 import codecs
 import os
-import re
 
 from setuptools import setup
-
-
-def get_version(package):
-    """
-    Return package version as listed in `__version__` in `init.py`.
-    """
-    matches = re.search(
-        r"__version__[\s]+=[\s]+['\"](?P<version>[^'\"]+)['\"]",
-        open(os.path.join(package, '__init__.py')).read(),
-        re.M
-    )
-
-    return matches.group(1) if matches else None
 
 
 def read(filename):
@@ -31,7 +17,8 @@ long_description = '\n\n'.join((
 
 setup(
     name='django-sortedm2m',
-    version=get_version('sortedm2m'),
+    use_scm_version={"version_scheme": "post-release"},
+    setup_requires=["setuptools_scm"],
     url='http://github.com/jazzband/django-sortedm2m',
     license='BSD',
     description="Drop-in replacement for django's many to many field with sorted relations.",
@@ -48,6 +35,7 @@ setup(
         'Framework :: Django :: 2.1',
         'Framework :: Django :: 2.2',
         'Framework :: Django :: 3.0',
+        'Framework :: Django :: 3.1',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
@@ -56,5 +44,6 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
 )
