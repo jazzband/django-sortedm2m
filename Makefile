@@ -1,4 +1,4 @@
-.PHONY: quality requirements qunit
+.PHONY: quality requirements
 
 quality: ## Run isort, pycodestyle, and Pylint
 	isort --check-only --recursive .
@@ -7,6 +7,3 @@ quality: ## Run isort, pycodestyle, and Pylint
 
 requirements: ## Install requirements for development
 	pip install -r requirements.txt
-
-qunit:
-	timeout 20 xvfb-run python test_project/qunit-runner.py
