@@ -9,4 +9,4 @@ requirements: ## Install requirements for development
 	pip install -r requirements.txt
 
 qunit:
-	timeout 20 xvfb-run python3 test_project/qunit-runner.py
+	timeout 20 xvfb-run python test_project/qunit-runner.py
