@@ -1,6 +1,20 @@
 Changelog
 =========
 
+3.1.0
+-----
+* `#178`_: Bug fixes
+* `#178`_: Fixed Pylint error
+* `#175`_: Fixed jQuery UI error
+* `#183`_: Migrated to GitHub Actions for CI
+* `#184`_: Added support for Django 3.2
+
+.. _#170: https://github.com/jazzband/django-sortedm2m/pull/170
+.. _#178: https://github.com/jazzband/django-sortedm2m/pull/178
+.. _#175: https://github.com/jazzband/django-sortedm2m/pull/175
+.. _#183: https://github.com/jazzband/django-sortedm2m/pull/183
+.. _#184: https://github.com/jazzband/django-sortedm2m/pull/184
+
 3.0.2
 -----
 * `#168`_: Restored `admin/js/jquery.init.js`
