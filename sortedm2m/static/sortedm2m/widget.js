@@ -108,6 +108,14 @@ if (typeof jQuery === 'undefined') {
             return text;
         }
 
+
+        function windowname_to_id(text) {
+            // django32 has removed windowname_to_id function.
+            text = text.replace(/__dot__/g, '.');
+            text = text.replace(/__dash__/g, '-');
+            return text;
+        }
+
         if (window.showAddAnotherPopup) {
             var django_dismissAddAnotherPopup = window[dismissPopupFnName];
             window[dismissPopupFnName] = function (win, newId, newRepr) {
