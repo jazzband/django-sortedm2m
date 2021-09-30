@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.1.1
+-----
+* `#191`_: Fixed JS bug for popup in Django admin
+
+.. _#191: https://github.com/jazzband/django-sortedm2m/pull/191
+
 3.1.0
 -----
 * `#178`_: Bug fixes
