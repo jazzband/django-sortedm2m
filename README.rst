@@ -46,7 +46,9 @@ Requirements
 Usage
 =====
 
-Use ``SortedManyToManyField`` like ``ManyToManyField`` in your models::
+Use ``SortedManyToManyField`` like ``ManyToManyField`` in your models:
+
+.. code-block:: python
 
     from django.db import models
     from sortedm2m.fields import SortedManyToManyField
@@ -60,7 +62,9 @@ Use ``SortedManyToManyField`` like ``ManyToManyField`` in your models::
         photos = SortedManyToManyField(Photo)
 
 If you use the relation in your code like the following, it will remember the
-order in which you have added photos to the gallery. ::
+order in which you have added photos to the gallery. :
+
+.. code-block:: python
 
     gallery = Gallery.objects.create(name='Photos ordered by name')
     for photo in Photo.objects.order_by('name'):
@@ -135,7 +139,9 @@ the selected items. It renders a list of checkboxes that can be sorted by
 drag'n'drop.
 
 To use the widget in the admin you need to add ``sortedm2m`` to your
-INSTALLED_APPS settings, like::
+INSTALLED_APPS settings, like:
+
+.. code-block:: python
 
    INSTALLED_APPS = (
        'django.contrib.auth',
@@ -166,7 +172,9 @@ It's also possible to use the ``SortedManyToManyField`` with admin's
 order in which the ids are entered into the input box is used to sort the
 items of the sorted m2m relation.
 
-Example::
+Example:
+
+.. code-block:: python
 
     from django.contrib import admin
 
