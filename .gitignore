@@ -11,3 +11,4 @@ dist/
 .mypy_cache/
 .tox/
 .vagrant/
+**/.DS_Store
