@@ -1,0 +1,20 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.2.0
+  hooks:
+    - id: check-merge-conflict
+    - id: requirements-txt-fixer
+    - id: trailing-whitespace
+      types: [python]
+    - id: check-case-conflict
+    - id: check-yaml
+    - id: debug-statements
+    - id: check-added-large-files
+    - id: debug-statements
+- repo: https://github.com/pycqa/isort
+  rev: "5.10.1"
+  hooks:
+  - id: isort
+    args: ["--profile", "black"]
