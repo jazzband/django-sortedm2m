@@ -10,8 +10,8 @@ django-sortedm2m
    :target: https://pypi.python.org/pypi/django-sortedm2m
    :alt: PyPI Release
 
-.. image:: https://travis-ci.org/jazzband/django-sortedm2m.svg?branch=master
-   :target: https://travis-ci.org/jazzband/django-sortedm2m
+.. image:: https://github.com/jazzband/django-sortedm2m/actions/workflows/test.yml/badge.svg?branch=master
+   :target: https://github.com/jazzband/django-sortedm2m/actions?query=branch%3Amaster
    :alt: Build Status
 
 .. image:: https://codecov.io/gh/jazzband/django-sortedm2m/branch/master/graph/badge.svg
