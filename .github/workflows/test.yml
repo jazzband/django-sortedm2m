@@ -14,6 +14,11 @@ jobs:
         include:
           - python-version: '3.7'
             django-version: '3.2'
+        exclude:
+          - python-version: '3.8'
+            django-version: 'main'
+          - python-version: '3.9'
+            django-version: 'main'
 
     services:
       postgres:
@@ -68,7 +73,7 @@ jobs:
     - name: Install Selenium dependencies
       run: |
         sudo apt-get -qq update
-        sudo apt-get -y install firefox-geckodriver xvfb
+        sudo apt-get -y install firefox xvfb
 
     - name: Install dependencies
       run: |
