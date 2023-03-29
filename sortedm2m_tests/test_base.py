@@ -239,7 +239,6 @@ class OperationTestBase(MigrationTestBase):
         related_model=False,
         mti_model=False,
         proxy_model=False,
-        manager_model=False,
         unique_together=False,
         options=False,
         db_table=None,
@@ -350,22 +349,6 @@ class OperationTestBase(MigrationTestBase):
                     fields=[],
                     options={"proxy": True},
                     bases=["%s.Pony" % app_label],
-                )
-            )
-        if manager_model:
-            from .models import FoodManager, FoodQuerySet
-
-            operations.append(
-                migrations.CreateModel(
-                    "Food",
-                    fields=[
-                        ("id", models.AutoField(primary_key=True)),
-                    ],
-                    managers=[
-                        ("food_qs", FoodQuerySet.as_manager()),
-                        ("food_mgr", FoodManager("a", "b")),
-                        ("food_mgr_kwargs", FoodManager("x", "y", 3, 4)),
-                    ],
                 )
             )
         return self.apply_operations(app_label, ProjectState(), operations)
