@@ -184,6 +184,23 @@ class TestSortedManyToManyField(TestCase):
 
         self.assertEqual(get_ids(shelf.books.all()), get_ids(books))
 
+    def test_prefetch_related_multiple(self):
+        shelves = [self.model.objects.create() for i in range(3)]
+        related_books = [
+            (self.books[2], self.books[0]),
+            (self.books[2], self.books[1], self.books[0]),
+            (self.books[0], self.books[1], self.books[2])
+        ]
+        for shelf, book_list in zip(shelves, related_books):
+            shelf.books.set(book_list)
+
+        def get_ids(queryset):
+            return [obj.id for obj in queryset]
+
+        shelves = self.model.objects.order_by('id').prefetch_related('books')
+        for shelf, book_list in zip(shelves, related_books):
+            self.assertEqual(get_ids(shelf.books.all()), get_ids(book_list))
+
 
 class TestStringReference(TestSortedManyToManyField):
     """
