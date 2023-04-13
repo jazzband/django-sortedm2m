@@ -64,7 +64,7 @@ class MessyStore(models.Model):
 
 
 class SelfReference(models.Model):
-    me = SortedManyToManyField('self', related_name='hide+')
+    me = SortedManyToManyField('self')
 
     def __str__(self):
         return str(self.pk)

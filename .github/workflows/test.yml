@@ -70,11 +70,6 @@ jobs:
         restore-keys: |
           ${{ matrix.python-version }}-v1-
 
-    - name: Install Selenium dependencies
-      run: |
-        sudo apt-get -qq update
-        sudo apt-get -y install firefox xvfb
-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -90,3 +85,44 @@ jobs:
       uses: codecov/codecov-action@v2
       with:
         name: Python ${{ matrix.python-version }}
+
+  tox_checks:
+    name: Run tox environment ${{ matrix.tox-env }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tox-env: ['quality', 'dist-validation']
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade tox tox-gh-actions
+
+    - name: Tox tests
+      run: tox -e ${{ matrix.tox-env }} -v
+
+  qunit:
+    name: Visual tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+
+    - name: Install Selenium dependencies
+      run: |
+        sudo apt-get -qq update
+        sudo apt-get -y install firefox xvfb
+
+    - name: Install python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade tox tox-gh-actions
+
+    - name: Tox tests
+      run: tox -e qunit -v
