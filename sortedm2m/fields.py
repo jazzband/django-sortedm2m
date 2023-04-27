@@ -5,15 +5,16 @@ from django.db.models import Max, Model, signals
 from django.db.models.fields.related import ManyToManyField as _ManyToManyField
 from django.db.models.fields.related import lazy_related_operation, resolve_relation
 from django.db.models.fields.related_descriptors import ManyToManyDescriptor, create_forward_many_to_many_manager
-from django.db.models.utils import make_model_tuple
+from django.db.models.utils import make_model_tuple, resolve_callables
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from .compat import get_rel
 from .forms import SortedMultipleChoiceField
 
 SORT_VALUE_FIELD_NAME = 'sort_value'
+
+RECURSIVE_RELATIONSHIP_CONSTANT = 'self'
 
 
 def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
@@ -44,117 +45,130 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
             result = super().get_prefetch_queryset(instances, queryset)
             return (self._apply_rel_ordering(result[0]),) + result[1:]
 
-        def set(self, objs, **kwargs):  # pylint: disable=arguments-differ
-            # Choosing to clear first will ensure the order is maintained.
-            kwargs['clear'] = True
-            super().set(objs, **kwargs)
+
+        def set(self, objs, *, clear=False, through_defaults=None):
+            # Force evaluation of `objs` in case it's a queryset whose value
+            # could be affected by `manager.clear()`. Refs #19816.
+            objs = tuple(objs)
+            
+            db = router.db_for_write(self.through, instance=self.instance)
+            with transaction.atomic(using=db, savepoint=False):
+                old_ids = list(
+                    self.using(db).values_list(
+                        self.target_field.target_field.attname, flat=True
+                    )
+                )
+                if old_ids != [obj.pk for obj in objs] or clear:
+                    self.clear()
+                    self.add(*objs, through_defaults=through_defaults)
+
         set.alters_data = True
 
-        # pylint: disable=arguments-differ
-        def _add_items(self, source_field_name, target_field_name, *objs, **kwargs):
+        def _add_items(
+            self, source_field_name, target_field_name, *objs, through_defaults=None
+        ):
             # source_field_name: the PK fieldname in join table for the source object
             # target_field_name: the PK fieldname in join table for the target object
-            # *objs - objects to add. Either object instances, or primary keys of object instances.
-            # **kwargs: in Django >= 2.2; contains `through_defaults` key.
-            through_defaults = kwargs.get('through_defaults') or {}
+            # *objs - objects to add. Either object instances, or primary keys
+            # of object instances.
+            if not objs:
+                return
 
-            # If there aren't any objects, there is nothing to do.
-            if objs:
-                # Django uses a set here, we need to use a list to keep the
-                # correct ordering.
-                new_ids = []
-                for obj in objs:
-                    if isinstance(obj, self.model):
-                        if not router.allow_relation(obj, self.instance):
-                            raise ValueError(
-                                'Cannot add "%r": instance is on database "%s", value is on database "%s"' %
-                                (obj, self.instance._state.db, obj._state.db)  # pylint: disable=protected-access
-                            )
+            through_defaults = dict(resolve_callables(through_defaults or {}))
 
-                        fk_val = self.through._meta.get_field(target_field_name).get_foreign_related_value(obj)[0]
-
-                        if fk_val is None:
-                            raise ValueError(
-                                'Cannot add "%r": the value for field "%s" is None' %
-                                (obj, target_field_name)
-                            )
-
-                        new_ids.append(fk_val)
-                    elif isinstance(obj, Model):
-                        raise TypeError(
-                            "'%s' instance expected, got %r" %
-                            (self.model._meta.object_name, obj)
-                        )
-                    else:
-                        new_ids.append(obj)
-
-                db = router.db_for_write(self.through, instance=self.instance)
-                manager = self.through._default_manager.using(db)  # pylint: disable=protected-access
-                vals = (self.through._default_manager.using(db)  # pylint: disable=protected-access
-                        .values_list(target_field_name, flat=True)
-                        .filter(**{
-                            source_field_name: self.related_val[0],
-                            '%s__in' % target_field_name: new_ids,
-                        }))
-
-                # make set.difference_update() keeping ordering
-                new_ids_set = set(new_ids)
-                new_ids_set.difference_update(vals)
-
-                new_ids = list(filter(lambda _id: _id in new_ids_set, new_ids))
-
-                # Add the ones that aren't there already
-                with transaction.atomic(using=db, savepoint=False):
-                    if self.reverse or source_field_name == self.source_field_name:
-                        # Don't send the signal when we are inserting the
-                        # duplicate data row for symmetrical reverse entries.
-                        signals.m2m_changed.send(
-                            sender=self.through, action='pre_add',
-                            instance=self.instance, reverse=self.reverse,
-                            model=self.model, pk_set=new_ids_set, using=db,
+            # Django uses a set here, we need to use a list to keep the
+            # correct ordering.
+            new_ids = []
+            for obj in objs:
+                if isinstance(obj, self.model):
+                    if not router.allow_relation(obj, self.instance):
+                        raise ValueError(
+                            'Cannot add "%r": instance is on database "%s", value is on database "%s"' %
+                            (obj, self.instance._state.db, obj._state.db)  # pylint: disable=protected-access
                         )
 
-                    rel_source_fk = self.related_val[0]
-                    rel_through = self.through
-                    sort_field_name = rel_through._sort_field_name  # pylint: disable=protected-access
+                    fk_val = self.through._meta.get_field(target_field_name).get_foreign_related_value(obj)[0]
 
-                    # Use the max of all indices as start index...
-                    # maybe an autoincrement field should do the job more efficiently ?
-                    source_queryset = manager.filter(**{'%s_id' % source_field_name: rel_source_fk})
-                    sort_value_max = source_queryset.aggregate(max=Max(sort_field_name))['max'] or 0
-
-                    bulk_data = [
-                        dict(through_defaults, **{
-                            '%s_id' % source_field_name: rel_source_fk,
-                            '%s_id' % target_field_name: obj_id,
-                            sort_field_name: obj_idx,
-                        })
-                        for obj_idx, obj_id in enumerate(new_ids, sort_value_max + 1)
-                    ]
-
-                    manager.bulk_create([rel_through(**data) for data in bulk_data])
-
-                    if self.reverse or source_field_name == self.source_field_name:
-                        # Don't send the signal when we are inserting the
-                        # duplicate data row for symmetrical reverse entries.
-                        signals.m2m_changed.send(
-                            sender=self.through, action='post_add',
-                            instance=self.instance, reverse=self.reverse,
-                            model=self.model, pk_set=new_ids_set, using=db,
+                    if fk_val is None:
+                        raise ValueError(
+                            'Cannot add "%r": the value for field "%s" is None' %
+                            (obj, target_field_name)
                         )
+
+                    new_ids.append(fk_val)
+                elif isinstance(obj, Model):
+                    raise TypeError(
+                        "'%s' instance expected, got %r" %
+                        (self.model._meta.object_name, obj)
+                    )
+                else:
+                    new_ids.append(obj)
+
+            db = router.db_for_write(self.through, instance=self.instance)
+            manager = self.through._default_manager.using(db)  # pylint: disable=protected-access
+            vals = (self.through._default_manager.using(db)  # pylint: disable=protected-access
+                    .values_list(target_field_name, flat=True)
+                    .filter(**{
+                        source_field_name: self.related_val[0],
+                        '%s__in' % target_field_name: new_ids,
+                    }))
+
+            # make set.difference_update() keeping ordering
+            new_ids_set = set(new_ids)
+            new_ids_set.difference_update(vals)
+
+            new_ids = list(filter(lambda _id: _id in new_ids_set, new_ids))
+
+            # Add the ones that aren't there already
+            with transaction.atomic(using=db, savepoint=False):
+                if self.reverse or source_field_name == self.source_field_name:
+                    # Don't send the signal when we are inserting the
+                    # duplicate data row for symmetrical reverse entries.
+                    signals.m2m_changed.send(
+                        sender=self.through, action='pre_add',
+                        instance=self.instance, reverse=self.reverse,
+                        model=self.model, pk_set=new_ids_set, using=db,
+                    )
+
+                rel_source_fk = self.related_val[0]
+                rel_through = self.through
+                sort_field_name = rel_through._sort_field_name  # pylint: disable=protected-access
+
+                # Use the max of all indices as start index...
+                # maybe an autoincrement field should do the job more efficiently ?
+                source_queryset = manager.filter(**{'%s_id' % source_field_name: rel_source_fk})
+                sort_value_max = source_queryset.aggregate(max=Max(sort_field_name))['max'] or 0
+
+                bulk_data = [
+                    dict(through_defaults, **{
+                        '%s_id' % source_field_name: rel_source_fk,
+                        '%s_id' % target_field_name: obj_id,
+                        sort_field_name: obj_idx,
+                    })
+                    for obj_idx, obj_id in enumerate(new_ids, sort_value_max + 1)
+                ]
+
+                manager.bulk_create([rel_through(**data) for data in bulk_data])
+
+                if self.reverse or source_field_name == self.source_field_name:
+                    # Don't send the signal when we are inserting the
+                    # duplicate data row for symmetrical reverse entries.
+                    signals.m2m_changed.send(
+                        sender=self.through, action='post_add',
+                        instance=self.instance, reverse=self.reverse,
+                        model=self.model, pk_set=new_ids_set, using=db,
+                    )
 
     return SortedRelatedManager
 
 
 class SortedManyToManyDescriptor(ManyToManyDescriptor):
-    def __init__(self, field):
-        super().__init__(field.remote_field)
 
     @cached_property
     def related_manager_cls(self):
-        model = self.rel.model
+        related_model = self.rel.model
         return create_sorted_many_related_manager(
-            model._default_manager.__class__,  # pylint: disable=protected-access
+            related_model._default_manager.__class__,
             self.rel,
             # This is the new `reverse` argument (which ironically should
             # be False)
@@ -205,16 +219,13 @@ class SortedManyToManyField(_ManyToManyField):
         )
 
     def _check_through_sortedm2m(self):
-        rel = get_rel(self)
-
         # Check if the custom through model of a SortedManyToManyField as a
         # valid '_sort_field_name' attribute
-        if self.sorted and rel.through:
-            assert hasattr(rel.through, '_sort_field_name'), (
+        if self.sorted and self.remote_field.through:
+            assert hasattr(self.remote_field.through, '_sort_field_name'), (
                 "The model is used as an intermediate model by "
-                "'%s' but has no defined '_sort_field_name' attribute" % rel.through
+                "'%s' but has no defined '_sort_field_name' attribute" % self.remote_field.through
             )
-
         return []
 
     # pylint: disable=inconsistent-return-statements
@@ -228,18 +239,23 @@ class SortedManyToManyField(_ManyToManyField):
         # specify *what* on my non-reversible relation?!"), so we set it up
         # automatically. The funky name reduces the chance of an accidental
         # clash.
-        rel = get_rel(self)
-
-        if rel.symmetrical and (rel.model == "self" or rel.model == cls._meta.object_name):
-            rel.related_name = "%s_rel_+" % name
-        elif rel.is_hidden():
+        if self.remote_field.symmetrical and (
+            self.remote_field.model == RECURSIVE_RELATIONSHIP_CONSTANT
+            or self.remote_field.model == cls._meta.object_name
+        ):
+            self.remote_field.related_name = "%s_rel_+" % name
+        elif self.remote_field.is_hidden():
             # If the backwards relation is disabled, replace the original
             # related_name with one generated from the m2m field name. Django
             # still uses backwards relations internally and we need to avoid
             # clashes between multiple m2m fields with related_name == '+'.
-            rel.related_name = "_%s_%s_+" % (cls.__name__.lower(), name)
+            self.remote_field.related_name = "_%s_%s_%s_+" % (
+                cls._meta.app_label,
+                cls.__name__.lower(),
+                name,
+            )
 
-        # pylint: disable=bad-super-call
+        # call super of the _ManyToManyField!!!
         super(_ManyToManyField, self).contribute_to_class(cls, name, **kwargs)
 
         # The intermediate m2m model is not auto created if:
@@ -247,15 +263,19 @@ class SortedManyToManyField(_ManyToManyField):
         #  2) The class owning the m2m field is abstract.
         #  3) The class owning the m2m field has been swapped out.
         if not cls._meta.abstract:
-            if rel.through:
-                def resolve_through_model(_, model):
-                    rel.through = model
-                lazy_related_operation(resolve_through_model, cls, rel.through)
+            if self.remote_field.through:
+
+                def resolve_through_model(_, model, field):
+                    field.remote_field.through = model
+
+                lazy_related_operation(
+                    resolve_through_model, cls, self.remote_field.through, field=self
+                )
             elif not cls._meta.swapped:
-                rel.through = self.create_intermediate_model(cls)
+                self.remote_field.through = self.create_intermediate_model(cls)
 
         # Add the descriptor for the m2m relation
-        setattr(cls, self.name, SortedManyToManyDescriptor(self))
+        setattr(cls, self.name, SortedManyToManyDescriptor(self.remote_field))
 
         # Set up the accessor for the m2m table name for the relation
         self.m2m_db_table = partial(self._get_m2m_db_table, cls._meta)  # pylint: disable=attribute-defined-outside-init
