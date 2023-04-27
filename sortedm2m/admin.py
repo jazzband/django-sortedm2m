@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from django.utils import translation
 from django.contrib.admin.widgets import AutocompleteSelectMultiple
 
 class OrderedAutocomplete(AutocompleteSelectMultiple):
@@ -44,33 +45,26 @@ class OrderedAutocomplete(AutocompleteSelectMultiple):
             )
         return groups
 
-    @property
-    def media(self):
+    class Media:
         extra = "" if settings.DEBUG else ".min"
-        i18n_file = (
-            ("admin/js/vendor/select2/i18n/%s.js" % self.i18n_name,)
-            if self.i18n_name
-            else ()
+        lang = translation.get_language()
+        js = ( 
+            "admin/js/vendor/jquery/jquery%s.js" % extra,
+            "admin/js/vendor/select2/select2.full%s.js" % extra,
+        ) + (
+            "admin/js/vendor/select2/i18n/%s.js" % lang,
+        ) + (
+            'sortedm2m/jquery-ui.min.js',
+            "admin/js/jquery.init.js",
+            "sortedm2m/ordered_autocomplete.js"
         )
-        return forms.Media(
-            js=(
-                "admin/js/vendor/jquery/jquery%s.js" % extra,
-                "admin/js/vendor/select2/select2.full%s.js" % extra,
+        css = {
+            "screen": (
+                "admin/css/vendor/select2/select2%s.css" % extra,
+                "admin/css/autocomplete.css",
+                "sortedm2m/ordered_autocomplete.css",
             )
-            + i18n_file
-            + (
-                'sortedm2m/jquery-ui.min.js',
-                "admin/js/jquery.init.js",
-                "sortedm2m/ordered_autocomplete.js"
-            ),
-            css={
-                "screen": (
-                    "admin/css/vendor/select2/select2%s.css" % extra,
-                    "admin/css/autocomplete.css",
-                    "sortedm2m/ordered_autocomplete.css",
-                ),
-            },
-        )
+        }
 
 
 class SortedM2MAutocompleteMixin:

@@ -20,7 +20,7 @@
             let select = $('select#' + element.getAttribute('id'));
             let children = select.next().children().children().children();
             children.sortable({
-                containment: 'parent',
+                // containment: 'parent',
                 stop: function (event, ui) {
                     ui.item.parent().children('[title]').each(function () {
                         let title = $(this).attr('title');
@@ -45,31 +45,3 @@
         $(event.target).find('.admin-autocomplete').djangoAdminSelect2();
     });
 }
-
-
-
-
-
-// (function() {
-//     setTimeout( function() {
-//         let $ = django.jQuery;
-//         let selects = $('select.admin-autocomplete')
-//         console.log(selects);
-//         selects.each(function(index, element) {
-//             let select = $(element).select2();
-//             let children = select.next().children().children().children();
-//             children.sortable({
-//                 containment: 'parent',
-//                 stop: function (event, ui) {
-//                     ui.item.parent().children('[title]').each(function () {
-//                         let title = $(this).attr('title');
-//                         let original = $('option:contains(' + title + ')', select).first();
-//                         original.detach();
-//                         select.append(original)
-//                     });
-//                     select.change();
-//                 }
-//             });
-//         });
-//     }, 1000);
-// })();
