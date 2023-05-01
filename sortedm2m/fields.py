@@ -49,7 +49,7 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
         def set(self, objs, *, clear=False, through_defaults=None):
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
-            objs = tuple(objs)
+            # objs = tuple(objs)
             
             db = router.db_for_write(self.through, instance=self.instance)
             with transaction.atomic(using=db, savepoint=False):
@@ -58,7 +58,11 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                         self.target_field.target_field.attname, flat=True
                     )
                 )
-                if old_ids != [obj.pk for obj in objs] or clear:
+                try:
+                    new_ids = [obj.pk for obj in objs]
+                except AttributeError:
+                    new_ids = objs
+                if old_ids != new_ids or clear:
                     self.clear()
                     self.add(*objs, through_defaults=through_defaults)
 
