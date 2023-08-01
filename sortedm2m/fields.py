@@ -27,7 +27,7 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                 manager.__class__, rel, *args, **kwargs
             )
             return manager_class(instance=self.instance)
-        
+
         def _apply_rel_ordering(self, queryset):
             return queryset.extra(order_by=['%s.%s' % (
                 self.through._meta.db_table,
