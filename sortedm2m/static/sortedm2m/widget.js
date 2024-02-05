@@ -62,7 +62,9 @@ if (typeof jQuery === 'undefined') {
         }
 
         function iterateUl() {
-            $('.sortedm2m-items').each(function () {
+            // Add sortable only to visible .sortedm2m-items.
+            // Exclude element with class .sortedm2m since they are already initialized
+            $('.sortedm2m-items:visible:not(.sortedm2m)').each(function () {
                 var ul = $(this);
 
                 prepareUl(ul);
