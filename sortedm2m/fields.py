@@ -232,7 +232,7 @@ class SortedManyToManyField(_ManyToManyField):
 
         if rel.symmetrical and (rel.model == "self" or rel.model == cls._meta.object_name):
             rel.related_name = "%s_rel_+" % name
-        elif rel.is_hidden():
+        elif rel.hidden:
             # If the backwards relation is disabled, replace the original
             # related_name with one generated from the m2m field name. Django
             # still uses backwards relations internally and we need to avoid
