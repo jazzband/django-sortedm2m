@@ -111,9 +111,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v3
-    - uses: browser-actions/setup-chrome@v1
-      with:
-        install-chromedriver: true
+    - uses: browser-actions/setup-firefox@v1
 
     - name: Install python dependencies
       run: |
