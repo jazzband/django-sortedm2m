@@ -7,7 +7,7 @@ ROOT = os.path.abspath(os.path.dirname(__file__))
 URL = "file://" + ROOT + "/qunit.html"
 TIMEOUT = 5
 
-driver = webdriver.Remote(options=webdriver.FirefoxOptions())
+driver = webdriver.Firefox()
 driver.set_page_load_timeout(TIMEOUT)
 driver.get(URL)
 
