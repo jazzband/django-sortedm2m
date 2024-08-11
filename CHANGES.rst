@@ -1,6 +1,14 @@
 Changelog
 =========
 
+4.0.0
+-----
+* `#216`_: Dropped support for outdated versions of Django and Python
+* `#215`_: Added support for Django 5.1
+
+.. _#215: https://github.com/jazzband/django-sortedm2m/pull/215
+.. _#216: https://github.com/jazzband/django-sortedm2m/pull/215
+
 3.1.1
 -----
 * `#191`_: Fixed JS bug for popup in Django admin
