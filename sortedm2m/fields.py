@@ -39,6 +39,11 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
                 queryset = super().get_queryset()
                 return self._apply_rel_ordering(queryset)
 
+        def get_prefetch_querysets(self, instances, queryset=None):
+            # Apply the same ordering for prefetch ones
+            result = super().get_prefetch_querysets(instances, queryset)
+            return (self._apply_rel_ordering(result[0]),) + result[1:]
+
         def get_prefetch_queryset(self, instances, queryset=None):
             # Apply the same ordering for prefetch ones
             result = super().get_prefetch_queryset(instances, queryset)
