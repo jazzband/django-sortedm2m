@@ -250,7 +250,7 @@ class OperationTestBase(MigrationTestBase):
         # Make the "current" state.
         model_options = {
             "swappable": "TEST_SWAP_MODEL",
-            "index_together": [["weight", "pink"]] if index_together else [],
+            "indexes": models.Index(fields=["weight", "pink"]) if index_together else [],
             "unique_together": [["pink", "weight"]] if unique_together else [],
         }
         if options:
