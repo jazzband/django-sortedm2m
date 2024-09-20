@@ -1,0 +1,4 @@
+.grp-change-form .select2-selection__rendered.ui-sortable .ui-sortable-helper {
+    width: auto !important;
+    height: auto !important;
+}
