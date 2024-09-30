@@ -45,6 +45,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_field_m2m_to_sorted(self):
         project_state = self.set_up_test_model("test_alflmm", second_model=True)
+        Pony = project_state.apps.get_model("test_alflmm", "Pony")
 
         project_state = self.apply_operations(
             "test_alflmm",
@@ -60,6 +61,14 @@ class OperationTests(OperationTestBase):
         Pony = project_state.apps.get_model("test_alflmm", "Pony")
         self.assertIsInstance(Pony._meta.get_field("stables"), models.ManyToManyField)
 
+        # Create data to check after migration
+        pony = Pony.objects.create(weight=2.5)
+        Stable = project_state.apps.get_model("test_alflmm", "Stable")
+        pony.stables.add(
+            Stable.objects.create(),
+            Stable.objects.create()
+        )
+
         project_state = self.apply_operations(
             "test_alflmm",
             project_state,
@@ -74,6 +83,8 @@ class OperationTests(OperationTestBase):
             ],
         )
         Pony = project_state.apps.get_model("test_alflmm", "Pony")
+        pony = Pony.objects.first()
+        assert len(set(pony.stables.all())) == 2
         self.assertIsInstance(Pony._meta.get_field("stables"), SortedManyToManyField)
 
     def test_alter_field_sortedm2m_to_m2m(self):
@@ -93,6 +104,15 @@ class OperationTests(OperationTestBase):
         Pony = project_state.apps.get_model("test_alflmm", "Pony")
         self.assertIsInstance(Pony._meta.get_field("stables"), SortedManyToManyField)
 
+        # Create data to check after migration
+        pony = Pony.objects.create(weight=2.5)
+        Stable = project_state.apps.get_model("test_alflmm", "Stable")
+        pony.stables.add(
+            Stable.objects.create(),
+            Stable.objects.create()
+        )
+        stable_ids = [stable.id for stable in pony.stables.all()]
+
         project_state = self.apply_operations(
             "test_alflmm",
             project_state,
@@ -108,6 +128,10 @@ class OperationTests(OperationTestBase):
         )
         Pony = project_state.apps.get_model("test_alflmm", "Pony")
         self.assertIsInstance(Pony._meta.get_field("stables"), models.ManyToManyField)
+
+        # Check that data is still there and ordered
+        pony = Pony.objects.first()
+        assert [stable.id for stable in pony.stables.all()] == stable_ids
 
     def test_unapply_alter_field_m2m_to_sortedm2m(self):
         project_state = self.set_up_test_model("test_alflmm", second_model=True)
