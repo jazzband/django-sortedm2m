@@ -10,7 +10,6 @@ from django.utils.encoding import force_str
 from sortedm2m.compat import get_field, get_rel
 from sortedm2m.fields import SORT_VALUE_FIELD_NAME
 
-from .compat import m2m_set
 from .models import Book, DoItYourselfShelf, SelfReference, Shelf, Store, TaggedDoItYourselfShelf
 
 
@@ -80,24 +79,24 @@ class TestSortedManyToManyField(TestCase):
         self.assertEqual(list(shelf.books.all()), [])
 
         books = self.books[5:2:-1]
-        m2m_set(shelf, "books", books)
+        shelf.books.set(books)
         self.assertEqual(list(shelf.books.all()), books)
 
         books.reverse()
-        m2m_set(shelf, "books", books)
+        shelf.books.set(books)
         self.assertEqual(list(shelf.books.all()), books)
 
         shelf.books.add(self.books[8])
         self.assertEqual(list(shelf.books.all()), books + [self.books[8]])
 
-        m2m_set(shelf, "books", [])
+        shelf.books.set([])
         self.assertEqual(list(shelf.books.all()), [])
 
-        m2m_set(shelf, "books", [self.books[9]])
+        shelf.books.set([self.books[9]])
         self.assertEqual(list(shelf.books.all()), [
             self.books[9]])
 
-        m2m_set(shelf, "books", [])
+        shelf.books.set([])
         self.assertEqual(list(shelf.books.all()), [])
 
     def test_set_items_by_pk(self):
@@ -105,20 +104,20 @@ class TestSortedManyToManyField(TestCase):
         self.assertEqual(list(shelf.books.all()), [])
 
         books = self.books[5:2:-1]
-        m2m_set(shelf, "books", [b.pk for b in books])
+        shelf.books.set([b.pk for b in books])
         self.assertEqual(list(shelf.books.all()), books)
 
-        m2m_set(shelf, "books", [self.books[5].pk, self.books[2]])
+        shelf.books.set([self.books[5].pk, self.books[2]])
         self.assertEqual(list(shelf.books.all()), [
             self.books[5],
             self.books[2]])
 
-        m2m_set(shelf, "books", [force_str(self.books[8].pk)])
+        shelf.books.set([force_str(self.books[8].pk)])
         self.assertEqual(list(shelf.books.all()), [self.books[8]])
 
     def test_remove_items(self):
         shelf = self.model.objects.create()
-        m2m_set(shelf, "books", self.books[2:5])
+        shelf.books.set(self.books[2:5])
         self.assertEqual(list(shelf.books.all()), [
             self.books[2],
             self.books[3],
@@ -134,7 +133,7 @@ class TestSortedManyToManyField(TestCase):
 
     def test_remove_items_by_pk(self):
         shelf = self.model.objects.create()
-        m2m_set(shelf, "books", self.books[2:5])
+        shelf.books.set(self.books[2:5])
         self.assertEqual(list(shelf.books.all()), [
             self.books[2],
             self.books[3],
@@ -175,7 +174,7 @@ class TestSortedManyToManyField(TestCase):
     def test_prefetch_related_sorting(self):
         shelf = self.model.objects.create()
         books = [self.books[0], self.books[2], self.books[1]]
-        m2m_set(shelf, "books", books)
+        shelf.books.set(books)
 
         shelf = self.model.objects.filter(pk=shelf.pk).prefetch_related('books')[0]
 
