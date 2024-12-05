@@ -107,6 +107,12 @@ if (typeof jQuery === 'undefined') {
             text = text.replace(/&amp;/g, '&');
             return text;
         }
+        
+        function windowname_to_id(text) {
+            text = text.replace(/__dot__/g, '.');
+            text = text.replace(/__dash__/g, '-');
+            return text;
+        }
 
         function windowname_to_id(text) {
             // django32 has removed windowname_to_id function.
