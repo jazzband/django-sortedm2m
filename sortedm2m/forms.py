@@ -108,4 +108,4 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
 class SortedCheckboxMultipleChoiceField(SortedMultipleChoiceField):
     widget = SortedCheckboxSelectMultiple
 
-    
+
