@@ -8,6 +8,8 @@ from django.utils.safestring import mark_safe
 
 
 class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
+    template_name = 'sortedm2m/sorted_checkbox_select_multiple_widget.html'
+
     class Media:
         js = (
             'admin/js/jquery.init.js',
@@ -72,7 +74,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         selected = ordered
 
         html = render_to_string(
-            'sortedm2m/sorted_checkbox_select_multiple_widget.html',
+            self.template_name,
             {'selected': selected, 'unselected': unselected})
         return mark_safe(html)
 
