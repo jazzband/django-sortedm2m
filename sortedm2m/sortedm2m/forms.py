@@ -12,7 +12,7 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
         js = (
             'admin/js/jquery.init.js',
             'sortedm2m/widget.js',
-            'sortedm2m/jquery-ui.min.js',
+            'sortedm2m/jquery-ui.js',
         )
         css = {'screen': (
             'sortedm2m/widget.css',
@@ -84,6 +84,8 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
 
 class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
+    widget = SortedCheckboxSelectMultiple
+
     def clean(self, value):
         queryset = super().clean(value)
         if value is None or not hasattr(queryset, '__iter__'):
@@ -99,11 +101,6 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
             data = []
         if len(initial) != len(data):
             return True
-        initial_list = [force_str(value) for value in self.prepare_value(initial)]
-        data_list = [force_str(value) for value in data]
-        return data_list != initial_list
-
-class SortedCheckboxMultipleChoiceField(SortedMultipleChoiceField):
-    widget = SortedCheckboxSelectMultiple
-
-
+        initial_set = [force_str(value) for value in self.prepare_value(initial)]
+        data_set = [force_str(value) for value in data]
+        return data_set != initial_set
