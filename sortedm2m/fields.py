@@ -55,7 +55,7 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
             # objs = tuple(objs)
-            
+
             db = router.db_for_write(self.through, instance=self.instance)
             with transaction.atomic(using=db, savepoint=False):
                 old_ids = list(
