@@ -1,7 +1,8 @@
 from django import forms
 from django.conf import settings
-from django.utils import translation
 from django.contrib.admin.widgets import AutocompleteSelectMultiple
+from django.utils import translation
+
 
 class OrderedAutocomplete(AutocompleteSelectMultiple):
     def optgroups(self, name, value, attr=None):
@@ -48,7 +49,7 @@ class OrderedAutocomplete(AutocompleteSelectMultiple):
     class Media:
         extra = "" if settings.DEBUG else ".min"
         lang = translation.get_language()
-        js = ( 
+        js = (
             "admin/js/vendor/jquery/jquery%s.js" % extra,
             "admin/js/vendor/select2/select2.full%s.js" % extra,
         ) + (
