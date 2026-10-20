@@ -2,20 +2,16 @@
 django-sortedm2m
 ================
 
-.. image:: https://jazzband.co/static/img/badge.svg
-   :target: https://jazzband.co/
-   :alt: Jazzband
-
 .. image:: https://img.shields.io/pypi/v/django-sortedm2m.svg
    :target: https://pypi.python.org/pypi/django-sortedm2m
    :alt: PyPI Release
 
-.. image:: https://github.com/jazzband/django-sortedm2m/actions/workflows/test.yml/badge.svg?branch=master
-   :target: https://github.com/jazzband/django-sortedm2m/actions?query=branch%3Amaster
+.. image:: https://github.com/django-commons/django-sortedm2m/actions/workflows/test.yml/badge.svg?branch=master
+   :target: https://github.com/django-commons/django-sortedm2m/actions?query=branch%3Amaster
    :alt: Build Status
 
-.. image:: https://codecov.io/gh/jazzband/django-sortedm2m/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/jazzband/django-sortedm2m
+.. image:: https://codecov.io/gh/django-commons/django-sortedm2m/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/django-commons/django-sortedm2m
    :alt: Code coverage
 
 ``sortedm2m`` is a drop-in replacement for django's own ``ManyToManyField``.
@@ -184,13 +180,12 @@ Example:
 
 Contribute
 ==========
-This is a `Jazzband <https://jazzband.co>`_ project. By contributing you agree to abide by the
-`Contributor Code of Conduct <https://jazzband.co/about/conduct>`_ and follow the
-`guidelines <https://jazzband.co/about/guidelines>`_.
+This is a `Django Commons <https://github.com/django-commons>`_ project. By contributing you agree to abide by the
+`Contributor Code of Conduct <https://github.com/django-commons/membership/blob/main/CODE_OF_CONDUCT.md>`_.
 
 You can find the latest development version on Github_. Get there and fork it, file bugs or send well wishes.
 
-.. _github: http://github.com/jazzband/django-sortedm2m
+.. _github: http://github.com/django-commons/django-sortedm2m
 
 Running the tests
 -----------------
