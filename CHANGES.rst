@@ -1,6 +1,10 @@
 Changelog
 =========
 
+Unreleased
+----------
+* Switched to trusted publisher release process with Django Commons
+
 4.0.0
 -----
 * `#216`_: Dropped support for outdated versions of Django and Python
