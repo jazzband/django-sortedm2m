@@ -2,13 +2,13 @@ from django import forms
 from django.test import TestCase
 from django.utils.encoding import force_str
 
-from sortedm2m.forms import SortedMultipleChoiceField
+from sortedm2m.forms import SortedCheckboxMultipleChoiceField, SortedMultipleChoiceField
 
 from .models import Book, MessyStore, Shelf
 
 
 class SortedForm(forms.Form):
-    values = SortedMultipleChoiceField(
+    values = SortedCheckboxMultipleChoiceField(
         queryset=Book.objects.all(),
         required=False)
 
