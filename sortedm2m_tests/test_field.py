@@ -2,7 +2,7 @@ from unittest.case import skipIf
 
 import django
 from django.core.exceptions import FieldDoesNotExist
-from django.db import connection
+from django.db import connection, models
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.encoding import force_str
@@ -74,6 +74,32 @@ class TestSortedManyToManyField(TestCase):
             self.books[3],
             self.books[1],
             self.books[2]])
+
+    def test_adding_items_with_explicit_database_and_raw(self):
+        shelf = self.model.objects.create()
+        manager = shelf.books
+        changes = []
+
+        class UnexpectedWriteRouter:
+            def db_for_write(self, model, **hints):
+                raise AssertionError('The supplied database should be used')
+
+        def record_change(sender, **kwargs):
+            changes.append((kwargs['action'], kwargs['using'], kwargs['raw']))
+
+        models.signals.m2m_changed.connect(record_change, sender=manager.through)
+        self.addCleanup(models.signals.m2m_changed.disconnect, record_change, sender=manager.through)
+
+        with self.settings(DATABASE_ROUTERS=[UnexpectedWriteRouter()]):
+            manager._add_items(  # pylint: disable=protected-access
+                manager.source_field_name,
+                manager.target_field_name,
+                self.books[2], self.books[0],
+                using='default', raw=True,
+            )
+
+        self.assertEqual(list(shelf.books.all()), [self.books[2], self.books[0]])
+        self.assertEqual(changes, [('pre_add', 'default', True), ('post_add', 'default', True)])
 
     def test_set_items(self):
         shelf = self.model.objects.create()
