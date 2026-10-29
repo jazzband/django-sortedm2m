@@ -103,7 +103,6 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
         data_list = [force_str(value) for value in data]
         return data_list != initial_list
 
+
 class SortedCheckboxMultipleChoiceField(SortedMultipleChoiceField):
     widget = SortedCheckboxSelectMultiple
-
-    
