@@ -16,8 +16,13 @@ class BaseCarThrough:
         return str(self.car) + " in " + str(self.parkingarea)  # pylint: disable=no-member
 
 
+class Garage(models.Model):
+    name = models.CharField(max_length=30)
+
+
 class ParkingArea(models.Model):
     name = models.CharField(max_length=50)
+    garage = models.ForeignKey(Garage, on_delete=models.CASCADE, null=True, blank=True, default=None)
     cars = SortedManyToManyField(Car, base_class=BaseCarThrough)
 
     def __str__(self):
