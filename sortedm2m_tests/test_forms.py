@@ -2,13 +2,13 @@ from django import forms
 from django.test import TestCase
 from django.utils.encoding import force_str
 
-from sortedm2m.forms import SortedMultipleChoiceField
+from sortedm2m.forms import SortedCheckboxMultipleChoiceField, SortedMultipleChoiceField
 
 from .models import Book, MessyStore, Shelf
 
 
 class SortedForm(forms.Form):
-    values = SortedMultipleChoiceField(
+    values = SortedCheckboxMultipleChoiceField(
         queryset=Book.objects.all(),
         required=False)
 
@@ -78,6 +78,32 @@ class TestSortedFormField(TestCase):  # pylint: disable=too-many-instance-attrib
         form = MessyStoreForm()
         self.assertFalse(isinstance(form.fields['books'], SortedMultipleChoiceField))
         self.assertTrue(isinstance(form.fields['books'], forms.ModelMultipleChoiceField))
+
+    def test_model_form_preserves_checkbox_order(self):
+        class ShelfForm(forms.ModelForm):
+            class Meta:
+                model = Shelf
+                fields = ('books',)
+
+        form = ShelfForm({'books': '{b.pk},{a.pk}'.format(a=self.a, b=self.b)})
+        self.assertTrue(form.is_valid(), form.errors)
+        shelf = form.save()
+        self.assertEqual(list(shelf.books.all()), [self.b, self.a])
+        self.assertIn('type="checkbox"', force_str(form['books']))
+
+    def test_model_form_accepts_explicit_widget(self):
+        class ShelfForm(forms.ModelForm):
+            class Meta:
+                model = Shelf
+                fields = ('books',)
+                widgets = {'books': forms.SelectMultiple}
+
+        form = ShelfForm({'books': [str(self.b.pk), str(self.a.pk)]})
+        self.assertTrue(form.is_valid(), form.errors)
+        shelf = form.save()
+        self.assertEqual(list(shelf.books.all()), [self.b, self.a])
+        self.assertIn('<select', force_str(form['books']))
+        self.assertNotIn('type="checkbox"', force_str(form['books']))
 
     # regression test
     def test_form_field_with_only_one_value(self):

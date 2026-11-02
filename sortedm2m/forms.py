@@ -84,6 +84,8 @@ class SortedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
 
 class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
+    widget = SortedCheckboxSelectMultiple
+
     def clean(self, value):
         queryset = super().clean(value)
         if value is None or not hasattr(queryset, '__iter__'):
@@ -103,7 +105,6 @@ class SortedMultipleChoiceField(forms.ModelMultipleChoiceField):
         data_list = [force_str(value) for value in data]
         return data_list != initial_list
 
+
 class SortedCheckboxMultipleChoiceField(SortedMultipleChoiceField):
     widget = SortedCheckboxSelectMultiple
-
-
