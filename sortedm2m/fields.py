@@ -22,6 +22,13 @@ def create_sorted_many_related_manager(superclass, rel, *args, **kwargs):
         superclass, rel, *args, **kwargs)
 
     class SortedRelatedManager(RelatedManager):
+        def __call__(self, *, manager):
+            manager = getattr(self.model, manager)
+            manager_class = create_sorted_many_related_manager(
+                manager.__class__, rel, *args, **kwargs
+            )
+            return manager_class(instance=self.instance)
+
         def _apply_rel_ordering(self, queryset):
             return queryset.extra(order_by=['%s.%s' % (
                 self.through._meta.db_table,
