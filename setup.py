@@ -32,7 +32,7 @@ long_description = '\n\n'.join((
 setup(
     name='django-sortedm2m',
     version=get_version('sortedm2m'),
-    url='https://github.com/jazzband/django-sortedm2m',
+    url='https://github.com/django-commons/django-sortedm2m',
     license='BSD',
     description="Drop-in replacement for Django's many to many field with sorted relations.",
     long_description=long_description,
